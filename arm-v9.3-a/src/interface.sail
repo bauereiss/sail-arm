@@ -290,10 +290,3 @@ instantiation sail_return_exception
 
 instantiation sail_take_exception with
   'fault = option(FaultRecord)
-
-val __mark_register = "mark_register" : forall ('a: Type). (register('a), string) -> unit
-val __mark_register_pair = "mark_register_pair" : forall ('a: Type) ('b: Type). (register('a), register('b), string) -> unit
-
-val __ignore_write_to : forall ('a: Type). register('a) -> unit
-
-function __ignore_write_to(reg) = __mark_register(reg, "ignore_write")

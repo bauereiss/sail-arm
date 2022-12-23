@@ -14,7 +14,9 @@ endif
 
 ISLA_SAIL=isla-sail
 
-SAIL_SRCS=src/prelude.sail src/interface.sail src/decode_start.sail src/builtins.sail src/v8_base.sail src/config.sail src/sysops.sail src/instrs64.sail src/instrs32.sail src/fetch.sail src/impdefs.sail src/interrupts.sail src/mem.sail src/step.sail src/map_clauses.sail src/event_clauses.sail src/stubs.sail
+DEVICES=devices.sail
+DEVICES_PATH=src/$(DEVICES)
+SAIL_SRCS=src/prelude.sail src/interface.sail src/decode_start.sail src/builtins.sail src/v8_base.sail src/config.sail src/sysops.sail $(DEVICES_PATH) src/instrs64.sail src/instrs32.sail src/fetch.sail src/impdefs.sail src/interrupts.sail src/mem.sail src/step.sail src/map_clauses.sail src/event_clauses.sail src/stubs.sail
 SAIL_MAIN=src/elfmain.sail
 ISLA_MAIN=src/isla_main.sail
 LEM_SPLICES=$(wildcard src/lem-patches/*.sail)
@@ -32,7 +34,7 @@ lem lem.stamp: $(SAIL_SRCS) $(LEM_SPLICES) lem/prelude.lem
 	        -lem_mwords -mono_rewrites -auto_mono -undefined_gen \
 	        $(foreach splice,$(LEM_SPLICES),-splice $(splice)) \
 	        $(SAIL_SRCS) $(SAIL_FLAGS)
-	sed -i '/open import Sail2_prompt_monad/a open import Prelude' lem/armv9_types.lem
+	sed -i '/open import Sail2_monadic_combinators/a open import Prelude' lem/armv9_types.lem
 	sed -i -f src/lem-patches/ldr1ron_ty0_fixup.sed lem/armv9.lem
 	touch lem.stamp
 

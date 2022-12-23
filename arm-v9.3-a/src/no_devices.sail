@@ -41,3 +41,9 @@
 val Init_Devices : unit -> unit
 
 function Init_Devices() = ()
+
+val __HandlePendingInterrupt : unit -> unit
+
+function __HandlePendingInterrupt() = ()
+
+function SetInterruptRequestLevel(intid, level) = ()

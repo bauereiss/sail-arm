@@ -17,71 +17,71 @@ begin
 \<comment> \<open>\<open>open import Sail2_concurrency_interface\<close>\<close>
 \<comment> \<open>\<open>open import {isabelle} `Sail2_concurrency_interface_lemmas`\<close>\<close>
 
-\<comment> \<open>\<open>val >>= : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'b 'e.
-  monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e
-  -> ('a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'b 'e)
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'b 'e\<close>\<close>
+\<comment> \<open>\<open>val >>= : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'b 'e.
+  monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e
+  -> ('a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'b 'e)
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'b 'e\<close>\<close>
 
 \<comment> \<open>\<open>val >>$= : forall 'e 'a 'b. either 'e 'a -> ('a -> either 'e 'b) -> either 'e 'b\<close>\<close>
 
-\<comment> \<open>\<open>val >> : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'b 'e.
-  monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv unit 'e
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'b 'e
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'b 'e\<close>\<close>
+\<comment> \<open>\<open>val >> : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'b 'e.
+  monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv unit 'e
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'b 'e
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'b 'e\<close>\<close>
 
 \<comment> \<open>\<open>val >>$ : forall 'e 'a. either 'e unit -> either 'e 'a -> either 'e 'a\<close>\<close>
 
-\<comment> \<open>\<open>val iter_aux : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e.
+\<comment> \<open>\<open>val iter_aux : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e.
   integer
-  -> (integer -> 'a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv unit 'e)
+  -> (integer -> 'a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv unit 'e)
   -> list 'a
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv unit 'e\<close>\<close>
-fun  iter_aux  :: \<open> int \<Rightarrow>(int \<Rightarrow> 'a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(unit),'e)monad)\<Rightarrow> 'a list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(unit),'e)monad \<close>  where 
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv unit 'e\<close>\<close>
+fun  iter_aux  :: \<open> int \<Rightarrow>(int \<Rightarrow> 'a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(unit),'e)monad)\<Rightarrow> 'a list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(unit),'e)monad \<close>  where 
      \<open> iter_aux i f (x # xs) = ( f i x \<then> iter_aux (i +( 1 :: int)) f xs )\<close> 
   for  "i"  :: " int " 
-  and  "f"  :: " int \<Rightarrow> 'a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(unit),'e)monad " 
+  and  "f"  :: " int \<Rightarrow> 'a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(unit),'e)monad " 
   and  "xs"  :: " 'a list " 
   and  "x"  :: " 'a "
 |\<open> iter_aux i f ([]) = ( return ()  )\<close> 
   for  "i"  :: " int " 
-  and  "f"  :: " int \<Rightarrow> 'a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(unit),'e)monad "
+  and  "f"  :: " int \<Rightarrow> 'a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(unit),'e)monad "
 
 
-\<comment> \<open>\<open>val iteri : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e.
-  (integer -> 'a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv unit 'e)
-  -> list 'a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv unit 'e\<close>\<close>
-definition iteri  :: \<open>(int \<Rightarrow> 'a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(unit),'e)monad)\<Rightarrow> 'a list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(unit),'e)monad \<close>  where 
+\<comment> \<open>\<open>val iteri : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e.
+  (integer -> 'a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv unit 'e)
+  -> list 'a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv unit 'e\<close>\<close>
+definition iteri  :: \<open>(int \<Rightarrow> 'a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(unit),'e)monad)\<Rightarrow> 'a list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(unit),'e)monad \<close>  where 
      \<open> iteri f xs = ( iter_aux(( 0 :: int)) f xs )\<close> 
-  for  "f"  :: " int \<Rightarrow> 'a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(unit),'e)monad " 
+  for  "f"  :: " int \<Rightarrow> 'a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(unit),'e)monad " 
   and  "xs"  :: " 'a list "
 
 
-\<comment> \<open>\<open>val iter : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e.
-  ('a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv unit 'e)
+\<comment> \<open>\<open>val iter : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e.
+  ('a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv unit 'e)
   -> list 'a
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv unit 'e\<close>\<close>
-definition iter  :: \<open>('a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(unit),'e)monad)\<Rightarrow> 'a list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(unit),'e)monad \<close>  where 
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv unit 'e\<close>\<close>
+definition iter  :: \<open>('a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(unit),'e)monad)\<Rightarrow> 'a list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(unit),'e)monad \<close>  where 
      \<open> iter f xs = ( iteri ( (\<lambda>x .  
   (case  x of _ => (\<lambda> x .  f x) ))) xs )\<close> 
-  for  "f"  :: " 'a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(unit),'e)monad " 
+  for  "f"  :: " 'a \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(unit),'e)monad " 
   and  "xs"  :: " 'a list "
 
 
-\<comment> \<open>\<open>val foreachM : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'a 'rv 'vars 'e.
+\<comment> \<open>\<open>val foreachM : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'a 'rv 'vars 'e.
   list 'a -> 'vars
-  -> ('a -> 'vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'vars 'e)
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'vars 'e\<close>\<close>
-fun  foreachM  :: \<open> 'a list \<Rightarrow> 'vars \<Rightarrow>('a \<Rightarrow> 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'vars,'e)monad)\<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'vars,'e)monad \<close>  where 
+  -> ('a -> 'vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e)
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e\<close>\<close>
+fun  foreachM  :: \<open> 'a list \<Rightarrow> 'vars \<Rightarrow>('a \<Rightarrow> 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad)\<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad \<close>  where 
      \<open> foreachM ([]) vars body = ( return vars )\<close> 
   for  "vars"  :: " 'vars " 
-  and  "body"  :: " 'a \<Rightarrow> 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'vars,'e)monad "
+  and  "body"  :: " 'a \<Rightarrow> 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad "
 |\<open> foreachM (x # xs) vars body = (
   body x vars \<bind> ((\<lambda> vars . 
   foreachM xs vars body)))\<close> 
   for  "xs"  :: " 'a list " 
   and  "x"  :: " 'a " 
   and  "vars"  :: " 'vars " 
-  and  "body"  :: " 'a \<Rightarrow> 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'vars,'e)monad "
+  and  "body"  :: " 'a \<Rightarrow> 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad "
 
 
 \<comment> \<open>\<open>val foreachE : forall 'a 'vars 'e.
@@ -100,41 +100,41 @@ function (sequential,domintros)  foreachE  :: \<open> 'a list \<Rightarrow> 'var
 by pat_completeness auto
 
 
-\<comment> \<open>\<open>val genlistM : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'a 'rv 'e.
-  (nat -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e)
+\<comment> \<open>\<open>val genlistM : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'a 'rv 'e.
+  (nat -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e)
   -> nat
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv (list 'a) 'e\<close>\<close>
-definition genlistM  :: \<open>(nat \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'a,'e)monad)\<Rightarrow> nat \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,('a list),'e)monad \<close>  where 
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv (list 'a) 'e\<close>\<close>
+definition genlistM  :: \<open>(nat \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'a,'e)monad)\<Rightarrow> nat \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,('a list),'e)monad \<close>  where 
      \<open> genlistM f n = (
   (let indices = (genlist ((\<lambda> n .  n)) n) in
   foreachM indices [] ((\<lambda> n xs .  (f n \<bind> ((\<lambda> x .  return (xs @ [x]))))))))\<close> 
-  for  "f"  :: " nat \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'a,'e)monad " 
+  for  "f"  :: " nat \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'a,'e)monad " 
   and  "n"  :: " nat "
 
 
-\<comment> \<open>\<open>val and_boolM : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'e.
-  monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv bool 'e
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv bool 'e
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv bool 'e\<close>\<close>
-definition and_boolM  :: \<open>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad \<close>  where 
+\<comment> \<open>\<open>val and_boolM : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'e.
+  monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv bool 'e
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv bool 'e
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv bool 'e\<close>\<close>
+definition and_boolM  :: \<open>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad \<close>  where 
      \<open> and_boolM l r = ( l \<bind> ((\<lambda> l .  if l then r else return False)))\<close> 
-  for  "l"  :: "('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad " 
-  and  "r"  :: "('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad "
+  for  "l"  :: "('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad " 
+  and  "r"  :: "('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad "
 
 
-\<comment> \<open>\<open>val or_boolM : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'e.
-  monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv bool 'e
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv bool 'e
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv bool 'e\<close>\<close>
-definition or_boolM  :: \<open>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad \<close>  where 
+\<comment> \<open>\<open>val or_boolM : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'e.
+  monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv bool 'e
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv bool 'e
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv bool 'e\<close>\<close>
+definition or_boolM  :: \<open>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad \<close>  where 
      \<open> or_boolM l r = ( l \<bind> ((\<lambda> l .  if l then return True else r)))\<close> 
-  for  "l"  :: "('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad " 
-  and  "r"  :: "('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad "
+  for  "l"  :: "('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad " 
+  and  "r"  :: "('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad "
 
 
-\<comment> \<open>\<open>val bool_of_bitU_fail : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'e.
-  bitU -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv bool 'e\<close>\<close>
-definition bool_of_bitU_fail  :: \<open> bitU \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad \<close>  where 
+\<comment> \<open>\<open>val bool_of_bitU_fail : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'e.
+  bitU -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv bool 'e\<close>\<close>
+definition bool_of_bitU_fail  :: \<open> bitU \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad \<close>  where 
      \<open> bool_of_bitU_fail = ( (\<lambda>x .  
   (case  x of
         B0 => return False
@@ -143,9 +143,9 @@ definition bool_of_bitU_fail  :: \<open> bitU \<Rightarrow>('abort,'barrier,'cac
   )))\<close>
 
 
-\<comment> \<open>\<open>val bool_of_bitU_nondet : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'e. Register_Value 'rv =>
-  bitU -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv bool 'e\<close>\<close>
-definition bool_of_bitU_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow> bitU \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad \<close>  where 
+\<comment> \<open>\<open>val bool_of_bitU_nondet : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'e. Register_Value 'rv =>
+  bitU -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv bool 'e\<close>\<close>
+definition bool_of_bitU_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow> bitU \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad \<close>  where 
      \<open> bool_of_bitU_nondet dict_Sail2_values_Register_Value_rv = ( (\<lambda>x .  
   (case  x of
         B0 => return False
@@ -156,9 +156,9 @@ definition bool_of_bitU_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow
   for  "dict_Sail2_values_Register_Value_rv"  :: " 'rv Register_Value_class "
 
 
-\<comment> \<open>\<open>val bools_of_bits_nondet : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'e. Register_Value 'rv =>
-  list bitU -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv (list bool) 'e\<close>\<close>
-definition bools_of_bits_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow>(bitU)list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,((bool)list),'e)monad \<close>  where 
+\<comment> \<open>\<open>val bools_of_bits_nondet : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'e. Register_Value 'rv =>
+  list bitU -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv (list bool) 'e\<close>\<close>
+definition bools_of_bits_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow>(bitU)list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,((bool)list),'e)monad \<close>  where 
      \<open> bools_of_bits_nondet dict_Sail2_values_Register_Value_rv bits = (
   foreachM bits []
     ((\<lambda> b bools . 
@@ -169,9 +169,9 @@ definition bools_of_bits_nondet  :: \<open> 'rv Register_Value_class \<Rightarro
   and  "bits"  :: "(bitU)list "
 
 
-\<comment> \<open>\<open>val of_bits_nondet : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e. Bitvector 'a, Register_Value 'rv =>
-  list bitU -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e\<close>\<close>
-definition of_bits_nondet  :: \<open> 'a Bitvector_class \<Rightarrow> 'rv Register_Value_class \<Rightarrow>(bitU)list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'a,'e)monad \<close>  where 
+\<comment> \<open>\<open>val of_bits_nondet : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e. Bitvector 'a, Register_Value 'rv =>
+  list bitU -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e\<close>\<close>
+definition of_bits_nondet  :: \<open> 'a Bitvector_class \<Rightarrow> 'rv Register_Value_class \<Rightarrow>(bitU)list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'a,'e)monad \<close>  where 
      \<open> of_bits_nondet dict_Sail2_values_Bitvector_a dict_Sail2_values_Register_Value_rv bits = (
   bools_of_bits_nondet 
   dict_Sail2_values_Register_Value_rv bits \<bind> ((\<lambda> bs . 
@@ -181,18 +181,18 @@ definition of_bits_nondet  :: \<open> 'a Bitvector_class \<Rightarrow> 'rv Regis
   and  "bits"  :: "(bitU)list "
 
 
-\<comment> \<open>\<open>val of_bits_fail : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e. Bitvector 'a =>
-  list bitU -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e\<close>\<close>
-definition of_bits_fail  :: \<open> 'a Bitvector_class \<Rightarrow>(bitU)list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'a,'e)monad \<close>  where 
+\<comment> \<open>\<open>val of_bits_fail : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e. Bitvector 'a =>
+  list bitU -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e\<close>\<close>
+definition of_bits_fail  :: \<open> 'a Bitvector_class \<Rightarrow>(bitU)list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'a,'e)monad \<close>  where 
      \<open> of_bits_fail dict_Sail2_values_Bitvector_a bits = ( maybe_fail (''of_bits'') (
   (of_bits_method   dict_Sail2_values_Bitvector_a) bits))\<close> 
   for  "dict_Sail2_values_Bitvector_a"  :: " 'a Bitvector_class " 
   and  "bits"  :: "(bitU)list "
 
 
-\<comment> \<open>\<open>val mword_nondet : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e. Size 'a, Register_Value 'rv =>
-  unit -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv (mword 'a) 'e\<close>\<close>
-definition mword_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow> unit \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(('a::len)Word.word),'e)monad \<close>  where 
+\<comment> \<open>\<open>val mword_nondet : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e. Size 'a, Register_Value 'rv =>
+  unit -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv (mword 'a) 'e\<close>\<close>
+definition mword_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow> unit \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(('a::len)Word.word),'e)monad \<close>  where 
      \<open> mword_nondet dict_Sail2_values_Register_Value_rv _ = (
   bools_of_bits_nondet 
   dict_Sail2_values_Register_Value_rv (repeat [BU] (int (len_of (TYPE(_) :: 'a itself)))) \<bind> ((\<lambda> bs . 
@@ -200,42 +200,77 @@ definition mword_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow> unit 
   for  "dict_Sail2_values_Register_Value_rv"  :: " 'rv Register_Value_class "
 
 
-\<comment> \<open>\<open>val whileM : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'vars 'e.
+\<comment> \<open>\<open>val whileM : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e.
   'vars
-  -> ('vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv bool 'e)
-  -> ('vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'vars 'e)
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'vars 'e\<close>\<close>
-function (sequential,domintros)  whileM  :: \<open> 'vars \<Rightarrow>('vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad)\<Rightarrow>('vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'vars,'e)monad)\<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'vars,'e)monad \<close>  where 
+  -> ('vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv bool 'e)
+  -> ('vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e)
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e\<close>\<close>
+function (sequential,domintros)  whileM  :: \<open> 'vars \<Rightarrow>('vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad)\<Rightarrow>('vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad)\<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad \<close>  where 
      \<open> whileM vars cond body = (
   cond vars \<bind> ((\<lambda> cond_val . 
   if cond_val then
     body vars \<bind> ((\<lambda> vars .  whileM vars cond body))
   else return vars)))\<close> 
   for  "vars"  :: " 'vars " 
-  and  "cond"  :: " 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad " 
-  and  "body"  :: " 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'vars,'e)monad " 
+  and  "cond"  :: " 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad " 
+  and  "body"  :: " 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad " 
 by pat_completeness auto
 
 
-\<comment> \<open>\<open>val untilM : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'vars 'e.
+\<comment> \<open>\<open>val whileMT : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e.
+  nat
+  -> 'vars
+  -> ('vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv bool 'e)
+  -> ('vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e)
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e\<close>\<close>
+fun  whileMT  :: \<open> nat \<Rightarrow> 'vars \<Rightarrow>('vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad)\<Rightarrow>('vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad)\<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad \<close>  where 
+     \<open> whileMT limit vars cond body = (
+  cond vars \<bind> ((\<lambda> cond_val . 
+  if cond_val \<and> (limit >( 0 :: nat)) then
+    body vars \<bind> ((\<lambda> vars .  whileMT (limit -( 1 :: nat)) vars cond body))
+  else return vars)))\<close> 
+  for  "limit"  :: " nat " 
+  and  "vars"  :: " 'vars " 
+  and  "cond"  :: " 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad " 
+  and  "body"  :: " 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad "
+
+
+\<comment> \<open>\<open>val untilM : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e.
   'vars
-  -> ('vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv bool 'e)
-  -> ('vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'vars 'e)
-  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'vars 'e\<close>\<close>
-function (sequential,domintros)  untilM  :: \<open> 'vars \<Rightarrow>('vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad)\<Rightarrow>('vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'vars,'e)monad)\<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'vars,'e)monad \<close>  where 
+  -> ('vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv bool 'e)
+  -> ('vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e)
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e\<close>\<close>
+function (sequential,domintros)  untilM  :: \<open> 'vars \<Rightarrow>('vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad)\<Rightarrow>('vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad)\<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad \<close>  where 
      \<open> untilM vars cond body = (
   body vars \<bind> ((\<lambda> vars . 
   cond vars \<bind> ((\<lambda> cond_val . 
   if cond_val then return vars else untilM vars cond body)))))\<close> 
   for  "vars"  :: " 'vars " 
-  and  "cond"  :: " 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(bool),'e)monad " 
-  and  "body"  :: " 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'vars,'e)monad " 
+  and  "cond"  :: " 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad " 
+  and  "body"  :: " 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad " 
 by pat_completeness auto
 
 
-\<comment> \<open>\<open>val choose_bools : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'e. Register_Value 'rv =>
-  string -> nat -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv (list bool) 'e\<close>\<close>
-definition choose_bools  :: \<open> 'rv Register_Value_class \<Rightarrow> string \<Rightarrow> nat \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,((bool)list),'e)monad \<close>  where 
+\<comment> \<open>\<open>val untilMT : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e.
+  nat
+  -> 'vars
+  -> ('vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv bool 'e)
+  -> ('vars -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e)
+  -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'vars 'e\<close>\<close>
+fun  untilMT  :: \<open> nat \<Rightarrow> 'vars \<Rightarrow>('vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad)\<Rightarrow>('vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad)\<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad \<close>  where 
+     \<open> untilMT limit vars cond body = (
+  body vars \<bind> ((\<lambda> vars . 
+  cond vars \<bind> ((\<lambda> cond_val . 
+  if cond_val \<or> (limit =( 0 :: nat)) then return vars else untilMT (limit -( 1 :: nat)) vars cond body)))))\<close> 
+  for  "limit"  :: " nat " 
+  and  "vars"  :: " 'vars " 
+  and  "cond"  :: " 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(bool),'e)monad " 
+  and  "body"  :: " 'vars \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'vars,'e)monad "
+
+
+\<comment> \<open>\<open>val choose_bools : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'e. Register_Value 'rv =>
+  string -> nat -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv (list bool) 'e\<close>\<close>
+definition choose_bools  :: \<open> 'rv Register_Value_class \<Rightarrow> string \<Rightarrow> nat \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,((bool)list),'e)monad \<close>  where 
      \<open> choose_bools dict_Sail2_values_Register_Value_rv descr n = ( genlistM ( (\<lambda>x .  
   (case  x of _ => choose_bool dict_Sail2_values_Register_Value_rv descr ))) n )\<close> 
   for  "dict_Sail2_values_Register_Value_rv"  :: " 'rv Register_Value_class " 
@@ -243,9 +278,9 @@ definition choose_bools  :: \<open> 'rv Register_Value_class \<Rightarrow> strin
   and  "n"  :: " nat "
 
 
-\<comment> \<open>\<open>val choose_bitvector : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e. Bitvector 'a, Register_Value 'rv =>
-  string -> nat -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e\<close>\<close>
-definition choose_bitvector  :: \<open> 'a Bitvector_class \<Rightarrow> 'rv Register_Value_class \<Rightarrow> string \<Rightarrow> nat \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'a,'e)monad \<close>  where 
+\<comment> \<open>\<open>val choose_bitvector : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e. Bitvector 'a, Register_Value 'rv =>
+  string -> nat -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e\<close>\<close>
+definition choose_bitvector  :: \<open> 'a Bitvector_class \<Rightarrow> 'rv Register_Value_class \<Rightarrow> string \<Rightarrow> nat \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'a,'e)monad \<close>  where 
      \<open> choose_bitvector dict_Sail2_values_Bitvector_a dict_Sail2_values_Register_Value_rv descr n = ( choose_bools 
   dict_Sail2_values_Register_Value_rv descr n \<bind> ((\<lambda> v .  return (
   (of_bools_method   dict_Sail2_values_Bitvector_a) v))))\<close> 
@@ -255,9 +290,9 @@ definition choose_bitvector  :: \<open> 'a Bitvector_class \<Rightarrow> 'rv Reg
   and  "n"  :: " nat "
 
 
-\<comment> \<open>\<open>val choose_from_list : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e. Register_Value 'rv =>
-  string -> list 'a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e\<close>\<close>
-definition choose_from_list  :: \<open> 'rv Register_Value_class \<Rightarrow> string \<Rightarrow> 'a list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'a,'e)monad \<close>  where 
+\<comment> \<open>\<open>val choose_from_list : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e. Register_Value 'rv =>
+  string -> list 'a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e\<close>\<close>
+definition choose_from_list  :: \<open> 'rv Register_Value_class \<Rightarrow> string \<Rightarrow> 'a list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'a,'e)monad \<close>  where 
      \<open> choose_from_list dict_Sail2_values_Register_Value_rv descr xs = (
   choose_int dict_Sail2_values_Register_Value_rv ((''choose_from_list '') @ descr) \<bind> ((\<lambda> idx . 
   (case  index xs (nat (abs ( idx)) mod List.length xs) of
@@ -269,9 +304,9 @@ definition choose_from_list  :: \<open> 'rv Register_Value_class \<Rightarrow> s
   and  "xs"  :: " 'a list "
 
 
-\<comment> \<open>\<open>val choose_int_in_range : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'e. Register_Value 'rv =>
-  string -> integer -> integer -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv integer 'e\<close>\<close>
-definition choose_int_in_range  :: \<open> 'rv Register_Value_class \<Rightarrow> string \<Rightarrow> int \<Rightarrow> int \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(int),'e)monad \<close>  where 
+\<comment> \<open>\<open>val choose_int_in_range : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'e. Register_Value 'rv =>
+  string -> integer -> integer -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv integer 'e\<close>\<close>
+definition choose_int_in_range  :: \<open> 'rv Register_Value_class \<Rightarrow> string \<Rightarrow> int \<Rightarrow> int \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(int),'e)monad \<close>  where 
      \<open> choose_int_in_range dict_Sail2_values_Register_Value_rv descr i j = (
   choose_int dict_Sail2_values_Register_Value_rv descr \<bind> ((\<lambda> k . 
   return (max i (min j k)))))\<close> 
@@ -281,18 +316,18 @@ definition choose_int_in_range  :: \<open> 'rv Register_Value_class \<Rightarrow
   and  "j"  :: " int "
 
 
-\<comment> \<open>\<open>val choose_nat : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'e. Register_Value 'rv =>
-  string -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv integer 'e\<close>\<close>
-definition choose_nat  :: \<open> 'rv Register_Value_class \<Rightarrow> string \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,(int),'e)monad \<close>  where 
+\<comment> \<open>\<open>val choose_nat : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'e. Register_Value 'rv =>
+  string -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv integer 'e\<close>\<close>
+definition choose_nat  :: \<open> 'rv Register_Value_class \<Rightarrow> string \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(int),'e)monad \<close>  where 
      \<open> choose_nat dict_Sail2_values_Register_Value_rv descr = ( choose_int 
   dict_Sail2_values_Register_Value_rv descr \<bind> ((\<lambda> i .  return (max(( 0 :: int)) i))))\<close> 
   for  "dict_Sail2_values_Register_Value_rv"  :: " 'rv Register_Value_class " 
   and  "descr"  :: " string "
 
 
-\<comment> \<open>\<open>val internal_pick : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e. Register_Value 'rv =>
-  list 'a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'rv 'a 'e\<close>\<close>
-definition internal_pick  :: \<open> 'rv Register_Value_class \<Rightarrow> 'a list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'rv,'a,'e)monad \<close>  where 
+\<comment> \<open>\<open>val internal_pick : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e. Register_Value 'rv =>
+  list 'a -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'a 'e\<close>\<close>
+definition internal_pick  :: \<open> 'rv Register_Value_class \<Rightarrow> 'a list \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,'a,'e)monad \<close>  where 
      \<open> internal_pick dict_Sail2_values_Register_Value_rv xs = ( choose_from_list 
   dict_Sail2_values_Register_Value_rv (''internal_pick'') xs )\<close> 
   for  "dict_Sail2_values_Register_Value_rv"  :: " 'rv Register_Value_class " 

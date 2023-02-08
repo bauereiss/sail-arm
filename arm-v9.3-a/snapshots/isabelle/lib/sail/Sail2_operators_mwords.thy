@@ -8,8 +8,6 @@ imports
   "LEM.Lem_machine_word"
   "Sail2_values"
   "Sail2_operators"
-  "Sail2_prompt_monad"
-  "Sail2_prompt"
 
 begin 
 
@@ -17,53 +15,28 @@ begin
 \<comment> \<open>\<open>open import Machine_word\<close>\<close>
 \<comment> \<open>\<open>open import Sail2_values\<close>\<close>
 \<comment> \<open>\<open>open import Sail2_operators\<close>\<close>
-\<comment> \<open>\<open>open import Sail2_prompt_monad\<close>\<close>
-\<comment> \<open>\<open>open import Sail2_prompt\<close>\<close>
 definition uint_maybe  :: \<open>('a::len)Word.word \<Rightarrow>(int)option \<close>  where 
      \<open> uint_maybe v = ( Some (Word.uint v))\<close> 
-  for  "v"  :: "('a::len)Word.word "
-
-definition uint_fail  :: \<open>('a::len)Word.word \<Rightarrow>('c,(int),'b)monad \<close>  where 
-     \<open> uint_fail v = ( return (Word.uint v))\<close> 
-  for  "v"  :: "('a::len)Word.word "
-
-definition uint_nondet  :: \<open>('a::len)Word.word \<Rightarrow>('c,(int),'b)monad \<close>  where 
-     \<open> uint_nondet v = ( return (Word.uint v))\<close> 
   for  "v"  :: "('a::len)Word.word "
 
 definition sint_maybe  :: \<open>('a::len)Word.word \<Rightarrow>(int)option \<close>  where 
      \<open> sint_maybe v = ( Some (Word.sint v))\<close> 
   for  "v"  :: "('a::len)Word.word "
 
-definition sint_fail  :: \<open>('a::len)Word.word \<Rightarrow>('c,(int),'b)monad \<close>  where 
-     \<open> sint_fail v = ( return (Word.sint v))\<close> 
-  for  "v"  :: "('a::len)Word.word "
-
-definition sint_nondet  :: \<open>('a::len)Word.word \<Rightarrow>('c,(int),'b)monad \<close>  where 
-     \<open> sint_nondet v = ( return (Word.sint v))\<close> 
-  for  "v"  :: "('a::len)Word.word "
-
+\<comment> \<open>\<open>let sint_fail v = return (sint v)
+let sint_nondet v = return (sint v)\<close>\<close>
 
 \<comment> \<open>\<open>val vec_of_bits_maybe    : forall 'a. Size 'a => list bitU -> maybe (mword 'a)\<close>\<close>
-\<comment> \<open>\<open>val vec_of_bits_fail     : forall 'rv 'a 'e. Size 'a => list bitU -> monad 'rv (mword 'a) 'e\<close>\<close>
-\<comment> \<open>\<open>val vec_of_bits_nondet   : forall 'rv 'a 'e. Size 'a, Register_Value 'rv => list bitU -> monad 'rv (mword 'a) 'e\<close>\<close>
+\<comment> \<open>\<open>val vec_of_bits_fail     : forall 'rv 'a 'e. Size 'a => list bitU -> monad 'rv (mword 'a) 'e
+val vec_of_bits_nondet   : forall 'rv 'a 'e. Size 'a, Register_Value 'rv => list bitU -> monad 'rv (mword 'a) 'e\<close>\<close>
 \<comment> \<open>\<open>val vec_of_bits_failwith : forall 'a. Size 'a => list bitU -> mword 'a\<close>\<close>
 \<comment> \<open>\<open>val vec_of_bits          : forall 'a. Size 'a => list bitU -> mword 'a\<close>\<close>
 definition vec_of_bits_maybe  :: \<open>(bitU)list \<Rightarrow>(('a::len)Word.word)option \<close>  where 
      \<open> vec_of_bits_maybe bits = ( map_option of_bl (just_list (List.map bool_of_bitU bits)))\<close> 
   for  "bits"  :: "(bitU)list "
 
-definition vec_of_bits_fail  :: \<open>(bitU)list \<Rightarrow>('rv,(('a::len)Word.word),'e)monad \<close>  where 
-     \<open> vec_of_bits_fail bits = ( of_bits_fail 
-  instance_Sail2_values_Bitvector_Machine_word_mword_dict bits )\<close> 
-  for  "bits"  :: "(bitU)list "
-
-definition vec_of_bits_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow>(bitU)list \<Rightarrow>('rv,(('a::len)Word.word),'e)monad \<close>  where 
-     \<open> vec_of_bits_nondet dict_Sail2_values_Register_Value_rv bits = ( of_bits_nondet 
-  instance_Sail2_values_Bitvector_Machine_word_mword_dict dict_Sail2_values_Register_Value_rv bits )\<close> 
-  for  "dict_Sail2_values_Register_Value_rv"  :: " 'rv Register_Value_class " 
-  and  "bits"  :: "(bitU)list "
-
+\<comment> \<open>\<open>let vec_of_bits_fail bits = of_bits_fail bits
+let vec_of_bits_nondet bits = of_bits_nondet bits\<close>\<close>
 definition vec_of_bits_failwith  :: \<open>(bitU)list \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> vec_of_bits_failwith bits = ( of_bits_failwith 
   instance_Sail2_values_Bitvector_Machine_word_mword_dict bits )\<close> 
@@ -93,24 +66,12 @@ definition update_vec_dec_maybe  :: \<open>('a::len)Word.word \<Rightarrow> int 
   and  "i"  :: " int " 
   and  "b"  :: " bitU "
 
-definition update_vec_dec_fail  :: \<open>('a::len)Word.word \<Rightarrow> int \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> update_vec_dec_fail w i b = (
-  bool_of_bitU_fail b \<bind> ((\<lambda> b . 
-  return (update_mword_bool_dec w i b))))\<close> 
-  for  "w"  :: "('a::len)Word.word " 
-  and  "i"  :: " int " 
-  and  "b"  :: " bitU "
-
-definition update_vec_dec_nondet  :: \<open> 'c Register_Value_class \<Rightarrow>('a::len)Word.word \<Rightarrow> int \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> update_vec_dec_nondet dict_Sail2_values_Register_Value_c w i b = (
-  bool_of_bitU_nondet 
-  dict_Sail2_values_Register_Value_c b \<bind> ((\<lambda> b . 
-  return (update_mword_bool_dec w i b))))\<close> 
-  for  "dict_Sail2_values_Register_Value_c"  :: " 'c Register_Value_class " 
-  and  "w"  :: "('a::len)Word.word " 
-  and  "i"  :: " int " 
-  and  "b"  :: " bitU "
-
+\<comment> \<open>\<open>let update_vec_dec_fail w i b =
+  bool_of_bitU_fail b >>= (fun b ->
+  return (update_mword_bool_dec w i b))
+let update_vec_dec_nondet w i b =
+  bool_of_bitU_nondet b >>= (fun b ->
+  return (update_mword_bool_dec w i b))\<close>\<close>
 definition update_vec_dec  :: \<open>('a::len)Word.word \<Rightarrow> int \<Rightarrow> bitU \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> update_vec_dec w i b = ( maybe_failwith (update_vec_dec_maybe w i b))\<close> 
   for  "w"  :: "('a::len)Word.word " 
@@ -124,24 +85,12 @@ definition update_vec_inc_maybe  :: \<open>('a::len)Word.word \<Rightarrow> int 
   and  "i"  :: " int " 
   and  "b"  :: " bitU "
 
-definition update_vec_inc_fail  :: \<open>('a::len)Word.word \<Rightarrow> int \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> update_vec_inc_fail w i b = (
-  bool_of_bitU_fail b \<bind> ((\<lambda> b . 
-  return (update_mword_bool_inc w i b))))\<close> 
-  for  "w"  :: "('a::len)Word.word " 
-  and  "i"  :: " int " 
-  and  "b"  :: " bitU "
-
-definition update_vec_inc_nondet  :: \<open> 'c Register_Value_class \<Rightarrow>('a::len)Word.word \<Rightarrow> int \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> update_vec_inc_nondet dict_Sail2_values_Register_Value_c w i b = (
-  bool_of_bitU_nondet 
-  dict_Sail2_values_Register_Value_c b \<bind> ((\<lambda> b . 
-  return (update_mword_bool_inc w i b))))\<close> 
-  for  "dict_Sail2_values_Register_Value_c"  :: " 'c Register_Value_class " 
-  and  "w"  :: "('a::len)Word.word " 
-  and  "i"  :: " int " 
-  and  "b"  :: " bitU "
-
+\<comment> \<open>\<open>let update_vec_inc_fail w i b =
+  bool_of_bitU_fail b >>= (fun b ->
+  return (update_mword_bool_inc w i b))
+let update_vec_inc_nondet w i b =
+  bool_of_bitU_nondet b >>= (fun b ->
+  return (update_mword_bool_inc w i b))\<close>\<close>
 definition update_vec_inc  :: \<open>('a::len)Word.word \<Rightarrow> int \<Rightarrow> bitU \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> update_vec_inc w i b = ( maybe_failwith (update_vec_inc_maybe w i b))\<close> 
   for  "w"  :: "('a::len)Word.word " 
@@ -245,18 +194,8 @@ definition cons_vec_maybe  :: \<open> bitU \<Rightarrow>('c::len)Word.word \<Rig
   for  "b"  :: " bitU " 
   and  "w"  :: "('c::len)Word.word "
 
-definition cons_vec_fail  :: \<open> bitU \<Rightarrow>('c::len)Word.word \<Rightarrow>('e,(('b::len)Word.word),'d)monad \<close>  where 
-     \<open> cons_vec_fail b w = ( bool_of_bitU_fail b \<bind> ((\<lambda> b .  return (cons_vec_bool b w))))\<close> 
-  for  "b"  :: " bitU " 
-  and  "w"  :: "('c::len)Word.word "
-
-definition cons_vec_nondet  :: \<open> 'e Register_Value_class \<Rightarrow> bitU \<Rightarrow>('c::len)Word.word \<Rightarrow>('e,(('b::len)Word.word),'d)monad \<close>  where 
-     \<open> cons_vec_nondet dict_Sail2_values_Register_Value_e b w = ( bool_of_bitU_nondet 
-  dict_Sail2_values_Register_Value_e b \<bind> ((\<lambda> b .  return (cons_vec_bool b w))))\<close> 
-  for  "dict_Sail2_values_Register_Value_e"  :: " 'e Register_Value_class " 
-  and  "b"  :: " bitU " 
-  and  "w"  :: "('c::len)Word.word "
-
+\<comment> \<open>\<open>let cons_vec_fail b w = bool_of_bitU_fail b >>= (fun b -> return (cons_vec_bool b w))
+let cons_vec_nondet b w = bool_of_bitU_nondet b >>= (fun b -> return (cons_vec_bool b w))\<close>\<close>
 definition cons_vec  :: \<open> bitU \<Rightarrow>('a::len)Word.word \<Rightarrow>('b::len)Word.word \<close>  where 
      \<open> cons_vec b w = ( maybe_failwith (cons_vec_maybe b w))\<close> 
   for  "b"  :: " bitU " 
@@ -273,18 +212,8 @@ definition vec_of_bit_maybe  :: \<open> int \<Rightarrow> bitU \<Rightarrow>(('a
   for  "len"  :: " int " 
   and  "b"  :: " bitU "
 
-definition vec_of_bit_fail  :: \<open> int \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> vec_of_bit_fail len b = ( bool_of_bitU_fail b \<bind> ((\<lambda> b .  return (vec_of_bool len b))))\<close> 
-  for  "len"  :: " int " 
-  and  "b"  :: " bitU "
-
-definition vec_of_bit_nondet  :: \<open> 'c Register_Value_class \<Rightarrow> int \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> vec_of_bit_nondet dict_Sail2_values_Register_Value_c len b = ( bool_of_bitU_nondet 
-  dict_Sail2_values_Register_Value_c b \<bind> ((\<lambda> b .  return (vec_of_bool len b))))\<close> 
-  for  "dict_Sail2_values_Register_Value_c"  :: " 'c Register_Value_class " 
-  and  "len"  :: " int " 
-  and  "b"  :: " bitU "
-
+\<comment> \<open>\<open>let vec_of_bit_fail len b = bool_of_bitU_fail b >>= (fun b -> return (vec_of_bool len b))
+let vec_of_bit_nondet len b = bool_of_bitU_nondet b >>= (fun b -> return (vec_of_bool len b))\<close>\<close>
 definition vec_of_bit  :: \<open> int \<Rightarrow> bitU \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> vec_of_bit len b = ( maybe_failwith (vec_of_bit_maybe len b))\<close> 
   for  "len"  :: " int " 
@@ -300,16 +229,8 @@ definition cast_unit_vec_maybe  :: \<open> bitU \<Rightarrow>(('a::len)Word.word
      \<open> cast_unit_vec_maybe b = ( vec_of_bit_maybe(( 1 :: int)) b )\<close> 
   for  "b"  :: " bitU "
 
-definition cast_unit_vec_fail  :: \<open> bitU \<Rightarrow>('b,((1)Word.word),'a)monad \<close>  where 
-     \<open> cast_unit_vec_fail b = ( bool_of_bitU_fail b \<bind> ((\<lambda> b .  return (cast_bool_vec b))))\<close> 
-  for  "b"  :: " bitU "
-
-definition cast_unit_vec_nondet  :: \<open> 'b Register_Value_class \<Rightarrow> bitU \<Rightarrow>('b,((1)Word.word),'a)monad \<close>  where 
-     \<open> cast_unit_vec_nondet dict_Sail2_values_Register_Value_b b = ( bool_of_bitU_nondet 
-  dict_Sail2_values_Register_Value_b b \<bind> ((\<lambda> b .  return (cast_bool_vec b))))\<close> 
-  for  "dict_Sail2_values_Register_Value_b"  :: " 'b Register_Value_class " 
-  and  "b"  :: " bitU "
-
+\<comment> \<open>\<open>let cast_unit_vec_fail b = bool_of_bitU_fail b >>= (fun b -> return (cast_bool_vec b))
+let cast_unit_vec_nondet b = bool_of_bitU_nondet b >>= (fun b -> return (cast_bool_vec b))\<close>\<close>
 definition cast_unit_vec  :: \<open> bitU \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> cast_unit_vec b = ( maybe_failwith (cast_unit_vec_maybe b))\<close> 
   for  "b"  :: " bitU "
@@ -335,11 +256,7 @@ definition int_of_vec_maybe  :: \<open> bool \<Rightarrow>('a::len)Word.word \<R
   for  "sign"  :: " bool " 
   and  "w"  :: "('a::len)Word.word "
 
-definition int_of_vec_fail  :: \<open> bool \<Rightarrow>('a::len)Word.word \<Rightarrow>('c,(int),'b)monad \<close>  where 
-     \<open> int_of_vec_fail sign w = ( return (int_of_vec sign w))\<close> 
-  for  "sign"  :: " bool " 
-  and  "w"  :: "('a::len)Word.word "
-
+\<comment> \<open>\<open>let int_of_vec_fail sign w = return (int_of_vec sign w)\<close>\<close>
 
 \<comment> \<open>\<open>val string_of_bits : forall 'a. Size 'a => mword 'a -> string\<close>\<close>
 definition string_of_bits  :: \<open>('a::len)Word.word \<Rightarrow> string \<close>  where 
@@ -467,18 +384,8 @@ definition add_vec_bit_maybe  :: \<open>('a::len)Word.word \<Rightarrow> bitU \<
   for  "l"  :: "('a::len)Word.word " 
   and  "r"  :: " bitU "
 
-definition add_vec_bit_fail  :: \<open>('a::len)Word.word \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> add_vec_bit_fail    l r = ( bool_of_bitU_fail r \<bind> ((\<lambda> r .  return (add_vec_bool l r))))\<close> 
-  for  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: " bitU "
-
-definition add_vec_bit_nondet  :: \<open> 'c Register_Value_class \<Rightarrow>('a::len)Word.word \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> add_vec_bit_nondet dict_Sail2_values_Register_Value_c  l r = ( bool_of_bitU_nondet 
-  dict_Sail2_values_Register_Value_c r \<bind> ((\<lambda> r .  return (add_vec_bool l r))))\<close> 
-  for  "dict_Sail2_values_Register_Value_c"  :: " 'c Register_Value_class " 
-  and  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: " bitU "
-
+\<comment> \<open>\<open>let add_vec_bit_fail    l r = bool_of_bitU_fail r >>= (fun r -> return (add_vec_bool l r))
+let add_vec_bit_nondet  l r = bool_of_bitU_nondet r >>= (fun r -> return (add_vec_bool l r))\<close>\<close>
 definition add_vec_bit  :: \<open>('a::len)Word.word \<Rightarrow> bitU \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> add_vec_bit         l r = ( maybe_failwith (add_vec_bit_maybe  l r))\<close> 
   for  "l"  :: "('a::len)Word.word " 
@@ -496,18 +403,8 @@ definition adds_vec_bit_maybe  :: \<open>('a::len)Word.word \<Rightarrow> bitU \
   for  "l"  :: "('a::len)Word.word " 
   and  "r"  :: " bitU "
 
-definition adds_vec_bit_fail  :: \<open>('a::len)Word.word \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> adds_vec_bit_fail   l r = ( bool_of_bitU_fail r \<bind> ((\<lambda> r .  return (adds_vec_bool l r))))\<close> 
-  for  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: " bitU "
-
-definition adds_vec_bit_nondet  :: \<open> 'c Register_Value_class \<Rightarrow>('a::len)Word.word \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> adds_vec_bit_nondet dict_Sail2_values_Register_Value_c l r = ( bool_of_bitU_nondet 
-  dict_Sail2_values_Register_Value_c r \<bind> ((\<lambda> r .  return (adds_vec_bool l r))))\<close> 
-  for  "dict_Sail2_values_Register_Value_c"  :: " 'c Register_Value_class " 
-  and  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: " bitU "
-
+\<comment> \<open>\<open>let adds_vec_bit_fail   l r = bool_of_bitU_fail r >>= (fun r -> return (adds_vec_bool l r))
+let adds_vec_bit_nondet l r = bool_of_bitU_nondet r >>= (fun r -> return (adds_vec_bool l r))\<close>\<close>
 definition adds_vec_bit  :: \<open>('a::len)Word.word \<Rightarrow> bitU \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> adds_vec_bit        l r = ( maybe_failwith (adds_vec_bit_maybe l r))\<close> 
   for  "l"  :: "('a::len)Word.word " 
@@ -525,18 +422,8 @@ definition sub_vec_bit_maybe  :: \<open>('a::len)Word.word \<Rightarrow> bitU \<
   for  "l"  :: "('a::len)Word.word " 
   and  "r"  :: " bitU "
 
-definition sub_vec_bit_fail  :: \<open>('a::len)Word.word \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> sub_vec_bit_fail    l r = ( bool_of_bitU_fail r \<bind> ((\<lambda> r .  return (sub_vec_bool l r))))\<close> 
-  for  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: " bitU "
-
-definition sub_vec_bit_nondet  :: \<open> 'c Register_Value_class \<Rightarrow>('a::len)Word.word \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> sub_vec_bit_nondet dict_Sail2_values_Register_Value_c  l r = ( bool_of_bitU_nondet 
-  dict_Sail2_values_Register_Value_c r \<bind> ((\<lambda> r .  return (sub_vec_bool l r))))\<close> 
-  for  "dict_Sail2_values_Register_Value_c"  :: " 'c Register_Value_class " 
-  and  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: " bitU "
-
+\<comment> \<open>\<open>let sub_vec_bit_fail    l r = bool_of_bitU_fail r >>= (fun r -> return (sub_vec_bool l r))
+let sub_vec_bit_nondet  l r = bool_of_bitU_nondet r >>= (fun r -> return (sub_vec_bool l r))\<close>\<close>
 definition sub_vec_bit  :: \<open>('a::len)Word.word \<Rightarrow> bitU \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> sub_vec_bit         l r = ( maybe_failwith (sub_vec_bit_maybe  l r))\<close> 
   for  "l"  :: "('a::len)Word.word " 
@@ -554,18 +441,8 @@ definition subs_vec_bit_maybe  :: \<open>('a::len)Word.word \<Rightarrow> bitU \
   for  "l"  :: "('a::len)Word.word " 
   and  "r"  :: " bitU "
 
-definition subs_vec_bit_fail  :: \<open>('a::len)Word.word \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> subs_vec_bit_fail   l r = ( bool_of_bitU_fail r \<bind> ((\<lambda> r .  return (subs_vec_bool l r))))\<close> 
-  for  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: " bitU "
-
-definition subs_vec_bit_nondet  :: \<open> 'c Register_Value_class \<Rightarrow>('a::len)Word.word \<Rightarrow> bitU \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> subs_vec_bit_nondet dict_Sail2_values_Register_Value_c l r = ( bool_of_bitU_nondet 
-  dict_Sail2_values_Register_Value_c r \<bind> ((\<lambda> r .  return (subs_vec_bool l r))))\<close> 
-  for  "dict_Sail2_values_Register_Value_c"  :: " 'c Register_Value_class " 
-  and  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: " bitU "
-
+\<comment> \<open>\<open>let subs_vec_bit_fail   l r = bool_of_bitU_fail r >>= (fun r -> return (subs_vec_bool l r))
+let subs_vec_bit_nondet l r = bool_of_bitU_nondet r >>= (fun r -> return (subs_vec_bool l r))\<close>\<close>
 definition subs_vec_bit  :: \<open>('a::len)Word.word \<Rightarrow> bitU \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> subs_vec_bit        l r = ( maybe_failwith (subs_vec_bit_maybe  l r))\<close> 
   for  "l"  :: "('a::len)Word.word " 
@@ -622,8 +499,8 @@ definition rotr  :: \<open>('a::len)Word.word \<Rightarrow> int \<Rightarrow>('a
 
 \<comment> \<open>\<open>val mod_vec        : forall 'a. Size 'a => mword 'a -> mword 'a -> mword 'a\<close>\<close>
 \<comment> \<open>\<open>val mod_vec_maybe  : forall 'a. Size 'a => mword 'a -> mword 'a -> maybe (mword 'a)\<close>\<close>
-\<comment> \<open>\<open>val mod_vec_fail   : forall 'rv 'a 'e. Size 'a => mword 'a -> mword 'a -> monad 'rv (mword 'a) 'e\<close>\<close>
-\<comment> \<open>\<open>val mod_vec_nondet : forall 'rv 'a 'e. Size 'a, Register_Value 'rv => mword 'a -> mword 'a -> monad 'rv (mword 'a) 'e\<close>\<close>
+\<comment> \<open>\<open>val mod_vec_fail   : forall 'rv 'a 'e. Size 'a => mword 'a -> mword 'a -> monad 'rv (mword 'a) 'e
+val mod_vec_nondet : forall 'rv 'a 'e. Size 'a, Register_Value 'rv => mword 'a -> mword 'a -> monad 'rv (mword 'a) 'e\<close>\<close>
 definition mod_vec  :: \<open>('a::len)Word.word \<Rightarrow>('a::len)Word.word \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> mod_vec        l r = ( mod_mword l r )\<close> 
   for  "l"  :: "('a::len)Word.word " 
@@ -635,28 +512,17 @@ definition mod_vec_maybe  :: \<open>('a::len)Word.word \<Rightarrow>('a::len)Wor
   for  "l"  :: "('a::len)Word.word " 
   and  "r"  :: "('a::len)Word.word "
 
-definition mod_vec_fail  :: \<open>('a::len)Word.word \<Rightarrow>('a::len)Word.word \<Rightarrow>('rv,(('a::len)Word.word),'e)monad \<close>  where 
-     \<open> mod_vec_fail   l r = ( maybe_fail (''mod_vec'') (mod_bv 
-  instance_Sail2_values_Bitvector_Machine_word_mword_dict instance_Sail2_values_Bitvector_Machine_word_mword_dict l r))\<close> 
-  for  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: "('a::len)Word.word "
-
-definition mod_vec_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow>('a::len)Word.word \<Rightarrow>('a::len)Word.word \<Rightarrow>('rv,(('a::len)Word.word),'e)monad \<close>  where 
-     \<open> mod_vec_nondet dict_Sail2_values_Register_Value_rv l r = (
-  (case  (mod_bv instance_Sail2_values_Bitvector_Machine_word_mword_dict instance_Sail2_values_Bitvector_Machine_word_mword_dict l r) of
-      Some w => return w
-    | None => mword_nondet 
-  dict_Sail2_values_Register_Value_rv () 
-  ))\<close> 
-  for  "dict_Sail2_values_Register_Value_rv"  :: " 'rv Register_Value_class " 
-  and  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: "('a::len)Word.word "
-
+\<comment> \<open>\<open>let mod_vec_fail   l r = maybe_fail "mod_vec" (mod_bv l r)
+let mod_vec_nondet l r =
+  match (mod_bv l r) with
+    | Just w -> return w
+    | Nothing -> mword_nondet ()
+  end\<close>\<close>
 
 \<comment> \<open>\<open>val quot_vec        : forall 'a. Size 'a => mword 'a -> mword 'a -> mword 'a\<close>\<close>
 \<comment> \<open>\<open>val quot_vec_maybe  : forall 'a. Size 'a => mword 'a -> mword 'a -> maybe (mword 'a)\<close>\<close>
-\<comment> \<open>\<open>val quot_vec_fail   : forall 'rv 'a 'e. Size 'a => mword 'a -> mword 'a -> monad 'rv (mword 'a) 'e\<close>\<close>
-\<comment> \<open>\<open>val quot_vec_nondet : forall 'rv 'a 'e. Size 'a, Register_Value 'rv => mword 'a -> mword 'a -> monad 'rv (mword 'a) 'e\<close>\<close>
+\<comment> \<open>\<open>val quot_vec_fail   : forall 'rv 'a 'e. Size 'a => mword 'a -> mword 'a -> monad 'rv (mword 'a) 'e
+val quot_vec_nondet : forall 'rv 'a 'e. Size 'a, Register_Value 'rv => mword 'a -> mword 'a -> monad 'rv (mword 'a) 'e\<close>\<close>
 definition quot_vec  :: \<open>('a::len)Word.word \<Rightarrow>('a::len)Word.word \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> quot_vec        l r = ( quot_mword l r )\<close> 
   for  "l"  :: "('a::len)Word.word " 
@@ -668,28 +534,17 @@ definition quot_vec_maybe  :: \<open>('a::len)Word.word \<Rightarrow>('a::len)Wo
   for  "l"  :: "('a::len)Word.word " 
   and  "r"  :: "('a::len)Word.word "
 
-definition quot_vec_fail  :: \<open>('a::len)Word.word \<Rightarrow>('a::len)Word.word \<Rightarrow>('rv,(('a::len)Word.word),'e)monad \<close>  where 
-     \<open> quot_vec_fail   l r = ( maybe_fail (''quot_vec'') (quot_bv 
-  instance_Sail2_values_Bitvector_Machine_word_mword_dict instance_Sail2_values_Bitvector_Machine_word_mword_dict l r))\<close> 
-  for  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: "('a::len)Word.word "
-
-definition quot_vec_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow>('a::len)Word.word \<Rightarrow>('a::len)Word.word \<Rightarrow>('rv,(('a::len)Word.word),'e)monad \<close>  where 
-     \<open> quot_vec_nondet dict_Sail2_values_Register_Value_rv l r = (
-  (case  (quot_bv instance_Sail2_values_Bitvector_Machine_word_mword_dict instance_Sail2_values_Bitvector_Machine_word_mword_dict l r) of
-      Some w => return w
-    | None => mword_nondet 
-  dict_Sail2_values_Register_Value_rv () 
-  ))\<close> 
-  for  "dict_Sail2_values_Register_Value_rv"  :: " 'rv Register_Value_class " 
-  and  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: "('a::len)Word.word "
-
+\<comment> \<open>\<open>let quot_vec_fail   l r = maybe_fail "quot_vec" (quot_bv l r)
+let quot_vec_nondet l r =
+  match (quot_bv l r) with
+    | Just w -> return w
+    | Nothing -> mword_nondet ()
+  end\<close>\<close>
 
 \<comment> \<open>\<open>val quots_vec        : forall 'a. Size 'a => mword 'a -> mword 'a -> mword 'a\<close>\<close>
 \<comment> \<open>\<open>val quots_vec_maybe  : forall 'a. Size 'a => mword 'a -> mword 'a -> maybe (mword 'a)\<close>\<close>
-\<comment> \<open>\<open>val quots_vec_fail   : forall 'rv 'a 'e. Size 'a => mword 'a -> mword 'a -> monad 'rv (mword 'a) 'e\<close>\<close>
-\<comment> \<open>\<open>val quots_vec_nondet : forall 'rv 'a 'e. Size 'a, Register_Value 'rv => mword 'a -> mword 'a -> monad 'rv (mword 'a) 'e\<close>\<close>
+\<comment> \<open>\<open>val quots_vec_fail   : forall 'rv 'a 'e. Size 'a => mword 'a -> mword 'a -> monad 'rv (mword 'a) 'e
+val quots_vec_nondet : forall 'rv 'a 'e. Size 'a, Register_Value 'rv => mword 'a -> mword 'a -> monad 'rv (mword 'a) 'e\<close>\<close>
 definition quots_vec  :: \<open>('a::len)Word.word \<Rightarrow>('a::len)Word.word \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> quots_vec        l r = ( quots_mword l r )\<close> 
   for  "l"  :: "('a::len)Word.word " 
@@ -701,28 +556,17 @@ definition quots_vec_maybe  :: \<open>('a::len)Word.word \<Rightarrow>('a::len)W
   for  "l"  :: "('a::len)Word.word " 
   and  "r"  :: "('a::len)Word.word "
 
-definition quots_vec_fail  :: \<open>('a::len)Word.word \<Rightarrow>('a::len)Word.word \<Rightarrow>('rv,(('a::len)Word.word),'e)monad \<close>  where 
-     \<open> quots_vec_fail   l r = ( maybe_fail (''quots_vec'') (quots_bv 
-  instance_Sail2_values_Bitvector_Machine_word_mword_dict instance_Sail2_values_Bitvector_Machine_word_mword_dict l r))\<close> 
-  for  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: "('a::len)Word.word "
-
-definition quots_vec_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow>('a::len)Word.word \<Rightarrow>('a::len)Word.word \<Rightarrow>('rv,(('a::len)Word.word),'e)monad \<close>  where 
-     \<open> quots_vec_nondet dict_Sail2_values_Register_Value_rv l r = (
-  (case  (quots_bv instance_Sail2_values_Bitvector_Machine_word_mword_dict instance_Sail2_values_Bitvector_Machine_word_mword_dict l r) of
-      Some w => return w
-    | None => mword_nondet 
-  dict_Sail2_values_Register_Value_rv () 
-  ))\<close> 
-  for  "dict_Sail2_values_Register_Value_rv"  :: " 'rv Register_Value_class " 
-  and  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: "('a::len)Word.word "
-
+\<comment> \<open>\<open>let quots_vec_fail   l r = maybe_fail "quots_vec" (quots_bv l r)
+let quots_vec_nondet l r =
+  match (quots_bv l r) with
+    | Just w -> return w
+    | Nothing -> mword_nondet ()
+  end\<close>\<close>
 
 \<comment> \<open>\<open>val mod_vec_int        : forall 'a. Size 'a => mword 'a -> integer -> mword 'a\<close>\<close>
 \<comment> \<open>\<open>val mod_vec_int_maybe  : forall 'a. Size 'a => mword 'a -> integer -> maybe (mword 'a)\<close>\<close>
-\<comment> \<open>\<open>val mod_vec_int_fail   : forall 'rv 'a 'e. Size 'a => mword 'a -> integer -> monad 'rv (mword 'a) 'e\<close>\<close>
-\<comment> \<open>\<open>val mod_vec_int_nondet : forall 'rv 'a 'e. Size 'a, Register_Value 'rv => mword 'a -> integer -> monad 'rv (mword 'a) 'e\<close>\<close>
+\<comment> \<open>\<open>val mod_vec_int_fail   : forall 'rv 'a 'e. Size 'a => mword 'a -> integer -> monad 'rv (mword 'a) 'e
+val mod_vec_int_nondet : forall 'rv 'a 'e. Size 'a, Register_Value 'rv => mword 'a -> integer -> monad 'rv (mword 'a) 'e\<close>\<close>
 definition mod_vec_int  :: \<open>('a::len)Word.word \<Rightarrow> int \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> mod_vec_int        l r = ( mod_mword_int l r )\<close> 
   for  "l"  :: "('a::len)Word.word " 
@@ -734,28 +578,17 @@ definition mod_vec_int_maybe  :: \<open>('a::len)Word.word \<Rightarrow> int \<R
   for  "l"  :: "('a::len)Word.word " 
   and  "r"  :: " int "
 
-definition mod_vec_int_fail  :: \<open>('a::len)Word.word \<Rightarrow> int \<Rightarrow>('rv,(('a::len)Word.word),'e)monad \<close>  where 
-     \<open> mod_vec_int_fail   l r = ( maybe_fail (''mod_vec_int'') (mod_bv_int 
-  instance_Sail2_values_Bitvector_Machine_word_mword_dict instance_Sail2_values_Bitvector_Machine_word_mword_dict l r))\<close> 
-  for  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: " int "
-
-definition mod_vec_int_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow>('a::len)Word.word \<Rightarrow> int \<Rightarrow>('rv,(('a::len)Word.word),'e)monad \<close>  where 
-     \<open> mod_vec_int_nondet dict_Sail2_values_Register_Value_rv l r = (
-  (case  (mod_bv_int instance_Sail2_values_Bitvector_Machine_word_mword_dict instance_Sail2_values_Bitvector_Machine_word_mword_dict l r) of
-      Some w => return w
-    | None => mword_nondet 
-  dict_Sail2_values_Register_Value_rv () 
-  ))\<close> 
-  for  "dict_Sail2_values_Register_Value_rv"  :: " 'rv Register_Value_class " 
-  and  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: " int "
-
+\<comment> \<open>\<open>let mod_vec_int_fail   l r = maybe_fail "mod_vec_int" (mod_bv_int l r)
+let mod_vec_int_nondet l r =
+  match (mod_bv_int l r) with
+    | Just w -> return w
+    | Nothing -> mword_nondet ()
+  end\<close>\<close>
 
 \<comment> \<open>\<open>val quot_vec_int        : forall 'a. Size 'a => mword 'a -> integer -> mword 'a\<close>\<close>
 \<comment> \<open>\<open>val quot_vec_int_maybe  : forall 'a. Size 'a => mword 'a -> integer -> maybe (mword 'a)\<close>\<close>
-\<comment> \<open>\<open>val quot_vec_int_fail   : forall 'rv 'a 'e. Size 'a => mword 'a -> integer -> monad 'rv (mword 'a) 'e\<close>\<close>
-\<comment> \<open>\<open>val quot_vec_int_nondet : forall 'rv 'a 'e. Size 'a, Register_Value 'rv => mword 'a -> integer -> monad 'rv (mword 'a) 'e\<close>\<close>
+\<comment> \<open>\<open>val quot_vec_int_fail   : forall 'rv 'a 'e. Size 'a => mword 'a -> integer -> monad 'rv (mword 'a) 'e
+val quot_vec_int_nondet : forall 'rv 'a 'e. Size 'a, Register_Value 'rv => mword 'a -> integer -> monad 'rv (mword 'a) 'e\<close>\<close>
 definition quot_vec_int  :: \<open>('a::len)Word.word \<Rightarrow> int \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> quot_vec_int        l r = ( quot_mword_int l r )\<close> 
   for  "l"  :: "('a::len)Word.word " 
@@ -767,24 +600,12 @@ definition quot_vec_int_maybe  :: \<open>('a::len)Word.word \<Rightarrow> int \<
   for  "l"  :: "('a::len)Word.word " 
   and  "r"  :: " int "
 
-definition quot_vec_int_fail  :: \<open>('a::len)Word.word \<Rightarrow> int \<Rightarrow>('rv,(('a::len)Word.word),'e)monad \<close>  where 
-     \<open> quot_vec_int_fail   l r = ( maybe_fail (''quot_vec_int'') (quot_bv_int 
-  instance_Sail2_values_Bitvector_Machine_word_mword_dict instance_Sail2_values_Bitvector_Machine_word_mword_dict l r))\<close> 
-  for  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: " int "
-
-definition quot_vec_int_nondet  :: \<open> 'rv Register_Value_class \<Rightarrow>('a::len)Word.word \<Rightarrow> int \<Rightarrow>('rv,(('a::len)Word.word),'e)monad \<close>  where 
-     \<open> quot_vec_int_nondet dict_Sail2_values_Register_Value_rv l r = (
-  (case  (quot_bv_int 
-  instance_Sail2_values_Bitvector_Machine_word_mword_dict instance_Sail2_values_Bitvector_Machine_word_mword_dict l r) of
-      Some w => return w
-    | None => mword_nondet 
-  dict_Sail2_values_Register_Value_rv () 
-  ))\<close> 
-  for  "dict_Sail2_values_Register_Value_rv"  :: " 'rv Register_Value_class " 
-  and  "l"  :: "('a::len)Word.word " 
-  and  "r"  :: " int "
-
+\<comment> \<open>\<open>let quot_vec_int_fail   l r = maybe_fail "quot_vec_int" (quot_bv_int l r)
+let quot_vec_int_nondet l r =
+  match (quot_bv_int l r) with
+    | Just w -> return w
+    | Nothing -> mword_nondet ()
+  end\<close>\<close>
 
 \<comment> \<open>\<open>val replicate_bits : forall 'a 'b. Size 'a, Size 'b => mword 'a -> integer -> mword 'b\<close>\<close>
 definition replicate_bits  :: \<open>('a::len)Word.word \<Rightarrow> int \<Rightarrow>('b::len)Word.word \<close>  where 
@@ -804,18 +625,8 @@ definition duplicate_maybe  :: \<open> bitU \<Rightarrow> int \<Rightarrow>(('a:
   for  "b"  :: " bitU " 
   and  "n"  :: " int "
 
-definition duplicate_fail  :: \<open> bitU \<Rightarrow> int \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> duplicate_fail   b n = ( bool_of_bitU_fail b \<bind> ((\<lambda> b .  return (duplicate_bool b n))))\<close> 
-  for  "b"  :: " bitU " 
-  and  "n"  :: " int "
-
-definition duplicate_nondet  :: \<open> 'c Register_Value_class \<Rightarrow> bitU \<Rightarrow> int \<Rightarrow>('c,(('a::len)Word.word),'b)monad \<close>  where 
-     \<open> duplicate_nondet dict_Sail2_values_Register_Value_c b n = ( bool_of_bitU_nondet 
-  dict_Sail2_values_Register_Value_c b \<bind> ((\<lambda> b .  return (duplicate_bool b n))))\<close> 
-  for  "dict_Sail2_values_Register_Value_c"  :: " 'c Register_Value_class " 
-  and  "b"  :: " bitU " 
-  and  "n"  :: " int "
-
+\<comment> \<open>\<open>let duplicate_fail   b n = bool_of_bitU_fail b >>= (fun b -> return (duplicate_bool b n))
+let duplicate_nondet b n = bool_of_bitU_nondet b >>= (fun b -> return (duplicate_bool b n))\<close>\<close>
 definition duplicate  :: \<open> bitU \<Rightarrow> int \<Rightarrow>('a::len)Word.word \<close>  where 
      \<open> duplicate        b n = ( maybe_failwith (duplicate_maybe b n))\<close> 
   for  "b"  :: " bitU " 

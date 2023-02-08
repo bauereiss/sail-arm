@@ -93,6 +93,13 @@ function (sequential,domintros)  shl_int  :: \<open> int \<Rightarrow> int \<Rig
   and  "shift"  :: " int " 
 by pat_completeness auto
 
+
+\<comment> \<open>\<open>val align_int : integer -> integer -> integer\<close>\<close>
+definition align_int  :: \<open> int \<Rightarrow> int \<Rightarrow> int \<close>  where 
+     \<open> align_int x y = ( (x div y) * y )\<close> 
+  for  "x"  :: " int " 
+  and  "y"  :: " int "
+
 definition take_list  :: \<open> int \<Rightarrow> 'a list \<Rightarrow> 'a list \<close>  where 
      \<open> take_list n xs = ( List.take (nat_of_int n) xs )\<close> 
   for  "n"  :: " int " 
@@ -1244,6 +1251,19 @@ definition decimal_string_of_bv  :: \<open> 'a Bitvector_class \<Rightarrow> 'a 
   Lem_string_extra.stringFromInteger sum1)))\<close> 
   for  "dict_Sail2_values_Bitvector_a"  :: " 'a Bitvector_class " 
   and  "bv"  :: " 'a "
+
+
+\<comment> \<open>\<open>val align_bits : forall 'a. Bitvector 'a => 'a -> integer -> 'a\<close>\<close>
+definition align_bits  :: \<open> 'a Bitvector_class \<Rightarrow> 'a \<Rightarrow> int \<Rightarrow> 'a \<close>  where 
+     \<open> align_bits dict_Sail2_values_Bitvector_a x y = (
+  (let len = ((length_method   dict_Sail2_values_Bitvector_a) x) in
+  (case  (unsigned_method   dict_Sail2_values_Bitvector_a) x of
+    Some x =>(of_int_method   dict_Sail2_values_Bitvector_a) len (align_int x y)
+  | None => failwith (''align_bits: failed to convert bitvector'')
+  )))\<close> 
+  for  "dict_Sail2_values_Bitvector_a"  :: " 'a Bitvector_class " 
+  and  "x"  :: " 'a " 
+  and  "y"  :: " int "
 
 
 \<comment> \<open>\<open>** Bytes and addresses \<close>\<close>

@@ -1,7 +1,6 @@
 theory Armv9_lemmas
   imports
-    Sail.Sail2_values_lemmas
-    Sail.Sail2_state_lemmas
+    "Sail.Add_Cancel_Distinct"
     Armv9_step
 begin
 
@@ -24,7 +23,7 @@ lemmas get_regval_unfold = get_regval_def[THEN fun_cong,
 lemmas set_regval_unfold = set_regval_def[THEN fun_cong,
     unfolded register_accessors_def mk_accessors_def fst_conv snd_conv]
 
-abbreviation liftS ("\<lbrakk>_\<rbrakk>\<^sub>S") where "liftS \<equiv> liftState (get_regval, set_regval)"
+(*abbreviation liftS ("\<lbrakk>_\<rbrakk>\<^sub>S") where "liftS \<equiv> liftState (get_regval, set_regval)"*)
 
 lemmas register_defs = get_regval_unfold set_regval_unfold STACK_LIMIT_ref_def STACK_BASE_ref_def
   HEAP_LIMIT_ref_def HEAP_BASE_ref_def DBG_ROM_ADDR_ref_def mops_forward_copy_ref_def
@@ -73,124 +72,127 @@ lemmas register_defs = get_regval_unfold set_regval_unfold STACK_LIMIT_ref_def S
   GICD_TYPER2_ref_def GICD_STATUSR_ref_def GICD_SGIR_ref_def GICD_SETSPI_SR_ref_def
   GICD_SETSPI_NSR_ref_def GICD_IIDR_ref_def GICD_CTLR_ref_def GICD_CLRSPI_SR_ref_def
   GICD_CLRSPI_NSR_ref_def GICC_STATUSR_ref_def GICC_RPR_ref_def GICC_PMR_ref_def GICC_IAR_ref_def
-  GICC_HPPIR_ref_def GICC_EOIR_ref_def GICC_DIR_ref_def GICC_BPR_ref_def GICC_AIAR_ref_def
-  GICC_AHPPIR_ref_def GICC_AEOIR_ref_def GICC_ABPR_ref_def FCSEIDR_ref_def EDVIDSR_ref_def
-  EDRCR_ref_def EDPRCR_ref_def EDPIDR4_ref_def EDPIDR3_ref_def EDPIDR2_ref_def EDPIDR1_ref_def
-  EDPIDR0_ref_def EDPFR_ref_def EDPCSR_ref_def EDLSR_ref_def EDLAR_ref_def EDITCTRL_ref_def
-  EDHSR_ref_def EDESR_ref_def EDECR_ref_def EDDFR_ref_def EDDEVTYPE_ref_def EDDEVID2_ref_def
-  EDDEVID1_ref_def EDDEVID_ref_def EDCIDR3_ref_def EDCIDR2_ref_def EDCIDR1_ref_def EDCIDR0_ref_def
-  EDAA32PFR_ref_def DBGWFAR_ref_def DBGDSAR_ref_def DBGDIDR_ref_def DBGDEVID2_ref_def
-  DBGDEVID1_ref_def CTIPIDR4_ref_def CTIPIDR3_ref_def CTIPIDR2_ref_def CTIPIDR1_ref_def
-  CTIPIDR0_ref_def CTILSR_ref_def CTILAR_ref_def CTIITCTRL_ref_def CTIDEVTYPE_ref_def
-  CTIDEVID2_ref_def CTIDEVID1_ref_def CTIDEVID_ref_def CTIDEVCTL_ref_def CTICONTROL_ref_def
-  CTICIDR3_ref_def CTICIDR2_ref_def CTICIDR1_ref_def CTICIDR0_ref_def CTIAUTHSTATUS_ref_def
-  CSSELR_S_ref_def CNTSR_ref_def CNTP_CTL_S_ref_def CNTNSAR_ref_def CNTID_ref_def CNTEL0ACR_ref_def
-  CNTCR_ref_def AMPIDR4_ref_def AMPIDR3_ref_def AMPIDR2_ref_def AMPIDR1_ref_def AMPIDR0_ref_def
-  AMDEVTYPE_ref_def AMCIDR3_ref_def AMCIDR2_ref_def AMCIDR1_ref_def AMCIDR0_ref_def
-  clock_divider_ref_def EDPRSR_ref_def PMSWINC_EL0_ref_def OSLAR_EL1_ref_def ICV_EOIR1_EL1_ref_def
-  ICC_EOIR1_EL1_ref_def ICV_EOIR0_EL1_ref_def ICC_EOIR0_EL1_ref_def ICC_SGI1R_EL1_ref_def
-  ICC_SGI0R_EL1_ref_def ICV_DIR_EL1_ref_def ICC_DIR_EL1_ref_def ICC_ASGI1R_EL1_ref_def
-  DBGDTRTX_EL0_ref_def VSESR_EL2_ref_def VMPIDR_EL2_ref_def MPIDR_EL1_ref_def VDISR_EL2_ref_def
-  DISR_EL1_ref_def TRFCR_EL2_ref_def TRFCR_EL1_ref_def TPIDR_EL3_ref_def TPIDR_EL2_ref_def
-  TPIDR_EL1_ref_def TPIDR_EL0_ref_def TPIDRRO_EL0_ref_def TPIDR2_EL0_ref_def SMPRI_EL1_ref_def
-  SMPRIMAP_EL2_ref_def SMIDR_EL1_ref_def SCXTNUM_EL3_ref_def SCXTNUM_EL2_ref_def SCXTNUM_EL1_ref_def
-  SCXTNUM_EL0_ref_def RVBAR_EL3_ref_def RVBAR_EL2_ref_def RVBAR_EL1_ref_def RNDR_ref_def
-  RNDRRS_ref_def RMR_EL3_ref_def RMR_EL2_ref_def RMR_EL1_ref_def RGSR_EL1_ref_def REVIDR_EL1_ref_def
-  PMXEVTYPER_EL0_ref_def PMXEVCNTR_EL0_ref_def PMSNEVFR_EL1_ref_def PMSLATFR_EL1_ref_def
-  PMSIRR_EL1_ref_def PMSIDR_EL1_ref_def PMSICR_EL1_ref_def PMSFCR_EL1_ref_def PMSEVFR_EL1_ref_def
-  PMSELR_EL0_ref_def PMSCR_EL2_ref_def PMSCR_EL1_ref_def PMOVSSET_EL0_ref_def PMOVSCLR_EL0_ref_def
-  PMMIR_EL1_ref_def PMINTENSET_EL1_ref_def PMINTENCLR_EL1_ref_def PMEVCNTR_EL0_ref_def
-  PMCNTENSET_EL0_ref_def PMCNTENCLR_EL0_ref_def PMCEID1_EL0_ref_def PMCEID0_EL0_ref_def
-  PMCCNTR_EL0_ref_def PMUSERENR_EL0_ref_def PMCCFILTR_EL0_ref_def PMBSR_EL1_ref_def
-  PMBPTR_EL1_ref_def PMBLIMITR_EL1_ref_def PMBIDR_EL1_ref_def PAR_EL1_ref_def OSDTRTX_EL1_ref_def
-  OSDTRRX_EL1_ref_def MVFR2_EL1_ref_def MVFR1_EL1_ref_def MVFR0_EL1_ref_def VPIDR_EL2_ref_def
-  MIDR_EL1_ref_def MDRAR_EL1_ref_def MDCCINT_EL1_ref_def LORSA_EL1_ref_def LORN_EL1_ref_def
-  LORID_EL1_ref_def LOREA_EL1_ref_def LORC_EL1_ref_def ISR_EL1_ref_def ID_PFR2_EL1_ref_def
-  ID_PFR1_EL1_ref_def ID_PFR0_EL1_ref_def ID_MMFR5_EL1_ref_def ID_MMFR4_EL1_ref_def
-  ID_MMFR3_EL1_ref_def ID_MMFR2_EL1_ref_def ID_MMFR1_EL1_ref_def ID_MMFR0_EL1_ref_def
-  ID_ISAR6_EL1_ref_def ID_ISAR5_EL1_ref_def ID_ISAR4_EL1_ref_def ID_ISAR3_EL1_ref_def
-  ID_ISAR2_EL1_ref_def ID_ISAR1_EL1_ref_def ID_ISAR0_EL1_ref_def ID_DFR1_EL1_ref_def
-  ID_DFR0_EL1_ref_def ID_AFR0_EL1_ref_def ID_AA64ZFR0_EL1_ref_def ID_AA64SMFR0_EL1_ref_def
-  ID_AA64PFR1_EL1_ref_def ID_AA64PFR0_EL1_ref_def ID_AA64MMFR2_EL1_ref_def ID_AA64MMFR1_EL1_ref_def
-  ID_AA64MMFR0_EL1_ref_def ID_AA64ISAR2_EL1_ref_def ID_AA64ISAR1_EL1_ref_def
-  ID_AA64ISAR0_EL1_ref_def ID_AA64DFR1_EL1_ref_def ID_AA64DFR0_EL1_ref_def ID_AA64AFR1_EL1_ref_def
-  ID_AA64AFR0_EL1_ref_def ICV_NMIAR1_EL1_ref_def ICC_NMIAR1_EL1_ref_def ICV_BPR1_EL1_ref_def
-  ICC_BPR1_EL1_S_ref_def ICC_BPR1_EL1_NS_ref_def ICH_VTR_EL2_ref_def ICH_VMCR_EL2_ref_def
-  ICH_MISR_EL2_ref_def ICH_LR_EL2_ref_def ICH_ELRSR_EL2_ref_def ICH_EISR_EL2_ref_def
-  ICH_AP1R_EL2_ref_def ICH_AP0R_EL2_ref_def ICV_RPR_EL1_ref_def ICC_RPR_EL1_ref_def
-  ICV_PMR_EL1_ref_def ICC_IGRPEN1_EL3_ref_def ICV_IGRPEN1_EL1_ref_def ICC_IGRPEN1_EL1_S_ref_def
-  ICC_IGRPEN1_EL1_NS_ref_def ICV_IGRPEN0_EL1_ref_def ICC_IGRPEN0_EL1_ref_def ICV_IAR1_EL1_ref_def
-  ICC_IAR1_EL1_ref_def ICV_IAR0_EL1_ref_def ICC_IAR0_EL1_ref_def ICV_HPPIR1_EL1_ref_def
-  ICC_HPPIR1_EL1_ref_def ICV_HPPIR0_EL1_ref_def ICC_HPPIR0_EL1_ref_def ICC_CTLR_EL3_ref_def
-  ICV_CTLR_EL1_ref_def ICC_CTLR_EL1_S_ref_def ICC_CTLR_EL1_NS_ref_def ICV_BPR0_EL1_ref_def
-  ICC_BPR0_EL1_ref_def ICV_AP1R_EL1_ref_def ICC_AP1R_EL1_S_ref_def ICC_AP1R_EL1_NS_ref_def
-  ICV_AP0R_EL1_ref_def ICH_HCR_EL2_ref_def ICC_SRE_EL3_ref_def ICC_SRE_EL2_ref_def
-  ICC_SRE_EL1_S_ref_def ICC_SRE_EL1_NS_ref_def ICC_AP0R_EL1_ref_def HSTR_EL2_ref_def
-  HFGWTR_EL2_ref_def HFGITR_EL2_ref_def HDFGWTR_EL2_ref_def HACR_EL2_ref_def GMID_EL1_ref_def
-  GCR_EL1_ref_def FPEXC32_EL2_ref_def ERXSTATUS_EL1_ref_def ERXPFGF_EL1_ref_def
-  ERXPFGCTL_EL1_ref_def ERXPFGCDN_EL1_ref_def ERXMISC3_EL1_ref_def ERXMISC2_EL1_ref_def
-  ERXMISC1_EL1_ref_def ERXMISC0_EL1_ref_def ERXFR_EL1_ref_def ERXCTLR_EL1_ref_def
-  ERXADDR_EL1_ref_def ERRSELR_EL1_ref_def ERRIDR_EL1_ref_def DCZID_EL0_ref_def DBGVCR32_EL2_ref_def
-  DBGDTR_EL0_ref_def DBGDTRRX_EL0_ref_def DBGCLAIMSET_EL1_ref_def DBGCLAIMCLR_EL1_ref_def
-  DBGAUTHSTATUS_EL1_ref_def DACR32_EL2_ref_def CSSELR_EL1_ref_def CNTPS_CVAL_EL1_ref_def
-  CNTPS_CTL_EL1_ref_def CNTVOFF_EL2_ref_def CNTV_CVAL_EL0_ref_def CNTHV_CVAL_EL2_ref_def
-  CNTHVS_CVAL_EL2_ref_def CNTV_CTL_EL0_ref_def CNTHV_CTL_EL2_ref_def CNTHVS_CTL_EL2_ref_def
-  CNTP_CVAL_EL0_ref_def CNTP_CTL_EL0_ref_def CNTPOFF_EL2_ref_def CNTHP_CVAL_EL2_ref_def
-  CNTHP_CTL_EL2_ref_def CNTHPS_CVAL_EL2_ref_def CNTHPS_CTL_EL2_ref_def CNTKCTL_EL1_ref_def
-  CNTHCTL_EL2_ref_def CNTFRQ_EL0_ref_def CCSIDR_EL1_ref_def CCSIDR2_EL1_ref_def BRBTS_EL1_ref_def
-  BRBTGT_EL1_ref_def BRBTGTINJ_EL1_ref_def BRBSRC_EL1_ref_def BRBSRCINJ_EL1_ref_def
-  BRBINF_EL1_ref_def BRBINFINJ_EL1_ref_def HDFGRTR_EL2_ref_def APIBKeyLo_EL1_ref_def
-  APIBKeyHi_EL1_ref_def APIAKeyLo_EL1_ref_def APIAKeyHi_EL1_ref_def APGAKeyLo_EL1_ref_def
-  APGAKeyHi_EL1_ref_def APDBKeyLo_EL1_ref_def APDBKeyHi_EL1_ref_def APDAKeyLo_EL1_ref_def
-  APDAKeyHi_EL1_ref_def AMEVTYPER1_EL0_ref_def AMEVTYPER0_EL0_ref_def AMEVCNTVOFF1_EL2_ref_def
-  AMEVCNTVOFF0_EL2_ref_def AMEVCNTR1_EL0_ref_def AMEVCNTR0_ref_def AMCR_EL0_ref_def
-  AMCNTENSET1_EL0_ref_def AMCNTENSET0_EL0_ref_def AMCNTENCLR1_EL0_ref_def HAFGRTR_EL2_ref_def
-  AMCNTENCLR0_EL0_ref_def AMCGCR_EL0_ref_def AMCG1IDR_EL0_ref_def AMUSERENR_EL0_ref_def
-  AMCFGR_EL0_ref_def AMAIR_EL3_ref_def AMAIR_EL2_ref_def AMAIR_EL1_ref_def AIDR_EL1_ref_def
-  AFSR1_EL3_ref_def AFSR1_EL2_ref_def AFSR1_EL1_ref_def AFSR0_EL3_ref_def AFSR0_EL2_ref_def
-  AFSR0_EL1_ref_def ACTLR_EL3_ref_def ACTLR_EL2_ref_def VNCR_EL2_ref_def tlb_enabled_ref_def
-  VSTTBR_EL2_ref_def VSTCR_EL2_ref_def TTBR0_EL3_ref_def TTBR1_EL2_ref_def TTBR0_EL2_ref_def
-  TTBR1_EL1_ref_def TTBR0_EL1_ref_def InGuardedPage_ref_def GIC_Active_ref_def GICC_CTLR_ref_def
-  GPTBR_EL3_ref_def GPCCR_EL3_ref_def MPAMSM_EL1_ref_def MPAM0_EL1_ref_def MPAMVPM7_EL2_ref_def
-  MPAMVPM6_EL2_ref_def MPAMVPM5_EL2_ref_def MPAMVPM4_EL2_ref_def MPAMVPM3_EL2_ref_def
-  MPAMVPM2_EL2_ref_def MPAMVPM1_EL2_ref_def MPAMVPMV_EL2_ref_def MPAMVPM0_EL2_ref_def
-  MPAMHCR_EL2_ref_def MPAM1_EL1_0_62_ref_def MPAMIDR_EL1_ref_def MPAM2_EL2_0_62_ref_def
-  MPAM3_EL3_ref_def MAIR_EL3_ref_def MAIR_EL2_ref_def MAIR_EL1_ref_def SDER32_EL2_ref_def
-  EDWAR_ref_def DBGWVR_EL1_ref_def DBGWCR_EL1_ref_def OSLSR_EL1_ref_def VTTBR_EL2_ref_def
-  VTCR_EL2_ref_def DBGBVR_EL1_ref_def DBGBCR_EL1_ref_def CONTEXTIDR_EL2_ref_def
-  CONTEXTIDR_EL1_ref_def TFSR_EL3_ref_def TFSR_EL2_ref_def TFSR_EL1_ref_def TFSRE0_EL1_ref_def
-  DBGDSCRint_16_28_ref_def MDSCR_EL1_ref_def TTBCR_S_ref_def IFSR_S_ref_def IFSR32_EL2_ref_def
-  DFSR_S_ref_def MVBAR_ref_def ACTLR_EL1_ref_def HFGRTR_EL2_ref_def ACCDATA_EL1_ref_def
-  VBAR_S_ref_def VBAR_EL3_ref_def VBAR_EL2_ref_def VBAR_EL1_ref_def SPSR_und_ref_def
-  SPSR_mon_ref_def SPSR_irq_ref_def SPSR_fiq_ref_def SPSR_abt_ref_def SPSR_EL3_ref_def
-  SPSR_EL2_ref_def SPSR_EL1_ref_def SCTLR_S_ref_def SCTLR_EL3_ref_def SCTLR_EL2_ref_def
-  SCTLR_EL1_ref_def ZA_ref_def Z_ref_def SP_EL3_ref_def SP_EL2_ref_def SP_EL1_ref_def SP_EL0_ref_def
-  P_ref_def NSACR_ref_def CPTR_EL3_ref_def CPTR_EL2_ref_def CPACR_EL1_ref_def FFR_ref_def
-  SMCR_EL3_ref_def SMCR_EL2_ref_def SMCR_EL1_ref_def max_implemented_smeveclen_ref_def
-  ZCR_EL3_ref_def ZCR_EL2_ref_def ZCR_EL1_ref_def ELR_EL3_ref_def ELR_EL2_ref_def ELR_EL1_ref_def
-  RTPIDEN_ref_def RLPIDEN_ref_def DBGPRCR_EL1_ref_def OSDLR_EL1_ref_def SPIDEN_ref_def DBGEN_ref_def
-  EDSCR_31_31_ref_def EDSCR_0_28_ref_def MDCCSR_EL0_ref_def DSPSR_EL0_ref_def DLR_EL0_ref_def
-  OSECCR_EL1_ref_def BranchTaken_ref_def PC_ref_def SP_mon_ref_def LR_mon_ref_def TCR_EL3_ref_def
-  TCR_EL2_ref_def TCR_EL1_ref_def Records_TGT_ref_def Records_SRC_ref_def Records_INF_ref_def
-  BRBIDR0_EL1_ref_def TSTATE_ref_def ICC_PMR_EL1_ref_def PMUEventAccumulator_ref_def
-  PMEVTYPER_EL0_ref_def PMCR_EL0_ref_def MDCR_EL2_ref_def MDCR_EL3_ref_def last_branch_valid_ref_def
+  GICC_HPPIR_ref_def GICC_EOIR_ref_def GICC_DIR_ref_def GICC_CTLR_ref_def GICC_BPR_ref_def
+  GICC_AIAR_ref_def GICC_AHPPIR_ref_def GICC_AEOIR_ref_def GICC_ABPR_ref_def FCSEIDR_ref_def
+  EDVIDSR_ref_def EDRCR_ref_def EDPRCR_ref_def EDPIDR4_ref_def EDPIDR3_ref_def EDPIDR2_ref_def
+  EDPIDR1_ref_def EDPIDR0_ref_def EDPFR_ref_def EDPCSR_ref_def EDLSR_ref_def EDLAR_ref_def
+  EDITCTRL_ref_def EDHSR_ref_def EDESR_ref_def EDECR_ref_def EDDFR_ref_def EDDEVTYPE_ref_def
+  EDDEVID2_ref_def EDDEVID1_ref_def EDDEVID_ref_def EDCIDR3_ref_def EDCIDR2_ref_def EDCIDR1_ref_def
+  EDCIDR0_ref_def EDAA32PFR_ref_def DBGWFAR_ref_def DBGDSAR_ref_def DBGDIDR_ref_def
+  DBGDEVID2_ref_def DBGDEVID1_ref_def CTIPIDR4_ref_def CTIPIDR3_ref_def CTIPIDR2_ref_def
+  CTIPIDR1_ref_def CTIPIDR0_ref_def CTILSR_ref_def CTILAR_ref_def CTIITCTRL_ref_def
+  CTIDEVTYPE_ref_def CTIDEVID2_ref_def CTIDEVID1_ref_def CTIDEVID_ref_def CTIDEVCTL_ref_def
+  CTICONTROL_ref_def CTICIDR3_ref_def CTICIDR2_ref_def CTICIDR1_ref_def CTICIDR0_ref_def
+  CTIAUTHSTATUS_ref_def CSSELR_S_ref_def CNTSR_ref_def CNTP_CTL_S_ref_def CNTNSAR_ref_def
+  CNTID_ref_def CNTEL0ACR_ref_def CNTCR_ref_def AMPIDR4_ref_def AMPIDR3_ref_def AMPIDR2_ref_def
+  AMPIDR1_ref_def AMPIDR0_ref_def AMDEVTYPE_ref_def AMCIDR3_ref_def AMCIDR2_ref_def AMCIDR1_ref_def
+  AMCIDR0_ref_def clock_divider_ref_def EDPRSR_ref_def PMSWINC_EL0_ref_def OSLAR_EL1_ref_def
+  ICV_EOIR1_EL1_ref_def ICC_EOIR1_EL1_ref_def ICV_EOIR0_EL1_ref_def ICC_EOIR0_EL1_ref_def
+  ICC_SGI1R_EL1_ref_def ICC_SGI0R_EL1_ref_def ICV_DIR_EL1_ref_def ICC_DIR_EL1_ref_def
+  ICC_ASGI1R_EL1_ref_def DBGDTRTX_EL0_ref_def VSESR_EL2_ref_def VMPIDR_EL2_ref_def MPIDR_EL1_ref_def
+  VDISR_EL2_ref_def DISR_EL1_ref_def TRFCR_EL2_ref_def TRFCR_EL1_ref_def TPIDR_EL3_ref_def
+  TPIDR_EL2_ref_def TPIDR_EL1_ref_def TPIDR_EL0_ref_def TPIDRRO_EL0_ref_def TPIDR2_EL0_ref_def
+  SMPRI_EL1_ref_def SMPRIMAP_EL2_ref_def SMIDR_EL1_ref_def SCXTNUM_EL3_ref_def SCXTNUM_EL2_ref_def
+  SCXTNUM_EL1_ref_def SCXTNUM_EL0_ref_def RVBAR_EL3_ref_def RVBAR_EL2_ref_def RVBAR_EL1_ref_def
+  RNDR_ref_def RNDRRS_ref_def RMR_EL3_ref_def RMR_EL2_ref_def RMR_EL1_ref_def RGSR_EL1_ref_def
+  REVIDR_EL1_ref_def PMXEVTYPER_EL0_ref_def PMXEVCNTR_EL0_ref_def PMSNEVFR_EL1_ref_def
+  PMSLATFR_EL1_ref_def PMSIRR_EL1_ref_def PMSIDR_EL1_ref_def PMSICR_EL1_ref_def PMSFCR_EL1_ref_def
+  PMSEVFR_EL1_ref_def PMSELR_EL0_ref_def PMSCR_EL2_ref_def PMSCR_EL1_ref_def PMOVSSET_EL0_ref_def
+  PMOVSCLR_EL0_ref_def PMMIR_EL1_ref_def PMINTENSET_EL1_ref_def PMINTENCLR_EL1_ref_def
+  PMEVCNTR_EL0_ref_def PMCNTENSET_EL0_ref_def PMCNTENCLR_EL0_ref_def PMCEID1_EL0_ref_def
+  PMCEID0_EL0_ref_def PMCCNTR_EL0_ref_def PMUSERENR_EL0_ref_def PMCCFILTR_EL0_ref_def
+  PMBSR_EL1_ref_def PMBPTR_EL1_ref_def PMBLIMITR_EL1_ref_def PMBIDR_EL1_ref_def PAR_EL1_ref_def
+  OSDTRTX_EL1_ref_def OSDTRRX_EL1_ref_def MVFR2_EL1_ref_def MVFR1_EL1_ref_def MVFR0_EL1_ref_def
+  VPIDR_EL2_ref_def MIDR_EL1_ref_def MDRAR_EL1_ref_def MDCCINT_EL1_ref_def LORSA_EL1_ref_def
+  LORN_EL1_ref_def LORID_EL1_ref_def LOREA_EL1_ref_def LORC_EL1_ref_def ISR_EL1_ref_def
+  ID_PFR2_EL1_ref_def ID_PFR1_EL1_ref_def ID_PFR0_EL1_ref_def ID_MMFR5_EL1_ref_def
+  ID_MMFR4_EL1_ref_def ID_MMFR3_EL1_ref_def ID_MMFR2_EL1_ref_def ID_MMFR1_EL1_ref_def
+  ID_MMFR0_EL1_ref_def ID_ISAR6_EL1_ref_def ID_ISAR5_EL1_ref_def ID_ISAR4_EL1_ref_def
+  ID_ISAR3_EL1_ref_def ID_ISAR2_EL1_ref_def ID_ISAR1_EL1_ref_def ID_ISAR0_EL1_ref_def
+  ID_DFR1_EL1_ref_def ID_DFR0_EL1_ref_def ID_AFR0_EL1_ref_def ID_AA64ZFR0_EL1_ref_def
+  ID_AA64SMFR0_EL1_ref_def ID_AA64PFR1_EL1_ref_def ID_AA64PFR0_EL1_ref_def ID_AA64MMFR2_EL1_ref_def
+  ID_AA64MMFR1_EL1_ref_def ID_AA64MMFR0_EL1_ref_def ID_AA64ISAR2_EL1_ref_def
+  ID_AA64ISAR1_EL1_ref_def ID_AA64ISAR0_EL1_ref_def ID_AA64DFR1_EL1_ref_def ID_AA64DFR0_EL1_ref_def
+  ID_AA64AFR1_EL1_ref_def ID_AA64AFR0_EL1_ref_def ICV_NMIAR1_EL1_ref_def ICC_NMIAR1_EL1_ref_def
+  ICV_BPR1_EL1_ref_def ICC_BPR1_EL1_S_ref_def ICC_BPR1_EL1_NS_ref_def ICH_VTR_EL2_ref_def
+  ICH_VMCR_EL2_ref_def ICH_MISR_EL2_ref_def ICH_LR_EL2_ref_def ICH_ELRSR_EL2_ref_def
+  ICH_EISR_EL2_ref_def ICH_AP1R_EL2_ref_def ICH_AP0R_EL2_ref_def ICV_RPR_EL1_ref_def
+  ICC_RPR_EL1_ref_def ICV_PMR_EL1_ref_def ICC_IGRPEN1_EL3_ref_def ICV_IGRPEN1_EL1_ref_def
+  ICC_IGRPEN1_EL1_S_ref_def ICC_IGRPEN1_EL1_NS_ref_def ICV_IGRPEN0_EL1_ref_def
+  ICC_IGRPEN0_EL1_ref_def ICV_IAR1_EL1_ref_def ICC_IAR1_EL1_ref_def ICV_IAR0_EL1_ref_def
+  ICC_IAR0_EL1_ref_def ICV_HPPIR1_EL1_ref_def ICC_HPPIR1_EL1_ref_def ICV_HPPIR0_EL1_ref_def
+  ICC_HPPIR0_EL1_ref_def ICC_CTLR_EL3_ref_def ICV_CTLR_EL1_ref_def ICC_CTLR_EL1_S_ref_def
+  ICC_CTLR_EL1_NS_ref_def ICV_BPR0_EL1_ref_def ICC_BPR0_EL1_ref_def ICV_AP1R_EL1_ref_def
+  ICC_AP1R_EL1_S_ref_def ICC_AP1R_EL1_NS_ref_def ICV_AP0R_EL1_ref_def ICH_HCR_EL2_ref_def
+  ICC_SRE_EL3_ref_def ICC_SRE_EL2_ref_def ICC_SRE_EL1_S_ref_def ICC_SRE_EL1_NS_ref_def
+  ICC_AP0R_EL1_ref_def HSTR_EL2_ref_def HFGWTR_EL2_ref_def HFGITR_EL2_ref_def HDFGWTR_EL2_ref_def
+  HACR_EL2_ref_def GMID_EL1_ref_def GCR_EL1_ref_def FPEXC32_EL2_ref_def ERXSTATUS_EL1_ref_def
+  ERXPFGF_EL1_ref_def ERXPFGCTL_EL1_ref_def ERXPFGCDN_EL1_ref_def ERXMISC3_EL1_ref_def
+  ERXMISC2_EL1_ref_def ERXMISC1_EL1_ref_def ERXMISC0_EL1_ref_def ERXFR_EL1_ref_def
+  ERXCTLR_EL1_ref_def ERXADDR_EL1_ref_def ERRSELR_EL1_ref_def ERRIDR_EL1_ref_def DCZID_EL0_ref_def
+  DBGVCR32_EL2_ref_def DBGDTR_EL0_ref_def DBGDTRRX_EL0_ref_def DBGCLAIMSET_EL1_ref_def
+  DBGCLAIMCLR_EL1_ref_def DBGAUTHSTATUS_EL1_ref_def DACR32_EL2_ref_def CSSELR_EL1_ref_def
+  CNTPS_CVAL_EL1_ref_def CNTPS_CTL_EL1_ref_def CNTVOFF_EL2_ref_def CNTV_CVAL_EL0_ref_def
+  CNTHV_CVAL_EL2_ref_def CNTHVS_CVAL_EL2_ref_def CNTV_CTL_EL0_ref_def CNTHV_CTL_EL2_ref_def
+  CNTHVS_CTL_EL2_ref_def CNTP_CVAL_EL0_ref_def CNTP_CTL_EL0_ref_def CNTPOFF_EL2_ref_def
+  CNTHP_CVAL_EL2_ref_def CNTHP_CTL_EL2_ref_def CNTHPS_CVAL_EL2_ref_def CNTHPS_CTL_EL2_ref_def
+  CNTKCTL_EL1_ref_def CNTHCTL_EL2_ref_def CNTFRQ_EL0_ref_def CCSIDR_EL1_ref_def CCSIDR2_EL1_ref_def
+  BRBTS_EL1_ref_def BRBTGT_EL1_ref_def BRBTGTINJ_EL1_ref_def BRBSRC_EL1_ref_def
+  BRBSRCINJ_EL1_ref_def BRBINF_EL1_ref_def BRBINFINJ_EL1_ref_def HDFGRTR_EL2_ref_def
+  APIBKeyLo_EL1_ref_def APIBKeyHi_EL1_ref_def APIAKeyLo_EL1_ref_def APIAKeyHi_EL1_ref_def
+  APGAKeyLo_EL1_ref_def APGAKeyHi_EL1_ref_def APDBKeyLo_EL1_ref_def APDBKeyHi_EL1_ref_def
+  APDAKeyLo_EL1_ref_def APDAKeyHi_EL1_ref_def AMEVTYPER1_EL0_ref_def AMEVTYPER0_EL0_ref_def
+  AMEVCNTVOFF1_EL2_ref_def AMEVCNTVOFF0_EL2_ref_def AMEVCNTR1_EL0_ref_def AMEVCNTR0_ref_def
+  AMCR_EL0_ref_def AMCNTENSET1_EL0_ref_def AMCNTENSET0_EL0_ref_def AMCNTENCLR1_EL0_ref_def
+  HAFGRTR_EL2_ref_def AMCNTENCLR0_EL0_ref_def AMCGCR_EL0_ref_def AMCG1IDR_EL0_ref_def
+  AMUSERENR_EL0_ref_def AMCFGR_EL0_ref_def AMAIR_EL3_ref_def AMAIR_EL2_ref_def AMAIR_EL1_ref_def
+  AIDR_EL1_ref_def AFSR1_EL3_ref_def AFSR1_EL2_ref_def AFSR1_EL1_ref_def AFSR0_EL3_ref_def
+  AFSR0_EL2_ref_def AFSR0_EL1_ref_def ACTLR_EL3_ref_def ACTLR_EL2_ref_def VNCR_EL2_ref_def
+  tlb_enabled_ref_def VSTTBR_EL2_ref_def VSTCR_EL2_ref_def TTBR0_EL3_ref_def TTBR1_EL2_ref_def
+  TTBR0_EL2_ref_def TTBR1_EL1_ref_def TTBR0_EL1_ref_def InGuardedPage_ref_def GPTBR_EL3_ref_def
+  GPCCR_EL3_ref_def MPAMSM_EL1_ref_def MPAM0_EL1_ref_def MPAMVPM7_EL2_ref_def MPAMVPM6_EL2_ref_def
+  MPAMVPM5_EL2_ref_def MPAMVPM4_EL2_ref_def MPAMVPM3_EL2_ref_def MPAMVPM2_EL2_ref_def
+  MPAMVPM1_EL2_ref_def MPAMVPMV_EL2_ref_def MPAMVPM0_EL2_ref_def MPAMHCR_EL2_ref_def
+  MPAM1_EL1_0_62_ref_def MPAMIDR_EL1_ref_def MPAM2_EL2_0_62_ref_def MPAM3_EL3_ref_def
+  MAIR_EL3_ref_def MAIR_EL2_ref_def MAIR_EL1_ref_def SDER32_EL2_ref_def EDWAR_ref_def
+  DBGWVR_EL1_ref_def DBGWCR_EL1_ref_def OSLSR_EL1_ref_def VTTBR_EL2_ref_def VTCR_EL2_ref_def
+  DBGBVR_EL1_ref_def DBGBCR_EL1_ref_def CONTEXTIDR_EL2_ref_def CONTEXTIDR_EL1_ref_def
+  TFSR_EL3_ref_def TFSR_EL2_ref_def TFSR_EL1_ref_def TFSRE0_EL1_ref_def DBGDSCRint_16_28_ref_def
+  MDSCR_EL1_ref_def TTBCR_S_ref_def IFSR_S_ref_def IFSR32_EL2_ref_def DFSR_S_ref_def MVBAR_ref_def
+  ACTLR_EL1_ref_def HFGRTR_EL2_ref_def ACCDATA_EL1_ref_def VBAR_S_ref_def VBAR_EL3_ref_def
+  VBAR_EL2_ref_def VBAR_EL1_ref_def SPSR_und_ref_def SPSR_mon_ref_def SPSR_irq_ref_def
+  SPSR_fiq_ref_def SPSR_abt_ref_def SPSR_EL3_ref_def SPSR_EL2_ref_def SPSR_EL1_ref_def
+  SCTLR_S_ref_def SCTLR_EL3_ref_def SCTLR_EL2_ref_def SCTLR_EL1_ref_def ZA_ref_def Z_ref_def
+  SP_EL3_ref_def SP_EL2_ref_def SP_EL1_ref_def SP_EL0_ref_def P_ref_def NSACR_ref_def
+  CPTR_EL3_ref_def CPTR_EL2_ref_def CPACR_EL1_ref_def FFR_ref_def SMCR_EL3_ref_def SMCR_EL2_ref_def
+  SMCR_EL1_ref_def max_implemented_smeveclen_ref_def ZCR_EL3_ref_def ZCR_EL2_ref_def ZCR_EL1_ref_def
+  ELR_EL3_ref_def ELR_EL2_ref_def ELR_EL1_ref_def RTPIDEN_ref_def RLPIDEN_ref_def
+  DBGPRCR_EL1_ref_def OSDLR_EL1_ref_def SPIDEN_ref_def DBGEN_ref_def EDSCR_31_31_ref_def
+  EDSCR_0_28_ref_def MDCCSR_EL0_ref_def DSPSR_EL0_ref_def DLR_EL0_ref_def OSECCR_EL1_ref_def
+  BranchTaken_ref_def PC_ref_def SP_mon_ref_def LR_mon_ref_def TCR_EL3_ref_def TCR_EL2_ref_def
+  TCR_EL1_ref_def Records_TGT_ref_def Records_SRC_ref_def Records_INF_ref_def BRBIDR0_EL1_ref_def
+  TSTATE_ref_def ICC_PMR_EL1_ref_def PMUEventAccumulator_ref_def PMEVTYPER_EL0_ref_def
+  PMCR_EL0_ref_def MDCR_EL2_ref_def MDCR_EL3_ref_def last_branch_valid_ref_def
   last_cycle_count_ref_def BRBFCR_EL1_ref_def BRBCR_EL2_ref_def BRBCR_EL1_ref_def MFAR_EL3_ref_def
   HPFAR_EL2_ref_def FAR_EL3_ref_def FAR_EL2_ref_def FAR_EL1_ref_def ESR_EL3_ref_def ESR_EL2_ref_def
-  ESR_EL1_ref_def ThisInstrEnc_ref_def R_ref_def ThisInstr_ref_def unpred_tsize_aborts_ref_def
-  ICACHE_CCSIDR_RESET_ref_def DCACHE_CCSIDR_RESET_ref_def CLIDR_EL1_ref_def cycle_count_ref_def
-  GIC_Pending_ref_def HCRX_EL2_ref_def SCR_ref_def SCR_EL3_ref_def HCR_EL2_ref_def
-  trcclaim_tags_ref_def claim_tags_ref_def ERRnFR_ref_def RVBAR_ref_def FPSR_ref_def FPCR_ref_def
-  mpam_vpmr_max_ref_def mpam_pmg_max_ref_def mpam_partid_max_ref_def mpam_has_hcr_ref_def
-  impdef_res_TG1_ref_def impdef_res_TG0_ref_def PhysicalCount_ref_def CFG_RVBAR_ref_def
-  supported_va_size_ref_def supported_pa_size_ref_def num_watchpoints_ref_def
-  num_event_counters_ref_def num_ctx_breakpoints_ref_def num_breakpoints_ref_def
-  num_brb_records_ref_def has_sve_extended_bf16_ref_def block_bbm_implemented_ref_def
-  CTR_EL0_ref_def vmid16_implemented_ref_def sme_only_ref_def rme_implemented_ref_def
-  pacqarma5_implemented_ref_def pacqarma3_implemented_ref_def pac_frac_implemented_ref_def
-  mte_implemented_ref_def mpam_implemented_ref_def mops_option_a_supported_ref_def
-  isb_is_branch_ref_def highest_el_aarch32_ref_def has_sme_priority_control_ref_def
-  has_sme_i16i64_ref_def has_sme_f64f64_ref_def has_sme_ref_def feat_ls64_v_ref_def
-  feat_ls64_accdata_ref_def feat_ls64_ref_def empam_tidr_implemented_ref_def
+  ESR_EL1_ref_def ThisInstrEnc_ref_def R30_ref_def R29_ref_def R28_ref_def R27_ref_def R26_ref_def
+  R25_ref_def R24_ref_def R23_ref_def R22_ref_def R21_ref_def R20_ref_def R19_ref_def R18_ref_def
+  R17_ref_def R16_ref_def R15_ref_def R14_ref_def R13_ref_def R12_ref_def R11_ref_def R10_ref_def
+  R9_ref_def R8_ref_def R7_ref_def R6_ref_def R5_ref_def R4_ref_def R3_ref_def R2_ref_def R1_ref_def
+  R0_ref_def ThisInstr_ref_def unpred_tsize_aborts_ref_def ICACHE_CCSIDR_RESET_ref_def
+  DCACHE_CCSIDR_RESET_ref_def CLIDR_EL1_ref_def cycle_count_ref_def HCRX_EL2_ref_def SCR_ref_def
+  SCR_EL3_ref_def HCR_EL2_ref_def trcclaim_tags_ref_def claim_tags_ref_def ERRnFR_ref_def
+  RVBAR_ref_def FPSR_ref_def FPCR_ref_def mpam_vpmr_max_ref_def mpam_pmg_max_ref_def
+  mpam_partid_max_ref_def mpam_has_hcr_ref_def impdef_res_TG1_ref_def impdef_res_TG0_ref_def
+  PhysicalCount_ref_def CFG_RVBAR_ref_def supported_va_size_ref_def supported_pa_size_ref_def
+  num_watchpoints_ref_def num_event_counters_ref_def num_ctx_breakpoints_ref_def
+  num_breakpoints_ref_def num_brb_records_ref_def has_sve_extended_bf16_ref_def
+  block_bbm_implemented_ref_def CTR_EL0_ref_def vmid16_implemented_ref_def sme_only_ref_def
+  rme_implemented_ref_def pacqarma5_implemented_ref_def pacqarma3_implemented_ref_def
+  pac_frac_implemented_ref_def mte_implemented_ref_def mpam_implemented_ref_def
+  mops_option_a_supported_ref_def isb_is_branch_ref_def highest_el_aarch32_ref_def
+  has_sme_priority_control_ref_def has_sme_i16i64_ref_def has_sme_f64f64_ref_def has_sme_ref_def
+  feat_ls64_v_ref_def feat_ls64_accdata_ref_def feat_ls64_ref_def empam_tidr_implemented_ref_def
   empam_sdeflt_implemented_ref_def empam_implemented_ref_def empam_force_ns_implemented_ref_def
   empam_force_ns_RAO_ref_def crypto_sm4_implemented_ref_def crypto_sm3_implemented_ref_def
   crypto_sha512_implemented_ref_def crypto_sha3_implemented_ref_def
@@ -236,16 +238,6 @@ declare register_value_of_string_def[simp]
 
 lemma regval_string[simp]:
   "string_of_register_value (register_value_of_string v) = Some v"
-  by auto
-
-lemma InterruptID_of_regval_eq_Some_iff[simp]:
-  "InterruptID_of_regval rv = Some v \<longleftrightarrow> rv = Regval_InterruptID v"
-  by (cases rv; auto)
-
-declare regval_of_InterruptID_def[simp]
-
-lemma regval_InterruptID[simp]:
-  "InterruptID_of_regval (regval_of_InterruptID v) = Some v"
   by auto
 
 lemma ProcState_of_regval_eq_Some_iff[simp]:
@@ -469,7 +461,7 @@ proof -
   with assms show ?thesis by (induction v) (auto simp: regval_of_list_def)
 qed
 
-lemma liftS_read_reg_STACK_LIMIT[liftState_simp]:
+(*lemma liftS_read_reg_STACK_LIMIT[liftState_simp]:
   "\<lbrakk>read_reg STACK_LIMIT_ref\<rbrakk>\<^sub>S = read_regS STACK_LIMIT_ref"
   by (intro liftState_read_reg) (auto simp: register_defs)
 
@@ -2131,6 +2123,14 @@ lemma liftS_read_reg_GICC_DIR[liftState_simp]:
 
 lemma liftS_write_reg_GICC_DIR[liftState_simp]:
   "\<lbrakk>write_reg GICC_DIR_ref v\<rbrakk>\<^sub>S = write_regS GICC_DIR_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_GICC_CTLR[liftState_simp]:
+  "\<lbrakk>read_reg GICC_CTLR_ref\<rbrakk>\<^sub>S = read_regS GICC_CTLR_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_GICC_CTLR[liftState_simp]:
+  "\<lbrakk>write_reg GICC_CTLR_ref v\<rbrakk>\<^sub>S = write_regS GICC_CTLR_ref v"
   by (intro liftState_write_reg) (auto simp: register_defs)
 
 lemma liftS_read_reg_GICC_BPR[liftState_simp]:
@@ -4917,22 +4917,6 @@ lemma liftS_write_reg_InGuardedPage[liftState_simp]:
   "\<lbrakk>write_reg InGuardedPage_ref v\<rbrakk>\<^sub>S = write_regS InGuardedPage_ref v"
   by (intro liftState_write_reg) (auto simp: register_defs)
 
-lemma liftS_read_reg_GIC_Active[liftState_simp]:
-  "\<lbrakk>read_reg GIC_Active_ref\<rbrakk>\<^sub>S = read_regS GIC_Active_ref"
-  by (intro liftState_read_reg) (auto simp: register_defs)
-
-lemma liftS_write_reg_GIC_Active[liftState_simp]:
-  "\<lbrakk>write_reg GIC_Active_ref v\<rbrakk>\<^sub>S = write_regS GIC_Active_ref v"
-  by (intro liftState_write_reg) (auto simp: register_defs)
-
-lemma liftS_read_reg_GICC_CTLR[liftState_simp]:
-  "\<lbrakk>read_reg GICC_CTLR_ref\<rbrakk>\<^sub>S = read_regS GICC_CTLR_ref"
-  by (intro liftState_read_reg) (auto simp: register_defs)
-
-lemma liftS_write_reg_GICC_CTLR[liftState_simp]:
-  "\<lbrakk>write_reg GICC_CTLR_ref v\<rbrakk>\<^sub>S = write_regS GICC_CTLR_ref v"
-  by (intro liftState_write_reg) (auto simp: register_defs)
-
 lemma liftS_read_reg_GPTBR_EL3[liftState_simp]:
   "\<lbrakk>read_reg GPTBR_EL3_ref\<rbrakk>\<^sub>S = read_regS GPTBR_EL3_ref"
   by (intro liftState_read_reg) (auto simp: register_defs)
@@ -5957,12 +5941,252 @@ lemma liftS_write_reg_ThisInstrEnc[liftState_simp]:
   "\<lbrakk>write_reg ThisInstrEnc_ref v\<rbrakk>\<^sub>S = write_regS ThisInstrEnc_ref v"
   by (intro liftState_write_reg) (auto simp: register_defs)
 
-lemma liftS_read_reg_R[liftState_simp]:
-  "\<lbrakk>read_reg R_ref\<rbrakk>\<^sub>S = read_regS R_ref"
+lemma liftS_read_reg_R30[liftState_simp]:
+  "\<lbrakk>read_reg R30_ref\<rbrakk>\<^sub>S = read_regS R30_ref"
   by (intro liftState_read_reg) (auto simp: register_defs)
 
-lemma liftS_write_reg_R[liftState_simp]:
-  "\<lbrakk>write_reg R_ref v\<rbrakk>\<^sub>S = write_regS R_ref v"
+lemma liftS_write_reg_R30[liftState_simp]:
+  "\<lbrakk>write_reg R30_ref v\<rbrakk>\<^sub>S = write_regS R30_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R29[liftState_simp]:
+  "\<lbrakk>read_reg R29_ref\<rbrakk>\<^sub>S = read_regS R29_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R29[liftState_simp]:
+  "\<lbrakk>write_reg R29_ref v\<rbrakk>\<^sub>S = write_regS R29_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R28[liftState_simp]:
+  "\<lbrakk>read_reg R28_ref\<rbrakk>\<^sub>S = read_regS R28_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R28[liftState_simp]:
+  "\<lbrakk>write_reg R28_ref v\<rbrakk>\<^sub>S = write_regS R28_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R27[liftState_simp]:
+  "\<lbrakk>read_reg R27_ref\<rbrakk>\<^sub>S = read_regS R27_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R27[liftState_simp]:
+  "\<lbrakk>write_reg R27_ref v\<rbrakk>\<^sub>S = write_regS R27_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R26[liftState_simp]:
+  "\<lbrakk>read_reg R26_ref\<rbrakk>\<^sub>S = read_regS R26_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R26[liftState_simp]:
+  "\<lbrakk>write_reg R26_ref v\<rbrakk>\<^sub>S = write_regS R26_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R25[liftState_simp]:
+  "\<lbrakk>read_reg R25_ref\<rbrakk>\<^sub>S = read_regS R25_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R25[liftState_simp]:
+  "\<lbrakk>write_reg R25_ref v\<rbrakk>\<^sub>S = write_regS R25_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R24[liftState_simp]:
+  "\<lbrakk>read_reg R24_ref\<rbrakk>\<^sub>S = read_regS R24_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R24[liftState_simp]:
+  "\<lbrakk>write_reg R24_ref v\<rbrakk>\<^sub>S = write_regS R24_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R23[liftState_simp]:
+  "\<lbrakk>read_reg R23_ref\<rbrakk>\<^sub>S = read_regS R23_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R23[liftState_simp]:
+  "\<lbrakk>write_reg R23_ref v\<rbrakk>\<^sub>S = write_regS R23_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R22[liftState_simp]:
+  "\<lbrakk>read_reg R22_ref\<rbrakk>\<^sub>S = read_regS R22_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R22[liftState_simp]:
+  "\<lbrakk>write_reg R22_ref v\<rbrakk>\<^sub>S = write_regS R22_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R21[liftState_simp]:
+  "\<lbrakk>read_reg R21_ref\<rbrakk>\<^sub>S = read_regS R21_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R21[liftState_simp]:
+  "\<lbrakk>write_reg R21_ref v\<rbrakk>\<^sub>S = write_regS R21_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R20[liftState_simp]:
+  "\<lbrakk>read_reg R20_ref\<rbrakk>\<^sub>S = read_regS R20_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R20[liftState_simp]:
+  "\<lbrakk>write_reg R20_ref v\<rbrakk>\<^sub>S = write_regS R20_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R19[liftState_simp]:
+  "\<lbrakk>read_reg R19_ref\<rbrakk>\<^sub>S = read_regS R19_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R19[liftState_simp]:
+  "\<lbrakk>write_reg R19_ref v\<rbrakk>\<^sub>S = write_regS R19_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R18[liftState_simp]:
+  "\<lbrakk>read_reg R18_ref\<rbrakk>\<^sub>S = read_regS R18_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R18[liftState_simp]:
+  "\<lbrakk>write_reg R18_ref v\<rbrakk>\<^sub>S = write_regS R18_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R17[liftState_simp]:
+  "\<lbrakk>read_reg R17_ref\<rbrakk>\<^sub>S = read_regS R17_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R17[liftState_simp]:
+  "\<lbrakk>write_reg R17_ref v\<rbrakk>\<^sub>S = write_regS R17_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R16[liftState_simp]:
+  "\<lbrakk>read_reg R16_ref\<rbrakk>\<^sub>S = read_regS R16_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R16[liftState_simp]:
+  "\<lbrakk>write_reg R16_ref v\<rbrakk>\<^sub>S = write_regS R16_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R15[liftState_simp]:
+  "\<lbrakk>read_reg R15_ref\<rbrakk>\<^sub>S = read_regS R15_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R15[liftState_simp]:
+  "\<lbrakk>write_reg R15_ref v\<rbrakk>\<^sub>S = write_regS R15_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R14[liftState_simp]:
+  "\<lbrakk>read_reg R14_ref\<rbrakk>\<^sub>S = read_regS R14_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R14[liftState_simp]:
+  "\<lbrakk>write_reg R14_ref v\<rbrakk>\<^sub>S = write_regS R14_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R13[liftState_simp]:
+  "\<lbrakk>read_reg R13_ref\<rbrakk>\<^sub>S = read_regS R13_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R13[liftState_simp]:
+  "\<lbrakk>write_reg R13_ref v\<rbrakk>\<^sub>S = write_regS R13_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R12[liftState_simp]:
+  "\<lbrakk>read_reg R12_ref\<rbrakk>\<^sub>S = read_regS R12_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R12[liftState_simp]:
+  "\<lbrakk>write_reg R12_ref v\<rbrakk>\<^sub>S = write_regS R12_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R11[liftState_simp]:
+  "\<lbrakk>read_reg R11_ref\<rbrakk>\<^sub>S = read_regS R11_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R11[liftState_simp]:
+  "\<lbrakk>write_reg R11_ref v\<rbrakk>\<^sub>S = write_regS R11_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R10[liftState_simp]:
+  "\<lbrakk>read_reg R10_ref\<rbrakk>\<^sub>S = read_regS R10_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R10[liftState_simp]:
+  "\<lbrakk>write_reg R10_ref v\<rbrakk>\<^sub>S = write_regS R10_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R9[liftState_simp]:
+  "\<lbrakk>read_reg R9_ref\<rbrakk>\<^sub>S = read_regS R9_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R9[liftState_simp]:
+  "\<lbrakk>write_reg R9_ref v\<rbrakk>\<^sub>S = write_regS R9_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R8[liftState_simp]:
+  "\<lbrakk>read_reg R8_ref\<rbrakk>\<^sub>S = read_regS R8_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R8[liftState_simp]:
+  "\<lbrakk>write_reg R8_ref v\<rbrakk>\<^sub>S = write_regS R8_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R7[liftState_simp]:
+  "\<lbrakk>read_reg R7_ref\<rbrakk>\<^sub>S = read_regS R7_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R7[liftState_simp]:
+  "\<lbrakk>write_reg R7_ref v\<rbrakk>\<^sub>S = write_regS R7_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R6[liftState_simp]:
+  "\<lbrakk>read_reg R6_ref\<rbrakk>\<^sub>S = read_regS R6_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R6[liftState_simp]:
+  "\<lbrakk>write_reg R6_ref v\<rbrakk>\<^sub>S = write_regS R6_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R5[liftState_simp]:
+  "\<lbrakk>read_reg R5_ref\<rbrakk>\<^sub>S = read_regS R5_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R5[liftState_simp]:
+  "\<lbrakk>write_reg R5_ref v\<rbrakk>\<^sub>S = write_regS R5_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R4[liftState_simp]:
+  "\<lbrakk>read_reg R4_ref\<rbrakk>\<^sub>S = read_regS R4_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R4[liftState_simp]:
+  "\<lbrakk>write_reg R4_ref v\<rbrakk>\<^sub>S = write_regS R4_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R3[liftState_simp]:
+  "\<lbrakk>read_reg R3_ref\<rbrakk>\<^sub>S = read_regS R3_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R3[liftState_simp]:
+  "\<lbrakk>write_reg R3_ref v\<rbrakk>\<^sub>S = write_regS R3_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R2[liftState_simp]:
+  "\<lbrakk>read_reg R2_ref\<rbrakk>\<^sub>S = read_regS R2_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R2[liftState_simp]:
+  "\<lbrakk>write_reg R2_ref v\<rbrakk>\<^sub>S = write_regS R2_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R1[liftState_simp]:
+  "\<lbrakk>read_reg R1_ref\<rbrakk>\<^sub>S = read_regS R1_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R1[liftState_simp]:
+  "\<lbrakk>write_reg R1_ref v\<rbrakk>\<^sub>S = write_regS R1_ref v"
+  by (intro liftState_write_reg) (auto simp: register_defs)
+
+lemma liftS_read_reg_R0[liftState_simp]:
+  "\<lbrakk>read_reg R0_ref\<rbrakk>\<^sub>S = read_regS R0_ref"
+  by (intro liftState_read_reg) (auto simp: register_defs)
+
+lemma liftS_write_reg_R0[liftState_simp]:
+  "\<lbrakk>write_reg R0_ref v\<rbrakk>\<^sub>S = write_regS R0_ref v"
   by (intro liftState_write_reg) (auto simp: register_defs)
 
 lemma liftS_read_reg_ThisInstr[liftState_simp]:
@@ -6011,14 +6235,6 @@ lemma liftS_read_reg_cycle_count[liftState_simp]:
 
 lemma liftS_write_reg_cycle_count[liftState_simp]:
   "\<lbrakk>write_reg cycle_count_ref v\<rbrakk>\<^sub>S = write_regS cycle_count_ref v"
-  by (intro liftState_write_reg) (auto simp: register_defs)
-
-lemma liftS_read_reg_GIC_Pending[liftState_simp]:
-  "\<lbrakk>read_reg GIC_Pending_ref\<rbrakk>\<^sub>S = read_regS GIC_Pending_ref"
-  by (intro liftState_read_reg) (auto simp: register_defs)
-
-lemma liftS_write_reg_GIC_Pending[liftState_simp]:
-  "\<lbrakk>write_reg GIC_Pending_ref v\<rbrakk>\<^sub>S = write_regS GIC_Pending_ref v"
   by (intro liftState_write_reg) (auto simp: register_defs)
 
 lemma liftS_read_reg_HCRX_EL2[liftState_simp]:
@@ -6531,7 +6747,7 @@ lemma liftS_read_reg_SEE[liftState_simp]:
 
 lemma liftS_write_reg_SEE[liftState_simp]:
   "\<lbrakk>write_reg SEE_ref v\<rbrakk>\<^sub>S = write_regS SEE_ref v"
-  by (intro liftState_write_reg) (auto simp: register_defs)
+  by (intro liftState_write_reg) (auto simp: register_defs)*)
 
 lemma set_regval_Some_type_cases:
   assumes "set_regval r rv s = Some s'"
@@ -6554,7 +6770,6 @@ lemma set_regval_Some_type_cases:
   | (bitvector_8_dec) v where "bitvector_8_dec_of_regval rv = Some v" and "s' = s\<lparr>bitvector_8_dec_reg := (bitvector_8_dec_reg s)(r := v)\<rparr>"
   | (bool) v where "bool_of_register_value rv = Some v" and "s' = s\<lparr>bool_reg := (bool_reg s)(r := v)\<rparr>"
   | (int) v where "int_of_register_value rv = Some v" and "s' = s\<lparr>int_reg := (int_reg s)(r := v)\<rparr>"
-  | (option_InterruptID) v where "option_of_regval (\<lambda>v. InterruptID_of_regval v) rv = Some v" and "s' = s\<lparr>option_InterruptID_reg := (option_InterruptID_reg s)(r := v)\<rparr>"
   | (signal) v where "signal_of_regval rv = Some v" and "s' = s\<lparr>signal_reg := (signal_reg s)(r := v)\<rparr>"
   | (vector_16_inc_bitvector_256_dec) v where "vector_of_regval (\<lambda>v. bitvector_256_dec_of_regval v) rv = Some v" and "s' = s\<lparr>vector_16_inc_bitvector_256_dec_reg := (vector_16_inc_bitvector_256_dec_reg s)(r := v)\<rparr>"
   | (vector_16_inc_bitvector_64_dec) v where "vector_of_regval (\<lambda>v. bitvector_64_dec_of_regval v) rv = Some v" and "s' = s\<lparr>vector_16_inc_bitvector_64_dec_reg := (vector_16_inc_bitvector_64_dec_reg s)(r := v)\<rparr>"
@@ -6793,6 +7008,7 @@ proof -
     subgoal using bitvector_32_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_32_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_32_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_32_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_32_dec by (auto simp: register_defs fun_upd_def)
@@ -7127,8 +7343,6 @@ proof -
     subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bool by (auto simp: register_defs fun_upd_def)
-    subgoal using option_InterruptID by (auto simp: register_defs fun_upd_def)
-    subgoal using bitvector_32_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
@@ -7257,14 +7471,43 @@ proof -
     subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using InstrEnc by (auto simp: register_defs fun_upd_def)
-    subgoal using vector_31_inc_bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
+    subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_32_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bool by (auto simp: register_defs fun_upd_def)
     subgoal using vector_7_inc_bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using vector_7_inc_bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using int by (auto simp: register_defs fun_upd_def)
-    subgoal using option_InterruptID by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_32_dec by (auto simp: register_defs fun_upd_def)
     subgoal using bitvector_64_dec by (auto simp: register_defs fun_upd_def)
@@ -7353,7 +7596,6 @@ lemma get_regval_type_cases:
   | (bitvector_8_dec) "get_regval r = (\<lambda>s. Some (regval_of_bitvector_8_dec (bitvector_8_dec_reg s r)))"
   | (bool) "get_regval r = (\<lambda>s. Some (register_value_of_bool (bool_reg s r)))"
   | (int) "get_regval r = (\<lambda>s. Some (register_value_of_int (int_reg s r)))"
-  | (option_InterruptID) "get_regval r = (\<lambda>s. Some (regval_of_option (\<lambda>v. regval_of_InterruptID v) (option_InterruptID_reg s r)))"
   | (signal) "get_regval r = (\<lambda>s. Some (regval_of_signal (signal_reg s r)))"
   | (vector_16_inc_bitvector_256_dec) "get_regval r = (\<lambda>s. Some (regval_of_vector (\<lambda>v. regval_of_bitvector_256_dec v) (vector_16_inc_bitvector_256_dec_reg s r)))"
   | (vector_16_inc_bitvector_64_dec) "get_regval r = (\<lambda>s. Some (regval_of_vector (\<lambda>v. regval_of_bitvector_64_dec v) (vector_16_inc_bitvector_64_dec_reg s r)))"
@@ -7594,6 +7836,7 @@ proof (cases "map_of registers r")
     subgoal using bitvector_32_dec by (auto simp: register_defs)
     subgoal using bitvector_32_dec by (auto simp: register_defs)
     subgoal using bitvector_32_dec by (auto simp: register_defs)
+    subgoal using bitvector_32_dec by (auto simp: register_defs)
     subgoal using bitvector_64_dec by (auto simp: register_defs)
     subgoal using bitvector_64_dec by (auto simp: register_defs)
     subgoal using bitvector_32_dec by (auto simp: register_defs)
@@ -7928,8 +8171,6 @@ proof (cases "map_of registers r")
     subgoal using bitvector_64_dec by (auto simp: register_defs)
     subgoal using bitvector_64_dec by (auto simp: register_defs)
     subgoal using bool by (auto simp: register_defs)
-    subgoal using option_InterruptID by (auto simp: register_defs)
-    subgoal using bitvector_32_dec by (auto simp: register_defs)
     subgoal using bitvector_64_dec by (auto simp: register_defs)
     subgoal using bitvector_64_dec by (auto simp: register_defs)
     subgoal using bitvector_64_dec by (auto simp: register_defs)
@@ -8058,14 +8299,43 @@ proof (cases "map_of registers r")
     subgoal using bitvector_64_dec by (auto simp: register_defs)
     subgoal using bitvector_64_dec by (auto simp: register_defs)
     subgoal using InstrEnc by (auto simp: register_defs)
-    subgoal using vector_31_inc_bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
+    subgoal using bitvector_64_dec by (auto simp: register_defs)
     subgoal using bitvector_32_dec by (auto simp: register_defs)
     subgoal using bool by (auto simp: register_defs)
     subgoal using vector_7_inc_bitvector_64_dec by (auto simp: register_defs)
     subgoal using vector_7_inc_bitvector_64_dec by (auto simp: register_defs)
     subgoal using bitvector_64_dec by (auto simp: register_defs)
     subgoal using int by (auto simp: register_defs)
-    subgoal using option_InterruptID by (auto simp: register_defs)
     subgoal using bitvector_64_dec by (auto simp: register_defs)
     subgoal using bitvector_32_dec by (auto simp: register_defs)
     subgoal using bitvector_64_dec by (auto simp: register_defs)

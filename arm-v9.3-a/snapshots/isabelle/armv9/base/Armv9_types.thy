@@ -8,11 +8,11 @@ imports
   "Sail.Sail2_instr_kinds"
   "Sail.Sail2_values"
   "Sail.Sail2_operators_mwords"
-  "Sail.Sail2_prompt_monad"
-  "Sail.Sail2_prompt"
+  "Sail.Sail2_concurrency_interface"
+  "Sail.Sail2_monadic_combinators"
   "Sail.Sail2_string"
-  "Prelude"
   "Sail.Sail2_undefined"
+  "Prelude"
 
 begin 
 
@@ -22,50 +22,11 @@ begin
 \<comment> \<open>\<open>open import Sail2_values\<close>\<close>
 \<comment> \<open>\<open>open import Sail2_string\<close>\<close>
 \<comment> \<open>\<open>open import Sail2_operators_mwords\<close>\<close>
-\<comment> \<open>\<open>open import Sail2_prompt_monad\<close>\<close>
-\<comment> \<open>\<open>open import Prelude\<close>\<close>
-\<comment> \<open>\<open>open import Sail2_prompt\<close>\<close>
+\<comment> \<open>\<open>open import Sail2_concurrency_interface\<close>\<close>
+\<comment> \<open>\<open>open import Sail2_monadic_combinators\<close>\<close>
 \<comment> \<open>\<open>open import Sail2_undefined\<close>\<close>
+\<comment> \<open>\<open>open import Prelude\<close>\<close>
 type_synonym 'n bits =" ( 'n::len)Word.word "
-
-datatype regfp  =
-    RFull " (string)"
-  | RSlice " ((string * ii * ii))"
-  | RSliceBit " ((string * ii))"
-  | RField " ((string * string))"
-
-
-
-type_synonym regfps  =" regfp list "
-
-datatype niafp  =
-    NIAFP_successor " (unit)"
-  | NIAFP_concrete_address " ( 64 bits)"
-  | NIAFP_indirect_address " (unit)"
-
-
-
-type_synonym niafps  =" niafp list "
-
-datatype diafp  =   DIAFP_none " (unit)" | DIAFP_concrete " ( 64 bits)" | DIAFP_reg " (regfp)"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 datatype signal =   LOW | HIGH
 
@@ -84,6 +45,292 @@ datatype exception  =
 
 
 
+
+
+
+
+
+\<comment> \<open>\<open>type result 'a 'b = | Ok of ('a) | Err of ('b)
+
+
+
+type Access_variety = | AV_plain | AV_exclusive | AV_atomic_rmw
+
+
+
+type Access_strength = | AS_normal | AS_rel_or_acq | AS_acq_rcpc
+
+
+
+type Explicit_access_kind  =
+  <| Explicit_access_kind_variety : Access_variety; Explicit_access_kind_strength : Access_strength; |>
+
+
+type Access_kind 'arch_ak =
+  | AK_explicit of (Explicit_access_kind)
+  | AK_ifetch of (unit)
+  | AK_ttw of (unit)
+  | AK_arch of ('arch_ak)
+
+
+
+type Mem_read_request 'n 'vasize 'pa 'ts 'arch_ak =
+  <| Mem_read_request_access_kind : Access_kind 'arch_ak;
+     Mem_read_request_va : maybe (bits 'vasize);
+     Mem_read_request_pa : 'pa;
+     Mem_read_request_translation : 'ts;
+     Mem_read_request_size : integer;
+     Mem_read_request_tag : bool; |>
+declare isabelle target_sorts Mem_read_request = `len` `len` _ _ _
+
+
+type Mem_write_request 'n 'vasize 'pa 'ts 'arch_ak =
+  <| Mem_write_request_access_kind : Access_kind 'arch_ak;
+     Mem_write_request_va : maybe (bits 'vasize);
+     Mem_write_request_pa : 'pa;
+     Mem_write_request_translation : 'ts;
+     Mem_write_request_size : integer;
+     Mem_write_request_value : maybe (bits 'int8_times_n);
+     Mem_write_request_tag : maybe bool; |>
+declare isabelle target_sorts Mem_write_request = `len` `len` _ _ _\<close>\<close>
+
+
+datatype SecurityState =   SS_NonSecure | SS_Root | SS_Realm | SS_Secure
+
+
+
+datatype AccType =
+    AccType_NORMAL
+  | AccType_STREAM
+  | AccType_VEC
+  | AccType_VECSTREAM
+  | AccType_SVE
+  | AccType_SVESTREAM
+  | AccType_SME
+  | AccType_SMESTREAM
+  | AccType_UNPRIVSTREAM
+  | AccType_A32LSMD
+  | AccType_ATOMIC
+  | AccType_ATOMICRW
+  | AccType_ORDERED
+  | AccType_ORDEREDRW
+  | AccType_ORDEREDATOMIC
+  | AccType_ORDEREDATOMICRW
+  | AccType_ATOMICLS64
+  | AccType_LIMITEDORDERED
+  | AccType_UNPRIV
+  | AccType_IFETCH
+  | AccType_TTW
+  | AccType_NONFAULT
+  | AccType_CNOTFIRST
+  | AccType_NV2REGISTER
+  | AccType_DC
+  | AccType_IC
+  | AccType_DCZVA
+  | AccType_ATPAN
+  | AccType_AT
+
+
+
+datatype Fault =
+    Fault_None
+  | Fault_AccessFlag
+  | Fault_Alignment
+  | Fault_Background
+  | Fault_Domain
+  | Fault_Permission
+  | Fault_Translation
+  | Fault_AddressSize
+  | Fault_SyncExternal
+  | Fault_SyncExternalOnWalk
+  | Fault_SyncParity
+  | Fault_SyncParityOnWalk
+  | Fault_GPCFOnWalk
+  | Fault_GPCFOnOutput
+  | Fault_AsyncParity
+  | Fault_AsyncExternal
+  | Fault_Debug
+  | Fault_TLBConflict
+  | Fault_BranchTarget
+  | Fault_HWUpdateAccessFlag
+  | Fault_Lockdown
+  | Fault_Exclusive
+  | Fault_ICacheMaint
+
+
+
+datatype Regime =   Regime_EL3 | Regime_EL30 | Regime_EL2 | Regime_EL20 | Regime_EL10
+
+
+
+datatype PASpace =   PAS_NonSecure | PAS_Secure | PAS_Root | PAS_Realm
+
+
+
+record FullAddress  = 
+ FullAddress_paspace ::" PASpace " 
+ FullAddress_address ::" 52 bits "  
+
+
+
+datatype GPCF =   GPCF_None | GPCF_AddressSize | GPCF_Walk | GPCF_EABT | GPCF_Fail
+
+
+
+record GPCFRecord  = 
+ GPCFRecord_gpf ::" GPCF " 
+ GPCFRecord_level ::" ii "  
+
+
+
+record FaultRecord  =
+  
+ FaultRecord_statuscode ::" Fault " 
+
+     FaultRecord_acctype ::" AccType " 
+
+     FaultRecord_ipaddress ::" FullAddress " 
+
+     FaultRecord_gpcf ::" GPCFRecord " 
+
+     FaultRecord_paddress ::" FullAddress " 
+
+     FaultRecord_gpcfs2walk ::" bool " 
+
+     FaultRecord_s2fs1walk ::" bool " 
+
+     FaultRecord_write ::" bool " 
+
+     FaultRecord_level ::" ii " 
+
+     FaultRecord_extflag ::" 1 bits " 
+
+     FaultRecord_secondstage ::" bool " 
+
+     FaultRecord_domain ::" 4 bits " 
+
+     FaultRecord_errortype ::" 2 bits " 
+
+     FaultRecord_debugmoe ::" 4 bits "  
+
+
+
+type_synonym TranslationInfo  =" unit "
+
+datatype arm_acc_type  =
+    SAcc_STREAM " (unit)"
+  | SAcc_VEC " (bool)"
+  | SAcc_SVE " (bool)"
+  | SAcc_SME " (bool)"
+  | SAcc_UNPRIV " (bool)"
+  | SAcc_A32LSMD " (unit)"
+  | SAcc_ATOMICLS64 " (unit)"
+  | SAcc_LIMITEDORDERED " (unit)"
+  | SAcc_NONFAULT " (unit)"
+  | SAcc_CNOTFIRST " (unit)"
+  | SAcc_NV2REGISTER " (unit)"
+  | SAcc_DC " (unit)"
+  | SAcc_IC " (unit)"
+  | SAcc_DCZVA " (unit)"
+  | SAcc_ATPAN " (unit)"
+  | SAcc_AT " (unit)"
+
+
+
+datatype TLBILevel =   TLBILevel_Any | TLBILevel_Last
+
+
+
+datatype TLBIMemAttr =   TLBI_AllAttr | TLBI_ExcludeXS
+
+
+
+datatype TLBIOp =
+    TLBIOp_DALL
+  | TLBIOp_DASID
+  | TLBIOp_DVA
+  | TLBIOp_IALL
+  | TLBIOp_IASID
+  | TLBIOp_IVA
+  | TLBIOp_ALL
+  | TLBIOp_ASID
+  | TLBIOp_IPAS2
+  | TLBIOp_VAA
+  | TLBIOp_VA
+  | TLBIOp_VMALL
+  | TLBIOp_VMALLS12
+  | TLBIOp_RIPAS2
+  | TLBIOp_RVAA
+  | TLBIOp_RVA
+  | TLBIOp_RPA
+  | TLBIOp_PAALL
+
+
+
+record TLBIRecord  =
+  
+ TLBIRecord_op ::" TLBIOp " 
+
+     TLBIRecord_from_aarch64 ::" bool " 
+
+     TLBIRecord_security ::" SecurityState " 
+
+     TLBIRecord_regime ::" Regime " 
+
+     TLBIRecord_vmid ::" 16 bits " 
+
+     TLBIRecord_asid ::" 16 bits " 
+
+     TLBIRecord_level ::" TLBILevel " 
+
+     TLBIRecord_attr ::" TLBIMemAttr " 
+
+     TLBIRecord_ipaspace ::" PASpace " 
+
+     TLBIRecord_address ::" 64 bits " 
+
+     TLBIRecord_end_address_name ::" 64 bits " 
+
+     TLBIRecord_tg ::" 2 bits "  
+
+
+
+datatype Shareability =   Shareability_NSH | Shareability_ISH | Shareability_OSH
+
+
+
+record TLBI  = 
+ TLBI_rec ::" TLBIRecord " 
+ TLBI_shareability ::" Shareability "  
+
+
+
+datatype MBReqDomain =
+    MBReqDomain_Nonshareable
+  | MBReqDomain_InnerShareable
+  | MBReqDomain_OuterShareable
+  | MBReqDomain_FullSystem
+
+
+
+datatype MBReqTypes =   MBReqTypes_Reads | MBReqTypes_Writes | MBReqTypes_All
+
+
+
+record DxB  = 
+ DxB_domain ::" MBReqDomain " 
+ DxB_types ::" MBReqTypes " 
+ DxB_nXS ::" bool "  
+
+
+
+datatype Barrier  =
+    Barrier_DSB0 " (DxB)"
+  | Barrier_DMB0 " (DxB)"
+  | Barrier_ISB0 " (unit)"
+  | Barrier_SSBB " (unit)"
+  | Barrier_PSSBB " (unit)"
+  | Barrier_SB " (unit)"
 
 
 
@@ -163,24 +410,6 @@ record ProcState  =
      ProcState_E ::" 1 bits " 
 
      ProcState_M ::" 5 bits "  
-
-
-
-datatype InterruptID =
-    InterruptID_PMUIRQ
-  | InterruptID_COMMIRQ
-  | InterruptID_CTIIRQ
-  | InterruptID_COMMRX
-  | InterruptID_COMMTX
-  | InterruptID_CNTP
-  | InterruptID_CNTHP
-  | InterruptID_CNTHPS
-  | InterruptID_CNTPS
-  | InterruptID_CNTV
-  | InterruptID_CNTHV
-  | InterruptID_CNTHVS
-
-
 
 
 
@@ -329,16 +558,6 @@ datatype Exception =
 
 
 
-datatype PASpace =   PAS_NonSecure | PAS_Secure | PAS_Root | PAS_Realm
-
-
-
-record FullAddress  = 
- FullAddress_paspace ::" PASpace " 
- FullAddress_address ::" 52 bits "  
-
-
-
 record ExceptionRecord  =
   
  ExceptionRecord_exceptype ::" Exception " 
@@ -440,10 +659,6 @@ datatype CrossTriggerIn =
 
 
 
-datatype SecurityState =   SS_NonSecure | SS_Root | SS_Realm | SS_Secure
-
-
-
 datatype TMFailure =
     TMFailure_CNCL
   | TMFailure_DBG
@@ -453,108 +668,6 @@ datatype TMFailure =
   | TMFailure_MEM
   | TMFailure_TRIVIAL
   | TMFailure_IMP
-
-
-
-datatype AccType =
-    AccType_NORMAL
-  | AccType_STREAM
-  | AccType_VEC
-  | AccType_VECSTREAM
-  | AccType_SVE
-  | AccType_SVESTREAM
-  | AccType_SME
-  | AccType_SMESTREAM
-  | AccType_UNPRIVSTREAM
-  | AccType_A32LSMD
-  | AccType_ATOMIC
-  | AccType_ATOMICRW
-  | AccType_ORDERED
-  | AccType_ORDEREDRW
-  | AccType_ORDEREDATOMIC
-  | AccType_ORDEREDATOMICRW
-  | AccType_ATOMICLS64
-  | AccType_LIMITEDORDERED
-  | AccType_UNPRIV
-  | AccType_IFETCH
-  | AccType_TTW
-  | AccType_NONFAULT
-  | AccType_CNOTFIRST
-  | AccType_NV2REGISTER
-  | AccType_DC
-  | AccType_IC
-  | AccType_DCZVA
-  | AccType_ATPAN
-  | AccType_AT
-
-
-
-datatype Fault =
-    Fault_None
-  | Fault_AccessFlag
-  | Fault_Alignment
-  | Fault_Background
-  | Fault_Domain
-  | Fault_Permission
-  | Fault_Translation
-  | Fault_AddressSize
-  | Fault_SyncExternal
-  | Fault_SyncExternalOnWalk
-  | Fault_SyncParity
-  | Fault_SyncParityOnWalk
-  | Fault_GPCFOnWalk
-  | Fault_GPCFOnOutput
-  | Fault_AsyncParity
-  | Fault_AsyncExternal
-  | Fault_Debug
-  | Fault_TLBConflict
-  | Fault_BranchTarget
-  | Fault_HWUpdateAccessFlag
-  | Fault_Lockdown
-  | Fault_Exclusive
-  | Fault_ICacheMaint
-
-
-
-datatype GPCF =   GPCF_None | GPCF_AddressSize | GPCF_Walk | GPCF_EABT | GPCF_Fail
-
-
-
-record GPCFRecord  = 
- GPCFRecord_gpf ::" GPCF " 
- GPCFRecord_level ::" ii "  
-
-
-
-record FaultRecord  =
-  
- FaultRecord_statuscode ::" Fault " 
-
-     FaultRecord_acctype ::" AccType " 
-
-     FaultRecord_ipaddress ::" FullAddress " 
-
-     FaultRecord_gpcf ::" GPCFRecord " 
-
-     FaultRecord_paddress ::" FullAddress " 
-
-     FaultRecord_gpcfs2walk ::" bool " 
-
-     FaultRecord_s2fs1walk ::" bool " 
-
-     FaultRecord_write ::" bool " 
-
-     FaultRecord_level ::" ii " 
-
-     FaultRecord_extflag ::" 1 bits " 
-
-     FaultRecord_secondstage ::" bool " 
-
-     FaultRecord_domain ::" 4 bits " 
-
-     FaultRecord_errortype ::" 2 bits " 
-
-     FaultRecord_debugmoe ::" 4 bits "  
 
 
 
@@ -592,10 +705,6 @@ datatype MemType =   MemType_Normal | MemType_Device
 
 
 
-datatype Shareability =   Shareability_NSH | Shareability_ISH | Shareability_OSH
-
-
-
 record MemoryAttributes  =
   
  MemoryAttributes_memtype ::" MemType " 
@@ -611,10 +720,6 @@ record MemoryAttributes  =
      MemoryAttributes_tagged ::" bool " 
 
      MemoryAttributes_xs ::" 1 bits "  
-
-
-
-datatype Regime =   Regime_EL3 | Regime_EL30 | Regime_EL2 | Regime_EL20 | Regime_EL10
 
 
 
@@ -999,77 +1104,7 @@ record CacheRecord  =
 
 
 
-datatype TLBILevel =   TLBILevel_Any | TLBILevel_Last
-
-
-
-datatype TLBIMemAttr =   TLBI_AllAttr | TLBI_ExcludeXS
-
-
-
-datatype TLBIOp =
-    TLBIOp_DALL
-  | TLBIOp_DASID
-  | TLBIOp_DVA
-  | TLBIOp_IALL
-  | TLBIOp_IASID
-  | TLBIOp_IVA
-  | TLBIOp_ALL
-  | TLBIOp_ASID
-  | TLBIOp_IPAS2
-  | TLBIOp_VAA
-  | TLBIOp_VA
-  | TLBIOp_VMALL
-  | TLBIOp_VMALLS12
-  | TLBIOp_RIPAS2
-  | TLBIOp_RVAA
-  | TLBIOp_RVA
-  | TLBIOp_RPA
-  | TLBIOp_PAALL
-
-
-
-record TLBIRecord  =
-  
- TLBIRecord_op ::" TLBIOp " 
-
-     TLBIRecord_from_aarch64 ::" bool " 
-
-     TLBIRecord_security ::" SecurityState " 
-
-     TLBIRecord_regime ::" Regime " 
-
-     TLBIRecord_vmid ::" 16 bits " 
-
-     TLBIRecord_asid ::" 16 bits " 
-
-     TLBIRecord_level ::" TLBILevel " 
-
-     TLBIRecord_attr ::" TLBIMemAttr " 
-
-     TLBIRecord_ipaspace ::" PASpace " 
-
-     TLBIRecord_address ::" 64 bits " 
-
-     TLBIRecord_end_address_name ::" 64 bits " 
-
-     TLBIRecord_tg ::" 2 bits "  
-
-
-
 datatype PrivilegeLevel =   PL3 | PL2 | PL1 | PL0
-
-
-
-datatype MBReqDomain =
-    MBReqDomain_Nonshareable
-  | MBReqDomain_InnerShareable
-  | MBReqDomain_OuterShareable
-  | MBReqDomain_FullSystem
-
-
-
-datatype MBReqTypes =   MBReqTypes_Reads | MBReqTypes_Writes | MBReqTypes_All
 
 
 
@@ -1107,6 +1142,22 @@ datatype FPRounding =
 
 datatype FPType =
     FPType_Zero | FPType_Denormal | FPType_Nonzero | FPType_Infinity | FPType_QNaN | FPType_SNaN
+
+
+
+datatype InterruptID =
+    InterruptID_PMUIRQ
+  | InterruptID_COMMIRQ
+  | InterruptID_CTIIRQ
+  | InterruptID_COMMRX
+  | InterruptID_COMMTX
+  | InterruptID_CNTP
+  | InterruptID_CNTHP
+  | InterruptID_CNTHPS
+  | InterruptID_CNTPS
+  | InterruptID_CNTV
+  | InterruptID_CNTHV
+  | InterruptID_CNTHVS
 
 
 
@@ -1279,7 +1330,6 @@ datatype register_value  =
   | Regval_int " (ii)"
   | Regval_real " (real)"
   | Regval_string " (string)"
-  | Regval_InterruptID " (InterruptID)"
   | Regval_ProcState " (ProcState)"
   | Regval_TMState " (TMState)"
   | Regval___InstrEnc " (InstrEnc)"
@@ -1343,8 +1393,6 @@ record regstate  =
 
      int_reg ::" string \<Rightarrow> ii " 
 
-     option_InterruptID_reg ::" string \<Rightarrow>  InterruptID option " 
-
      signal_reg ::" string \<Rightarrow> signal " 
 
      vector_16_inc_bitvector_256_dec_reg ::" string \<Rightarrow> ( 256 Word.word) list " 
@@ -1371,21 +1419,6 @@ record regstate  =
 
 
 
-
-
-\<comment> \<open>\<open>val InterruptID_of_regval : register_value -> (maybe InterruptID)\<close>\<close>
-
-fun InterruptID_of_regval  :: \<open> register_value \<Rightarrow>(InterruptID)option \<close>  where 
-     \<open> InterruptID_of_regval (Regval_InterruptID (v)) = ( Some v )\<close> 
-  for  "v"  :: " InterruptID "
-|\<open> InterruptID_of_regval _ = ( None )\<close>
-
-
-\<comment> \<open>\<open>val regval_of_InterruptID : InterruptID -> register_value\<close>\<close>
-
-definition regval_of_InterruptID  :: \<open> InterruptID \<Rightarrow> register_value \<close>  where 
-     \<open> regval_of_InterruptID v = ( Regval_InterruptID v )\<close> 
-  for  "v"  :: " InterruptID "
 
 
 \<comment> \<open>\<open>val ProcState_of_regval : register_value -> (maybe ProcState)\<close>\<close>
@@ -3879,6 +3912,16 @@ definition GICC_DIR_ref  :: \<open>((regstate),(register_value),((32)Word.word))
   read_from = ((\<lambda> s . (bitvector_32_dec_reg   s) (''GICC_DIR''))),
   write_to = ((\<lambda> v s .  (( s (| bitvector_32_dec_reg :=
   ((\<lambda> reg .  if reg = (''GICC_DIR'') then v else(bitvector_32_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_32_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_32_dec v)) |) )\<close>
+
+
+definition GICC_CTLR_ref  :: \<open>((regstate),(register_value),((32)Word.word))register_ref \<close>  where 
+     \<open> GICC_CTLR_ref = ( (|
+  name = (''GICC_CTLR''),
+  read_from = ((\<lambda> s . (bitvector_32_dec_reg   s) (''GICC_CTLR''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_32_dec_reg :=
+  ((\<lambda> reg .  if reg = (''GICC_CTLR'') then v else(bitvector_32_dec_reg   s) reg)) |))))),
   of_regval = ((\<lambda> v .  bitvector_32_dec_of_regval v)),
   regval_of = ((\<lambda> v .  regval_of_bitvector_32_dec v)) |) )\<close>
 
@@ -7363,26 +7406,6 @@ definition InGuardedPage_ref  :: \<open>((regstate),(register_value),(bool))regi
   regval_of = ((\<lambda> v .  register_value_of_bool v)) |) )\<close>
 
 
-definition GIC_Active_ref  :: \<open>((regstate),(register_value),((InterruptID)option))register_ref \<close>  where 
-     \<open> GIC_Active_ref = ( (|
-  name = (''__GIC_Active''),
-  read_from = ((\<lambda> s . (option_InterruptID_reg   s) (''__GIC_Active''))),
-  write_to = ((\<lambda> v s .  (( s (| option_InterruptID_reg :=
-  ((\<lambda> reg .  if reg = (''__GIC_Active'') then v else(option_InterruptID_reg   s) reg)) |))))),
-  of_regval = ((\<lambda> v .  option_of_regval ((\<lambda> v .  InterruptID_of_regval v)) v)),
-  regval_of = ((\<lambda> v .  regval_of_option ((\<lambda> v .  regval_of_InterruptID v)) v)) |) )\<close>
-
-
-definition GICC_CTLR_ref  :: \<open>((regstate),(register_value),((32)Word.word))register_ref \<close>  where 
-     \<open> GICC_CTLR_ref = ( (|
-  name = (''GICC_CTLR''),
-  read_from = ((\<lambda> s . (bitvector_32_dec_reg   s) (''GICC_CTLR''))),
-  write_to = ((\<lambda> v s .  (( s (| bitvector_32_dec_reg :=
-  ((\<lambda> reg .  if reg = (''GICC_CTLR'') then v else(bitvector_32_dec_reg   s) reg)) |))))),
-  of_regval = ((\<lambda> v .  bitvector_32_dec_of_regval v)),
-  regval_of = ((\<lambda> v .  regval_of_bitvector_32_dec v)) |) )\<close>
-
-
 definition GPTBR_EL3_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
      \<open> GPTBR_EL3_ref = ( (|
   name = (''GPTBR_EL3''),
@@ -8663,14 +8686,314 @@ definition ThisInstrEnc_ref  :: \<open>((regstate),(register_value),(InstrEnc))r
   regval_of = ((\<lambda> v .  regval_of___InstrEnc v)) |) )\<close>
 
 
-definition R_ref  :: \<open>((regstate),(register_value),(((64)Word.word)list))register_ref \<close>  where 
-     \<open> R_ref = ( (|
-  name = (''_R''),
-  read_from = ((\<lambda> s . (vector_31_inc_bitvector_64_dec_reg   s) (''_R''))),
-  write_to = ((\<lambda> v s .  (( s (| vector_31_inc_bitvector_64_dec_reg :=
-  ((\<lambda> reg .  if reg = (''_R'') then v else(vector_31_inc_bitvector_64_dec_reg   s) reg)) |))))),
-  of_regval = ((\<lambda> v .  vector_of_regval ((\<lambda> v .  bitvector_64_dec_of_regval v)) v)),
-  regval_of = ((\<lambda> v .  regval_of_vector ((\<lambda> v .  regval_of_bitvector_64_dec v)) v)) |) )\<close>
+definition R30_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R30_ref = ( (|
+  name = (''R30''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R30''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R30'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R29_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R29_ref = ( (|
+  name = (''R29''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R29''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R29'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R28_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R28_ref = ( (|
+  name = (''R28''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R28''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R28'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R27_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R27_ref = ( (|
+  name = (''R27''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R27''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R27'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R26_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R26_ref = ( (|
+  name = (''R26''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R26''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R26'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R25_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R25_ref = ( (|
+  name = (''R25''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R25''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R25'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R24_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R24_ref = ( (|
+  name = (''R24''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R24''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R24'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R23_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R23_ref = ( (|
+  name = (''R23''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R23''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R23'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R22_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R22_ref = ( (|
+  name = (''R22''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R22''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R22'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R21_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R21_ref = ( (|
+  name = (''R21''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R21''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R21'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R20_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R20_ref = ( (|
+  name = (''R20''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R20''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R20'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R19_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R19_ref = ( (|
+  name = (''R19''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R19''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R19'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R18_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R18_ref = ( (|
+  name = (''R18''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R18''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R18'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R17_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R17_ref = ( (|
+  name = (''R17''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R17''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R17'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R16_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R16_ref = ( (|
+  name = (''R16''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R16''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R16'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R15_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R15_ref = ( (|
+  name = (''R15''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R15''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R15'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R14_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R14_ref = ( (|
+  name = (''R14''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R14''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R14'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R13_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R13_ref = ( (|
+  name = (''R13''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R13''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R13'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R12_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R12_ref = ( (|
+  name = (''R12''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R12''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R12'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R11_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R11_ref = ( (|
+  name = (''R11''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R11''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R11'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R10_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R10_ref = ( (|
+  name = (''R10''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R10''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R10'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R9_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R9_ref = ( (|
+  name = (''R9''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R9''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R9'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R8_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R8_ref = ( (|
+  name = (''R8''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R8''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R8'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R7_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R7_ref = ( (|
+  name = (''R7''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R7''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R7'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R6_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R6_ref = ( (|
+  name = (''R6''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R6''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R6'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R5_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R5_ref = ( (|
+  name = (''R5''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R5''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R5'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R4_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R4_ref = ( (|
+  name = (''R4''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R4''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R4'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R3_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R3_ref = ( (|
+  name = (''R3''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R3''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R3'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R2_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R2_ref = ( (|
+  name = (''R2''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R2''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R2'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R1_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R1_ref = ( (|
+  name = (''R1''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R1''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R1'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
+
+
+definition R0_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
+     \<open> R0_ref = ( (|
+  name = (''R0''),
+  read_from = ((\<lambda> s . (bitvector_64_dec_reg   s) (''R0''))),
+  write_to = ((\<lambda> v s .  (( s (| bitvector_64_dec_reg :=
+  ((\<lambda> reg .  if reg = (''R0'') then v else(bitvector_64_dec_reg   s) reg)) |))))),
+  of_regval = ((\<lambda> v .  bitvector_64_dec_of_regval v)),
+  regval_of = ((\<lambda> v .  regval_of_bitvector_64_dec v)) |) )\<close>
 
 
 definition ThisInstr_ref  :: \<open>((regstate),(register_value),((32)Word.word))register_ref \<close>  where 
@@ -8731,16 +9054,6 @@ definition cycle_count_ref  :: \<open>((regstate),(register_value),(int))registe
   ((\<lambda> reg .  if reg = (''__cycle_count'') then v else(int_reg   s) reg)) |))))),
   of_regval = ((\<lambda> v .  int_of_register_value v)),
   regval_of = ((\<lambda> v .  register_value_of_int v)) |) )\<close>
-
-
-definition GIC_Pending_ref  :: \<open>((regstate),(register_value),((InterruptID)option))register_ref \<close>  where 
-     \<open> GIC_Pending_ref = ( (|
-  name = (''__GIC_Pending''),
-  read_from = ((\<lambda> s . (option_InterruptID_reg   s) (''__GIC_Pending''))),
-  write_to = ((\<lambda> v s .  (( s (| option_InterruptID_reg :=
-  ((\<lambda> reg .  if reg = (''__GIC_Pending'') then v else(option_InterruptID_reg   s) reg)) |))))),
-  of_regval = ((\<lambda> v .  option_of_regval ((\<lambda> v .  InterruptID_of_regval v)) v)),
-  regval_of = ((\<lambda> v .  regval_of_option ((\<lambda> v .  regval_of_InterruptID v)) v)) |) )\<close>
 
 
 definition HCRX_EL2_ref  :: \<open>((regstate),(register_value),((64)Word.word))register_ref \<close>  where 
@@ -9593,6 +9906,7 @@ definition registers  :: \<open>(string*((register_value \<Rightarrow> bool)*(re
     ((''GICC_HPPIR''), register_ops_of GICC_HPPIR_ref),
     ((''GICC_EOIR''), register_ops_of GICC_EOIR_ref),
     ((''GICC_DIR''), register_ops_of GICC_DIR_ref),
+    ((''GICC_CTLR''), register_ops_of GICC_CTLR_ref),
     ((''GICC_BPR''), register_ops_of GICC_BPR_ref),
     ((''GICC_AIAR''), register_ops_of GICC_AIAR_ref),
     ((''GICC_AHPPIR''), register_ops_of GICC_AHPPIR_ref),
@@ -9941,8 +10255,6 @@ definition registers  :: \<open>(string*((register_value \<Rightarrow> bool)*(re
     ((''TTBR1_EL1''), register_ops_of TTBR1_EL1_ref),
     ((''TTBR0_EL1''), register_ops_of TTBR0_EL1_ref),
     ((''InGuardedPage''), register_ops_of InGuardedPage_ref),
-    ((''__GIC_Active''), register_ops_of GIC_Active_ref),
-    ((''GICC_CTLR''), register_ops_of GICC_CTLR_ref),
     ((''GPTBR_EL3''), register_ops_of GPTBR_EL3_ref),
     ((''GPCCR_EL3''), register_ops_of GPCCR_EL3_ref),
     ((''MPAMSM_EL1''), register_ops_of MPAMSM_EL1_ref),
@@ -10071,14 +10383,43 @@ definition registers  :: \<open>(string*((register_value \<Rightarrow> bool)*(re
     ((''ESR_EL2''), register_ops_of ESR_EL2_ref),
     ((''ESR_EL1''), register_ops_of ESR_EL1_ref),
     ((''__ThisInstrEnc''), register_ops_of ThisInstrEnc_ref),
-    ((''_R''), register_ops_of R_ref),
+    ((''R30''), register_ops_of R30_ref),
+    ((''R29''), register_ops_of R29_ref),
+    ((''R28''), register_ops_of R28_ref),
+    ((''R27''), register_ops_of R27_ref),
+    ((''R26''), register_ops_of R26_ref),
+    ((''R25''), register_ops_of R25_ref),
+    ((''R24''), register_ops_of R24_ref),
+    ((''R23''), register_ops_of R23_ref),
+    ((''R22''), register_ops_of R22_ref),
+    ((''R21''), register_ops_of R21_ref),
+    ((''R20''), register_ops_of R20_ref),
+    ((''R19''), register_ops_of R19_ref),
+    ((''R18''), register_ops_of R18_ref),
+    ((''R17''), register_ops_of R17_ref),
+    ((''R16''), register_ops_of R16_ref),
+    ((''R15''), register_ops_of R15_ref),
+    ((''R14''), register_ops_of R14_ref),
+    ((''R13''), register_ops_of R13_ref),
+    ((''R12''), register_ops_of R12_ref),
+    ((''R11''), register_ops_of R11_ref),
+    ((''R10''), register_ops_of R10_ref),
+    ((''R9''), register_ops_of R9_ref),
+    ((''R8''), register_ops_of R8_ref),
+    ((''R7''), register_ops_of R7_ref),
+    ((''R6''), register_ops_of R6_ref),
+    ((''R5''), register_ops_of R5_ref),
+    ((''R4''), register_ops_of R4_ref),
+    ((''R3''), register_ops_of R3_ref),
+    ((''R2''), register_ops_of R2_ref),
+    ((''R1''), register_ops_of R1_ref),
+    ((''R0''), register_ops_of R0_ref),
     ((''__ThisInstr''), register_ops_of ThisInstr_ref),
     ((''__unpred_tsize_aborts''), register_ops_of unpred_tsize_aborts_ref),
     ((''__ICACHE_CCSIDR_RESET''), register_ops_of ICACHE_CCSIDR_RESET_ref),
     ((''__DCACHE_CCSIDR_RESET''), register_ops_of DCACHE_CCSIDR_RESET_ref),
     ((''CLIDR_EL1''), register_ops_of CLIDR_EL1_ref),
     ((''__cycle_count''), register_ops_of cycle_count_ref),
-    ((''__GIC_Pending''), register_ops_of GIC_Pending_ref),
     ((''HCRX_EL2''), register_ops_of HCRX_EL2_ref),
     ((''SCR''), register_ops_of SCR_ref),
     ((''SCR_EL3''), register_ops_of SCR_EL3_ref),
@@ -10161,6 +10502,6 @@ definition set_regval  :: \<open> string \<Rightarrow> register_value \<Rightarr
 
 
 
-type_synonym( 'a, 'r) MR =" (register_value, regstate, 'a, 'r, exception) base_monadR "
-type_synonym 'a M =" (register_value, regstate, 'a, exception) base_monad "
+type_synonym( 'a, 'r) MR =" (Fault, Barrier, unit, ( FaultRecord option), ( 56 Word.word), TLBI, ( TranslationInfo option), arm_acc_type, register_value, regstate, 'a, 'r, exception) base_monadR "
+type_synonym 'a M =" (Fault, Barrier, unit, ( FaultRecord option), ( 56 Word.word), TLBI, ( TranslationInfo option), arm_acc_type, register_value, regstate, 'a, exception) base_monad "
 end

@@ -8,8 +8,8 @@ imports
   "Sail.Sail2_instr_kinds"
   "Sail.Sail2_values"
   "Sail.Sail2_operators_mwords"
-  "Sail.Sail2_prompt_monad"
-  "Sail.Sail2_prompt"
+  "Sail.Sail2_concurrency_interface"
+  "Sail.Sail2_monadic_combinators"
 
 begin 
 
@@ -17,25 +17,13 @@ begin
 \<comment> \<open>\<open>open import Sail2_instr_kinds\<close>\<close>
 \<comment> \<open>\<open>open import Sail2_values\<close>\<close>
 \<comment> \<open>\<open>open import Sail2_operators_mwords\<close>\<close>
-\<comment> \<open>\<open>open import Sail2_prompt_monad\<close>\<close>
-\<comment> \<open>\<open>open import Sail2_prompt\<close>\<close>
+\<comment> \<open>\<open>open import Sail2_concurrency_interface\<close>\<close>
+\<comment> \<open>\<open>open import Sail2_monadic_combinators\<close>\<close>
 
-\<comment> \<open>\<open>val __ReadMemory : forall 'rv 'n 'e. Size 'n => integer -> mword ty56 -> monad 'rv (mword 'n) 'e\<close>\<close>
-definition ReadMemory  :: \<open> int \<Rightarrow>(56)Word.word \<Rightarrow>('rv,(('n::len)Word.word),'e)monad \<close>  where 
-     \<open> ReadMemory n addr = ( read_mem 
-  instance_Sail2_values_Bitvector_Machine_word_mword_dict instance_Sail2_values_Bitvector_Machine_word_mword_dict Read_plain (( 56 :: int)::int) addr n )\<close> 
-  for  "n"  :: " int " 
-  and  "addr"  :: "(56)Word.word "
-
-\<comment> \<open>\<open>val __WriteMemory : forall 'rv 'n 'e. Size 'n => integer -> mword ty56 -> mword 'n -> monad 'rv unit 'e\<close>\<close>
-definition WriteMemory  :: \<open> int \<Rightarrow>(56)Word.word \<Rightarrow>('n::len)Word.word \<Rightarrow>('rv,(unit),'e)monad \<close>  where 
-     \<open> WriteMemory n addr data = ( write_mem 
-  instance_Sail2_values_Bitvector_Machine_word_mword_dict instance_Sail2_values_Bitvector_Machine_word_mword_dict Write_plain (( 56 :: int)::int) addr n data \<bind>  
-  ((\<lambda>x .  (case  x of _ => return ()  ))) )\<close> 
-  for  "n"  :: " int " 
-  and  "addr"  :: "(56)Word.word " 
-  and  "data"  :: "('n::len)Word.word "
-
+\<comment> \<open>\<open>val __ReadMemory : forall 'rv 'n 'e. Size 'n => integer -> mword ty56 -> monad 'rv (mword 'n) 'e
+let __ReadMemory n addr = read_mem Read_plain (56:integer) addr n
+val __WriteMemory : forall 'rv 'n 'e. Size 'n => integer -> mword ty56 -> mword 'n -> monad 'rv unit 'e
+let __WriteMemory n addr data = write_mem Write_plain (56:integer) addr n data >>= fun _ -> return ()\<close>\<close>
 
 \<comment> \<open>\<open> TODO \<close>\<close>
 \<comment> \<open>\<open>val putchar : integer -> unit\<close>\<close>
@@ -43,13 +31,15 @@ definition putchar0  :: \<open> int \<Rightarrow> unit \<close>  where
      \<open> putchar0 _ = ( ()  )\<close>
 
 
-\<comment> \<open>\<open>val wakeup_request : forall 'rv 'e. unit -> monad 'rv unit 'e\<close>\<close>
-definition wakeup_request  :: \<open> unit \<Rightarrow>('rv,(unit),'e)monad \<close>  where 
+\<comment> \<open>\<open>val wakeup_request : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'e.
+  unit -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv unit 'e\<close>\<close>
+definition wakeup_request  :: \<open> unit \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(unit),'e)monad \<close>  where 
      \<open> wakeup_request _ = ( return ()  )\<close>
 
 
-\<comment> \<open>\<open>val sleep_request : forall 'rv 'e. unit -> monad 'rv unit 'e\<close>\<close>
-definition sleep_request  :: \<open> unit \<Rightarrow>('rv,(unit),'e)monad \<close>  where 
+\<comment> \<open>\<open>val sleep_request : forall 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv 'e.
+  unit -> monad 'abort 'barrier 'cache_op 'fault 'pa 'tlb_op 'translation_summary 'arch_ak 'rv unit 'e\<close>\<close>
+definition sleep_request  :: \<open> unit \<Rightarrow>('abort,'barrier,'cache_op,'fault,'pa,'tlb_op,'translation_summary,'arch_ak,'rv,(unit),'e)monad \<close>  where 
      \<open> sleep_request _ = ( return ()  )\<close>
 
 

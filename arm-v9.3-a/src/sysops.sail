@@ -100,6 +100,6 @@ function CP15ISB () = {
 
 function AArch64_CheckNVCondsIfCurrentEL (op0, op1, crn, crm, op2) = {
     let is_reg_current_el : bool = (((op0 == 3 & op1 == 0) & crn == 4) & crm == 2) & op2 == 2;
-    let have_nv_trap_conds : bool = ((HaveNVExt() & PSTATE.EL == EL1) & EL2Enabled()) & Slice(HCR_EL2, 42, 1) == 0b1;
+    let have_nv_trap_conds : bool = ((HaveNVExt() & PSTATE.EL == EL1) & EL2Enabled()) & HCR_EL2[NV] == 0b1;
     return(is_reg_current_el & have_nv_trap_conds)
 }

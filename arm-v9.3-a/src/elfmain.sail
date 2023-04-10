@@ -77,7 +77,7 @@ function main() = {
           print(concat_str("[Sail] Instr=",
                 concat_str(HexStr(UInt(__ThisInstr)),
                 concat_str(" ESR_EL3=",
-                concat_str(HexStr(UInt(ESR_EL3)),
+                concat_str(HexStr(UInt(ESR_EL3.bits)),
                 concat_str(if __BranchTaken then " branch taken" else "",
                 "\n"))))));
       };

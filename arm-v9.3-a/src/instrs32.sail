@@ -2916,13 +2916,13 @@ function execute_aarch32_instrs_DMB_Op_A_txt option_name = {
     };
     let types = types;
     if (PSTATE.EL == EL0 | PSTATE.EL == EL1) & EL2Enabled() then {
-        if Slice(HCR_read(), 10, 2) == 0b11 then {
+        if HCR_read()[BSU] == 0b11 then {
             domain = MBReqDomain_FullSystem
         };
-        if Slice(HCR_read(), 10, 2) == 0b10 & domain != MBReqDomain_FullSystem then {
+        if HCR_read()[BSU] == 0b10 & domain != MBReqDomain_FullSystem then {
             domain = MBReqDomain_OuterShareable
         };
-        if Slice(HCR_read(), 10, 2) == 0b01 & domain == MBReqDomain_Nonshareable then {
+        if HCR_read()[BSU] == 0b01 & domain == MBReqDomain_Nonshareable then {
             domain = MBReqDomain_InnerShareable
         };
         ()
@@ -2973,7 +2973,7 @@ val execute_aarch32_instrs_DSB_Op_A_txt : bits(4) -> unit
 function execute_aarch32_instrs_DSB_Op_A_txt option_name = {
     nXS : bool = undefined;
     if HaveFeatXS() & HaveFeatHCX() then {
-        nXS = (((PSTATE.EL == EL0 | PSTATE.EL == EL1) & not_bool(ELUsingAArch32(EL2))) & IsHCRXEL2Enabled()) & Slice(HCRX_EL2, 3, 1) == 0b1
+        nXS = (((PSTATE.EL == EL0 | PSTATE.EL == EL1) & not_bool(ELUsingAArch32(EL2))) & IsHCRXEL2Enabled()) & HCRX_EL2[FnXS] == 0b1
     } else {
         nXS = false
     };
@@ -3036,13 +3036,13 @@ function execute_aarch32_instrs_DSB_Op_A_txt option_name = {
       }
     };
     if (PSTATE.EL == EL0 | PSTATE.EL == EL1) & EL2Enabled() then {
-        if Slice(HCR_read(), 10, 2) == 0b11 then {
+        if HCR_read()[BSU] == 0b11 then {
             domain = MBReqDomain_FullSystem
         };
-        if Slice(HCR_read(), 10, 2) == 0b10 & domain != MBReqDomain_FullSystem then {
+        if HCR_read()[BSU] == 0b10 & domain != MBReqDomain_FullSystem then {
             domain = MBReqDomain_OuterShareable
         };
-        if Slice(HCR_read(), 10, 2) == 0b01 & domain == MBReqDomain_Nonshareable then {
+        if HCR_read()[BSU] == 0b01 & domain == MBReqDomain_Nonshareable then {
             domain = MBReqDomain_InnerShareable
         };
         ()
@@ -3440,7 +3440,7 @@ function decode_aarch32_instrs_LDC_i_A1enc_A_txt (cond, P, U, W, Rn, imm8) = {
             throw(Error_Undefined())
         };
         let 'n = UInt(Rn);
-        cp = 14;
+        let 'cp = 14;
         let imm32 : bits(32) = ZeroExtend(imm8 @ 0b00, 32);
         let index : bool = P == 0b1;
         let add : bool = U == 0b1;
@@ -3472,7 +3472,7 @@ function decode_aarch32_instrs_LDC_i_T1enc_A_txt (P, U, W, Rn, imm8) = {
             throw(Error_Undefined())
         };
         let 'n = UInt(Rn);
-        cp = 14;
+        let 'cp = 14;
         let imm32 : bits(32) = ZeroExtend(imm8 @ 0b00, 32);
         let index : bool = P == 0b1;
         let add : bool = U == 0b1;
@@ -3513,7 +3513,7 @@ function decode_aarch32_instrs_LDC_l_A1enc_A_txt (cond, P, U, W, imm8) = {
         };
         let index : bool = P == 0b1;
         let add : bool = U == 0b1;
-        cp = 14;
+        let 'cp = 14;
         let imm32 : bits(32) = ZeroExtend(imm8 @ 0b00, 32);
         if W == 0b1 | P == 0b0 & CurrentInstrSet() != InstrSet_A32 then {
             throw(Error_Unpredictable())
@@ -3542,7 +3542,7 @@ function decode_aarch32_instrs_LDC_l_T1enc_A_txt (P, U, W, imm8) = {
         };
         let index : bool = P == 0b1;
         let add : bool = U == 0b1;
-        cp = 14;
+        let 'cp = 14;
         let imm32 : bits(32) = ZeroExtend(imm8 @ 0b00, 32);
         if W == 0b1 | P == 0b0 & CurrentInstrSet() != InstrSet_A32 then {
             throw(Error_Unpredictable())
@@ -10719,10 +10719,10 @@ function execute_aarch32_instrs_SADD8_Op_A_txt (d, m, n) = {
     R_set(d) = [R_read(d) with 15 .. 8 = sum2[7 .. 0]];
     R_set(d) = [R_read(d) with 23 .. 16 = sum3[7 .. 0]];
     R_set(d) = [R_read(d) with 31 .. 24 = sum4[7 .. 0]];
-    PSTATE.GE[0 .. 0] = if sum1 >= 0 then 0b1 else 0b0;
-    PSTATE.GE[1 .. 1] = if sum2 >= 0 then 0b1 else 0b0;
-    PSTATE.GE[2 .. 2] = if sum3 >= 0 then 0b1 else 0b0;
-    PSTATE.GE[3 .. 3] = if sum4 >= 0 then 0b1 else 0b0
+    PSTATE.GE[0] = Bit(if sum1 >= 0 then 0b1 else 0b0);
+    PSTATE.GE[1] = Bit(if sum2 >= 0 then 0b1 else 0b0);
+    PSTATE.GE[2] = Bit(if sum3 >= 0 then 0b1 else 0b0);
+    PSTATE.GE[3] = Bit(if sum4 >= 0 then 0b1 else 0b0)
 }
 
 val decode_aarch32_instrs_SADD8_A1enc_A_txt : (bits(4), bits(4), bits(4), bits(4)) -> unit
@@ -13305,10 +13305,10 @@ function execute_aarch32_instrs_SSUB8_Op_A_txt (d, m, n) = {
     R_set(d) = [R_read(d) with 15 .. 8 = diff2[7 .. 0]];
     R_set(d) = [R_read(d) with 23 .. 16 = diff3[7 .. 0]];
     R_set(d) = [R_read(d) with 31 .. 24 = diff4[7 .. 0]];
-    PSTATE.GE[0 .. 0] = if diff1 >= 0 then 0b1 else 0b0;
-    PSTATE.GE[1 .. 1] = if diff2 >= 0 then 0b1 else 0b0;
-    PSTATE.GE[2 .. 2] = if diff3 >= 0 then 0b1 else 0b0;
-    PSTATE.GE[3 .. 3] = if diff4 >= 0 then 0b1 else 0b0
+    PSTATE.GE[0] = Bit(if diff1 >= 0 then 0b1 else 0b0);
+    PSTATE.GE[1] = Bit(if diff2 >= 0 then 0b1 else 0b0);
+    PSTATE.GE[2] = Bit(if diff3 >= 0 then 0b1 else 0b0);
+    PSTATE.GE[3] = Bit(if diff4 >= 0 then 0b1 else 0b0)
 }
 
 val decode_aarch32_instrs_SSUB8_A1enc_A_txt : (bits(4), bits(4), bits(4), bits(4)) -> unit
@@ -13374,67 +13374,67 @@ function execute_aarch32_instrs_STC_Op_A_txt (add, imm32, index, n, wback) = {
     if Halted() then {
         MemA_set(address, 4) = DBGDTR_EL0_read(8 * 4)
     } else if PSTATE.EL == EL0 then {
-        if not_bool(ELUsingAArch32(EL1)) & Slice(MDSCR_EL1, 12, 1) == 0b1 then {
-            if (EL2Enabled() & not_bool(ELUsingAArch32(EL2))) & Slice(HCR_EL2, 27, 1) == 0b1 then {
+        if not_bool(ELUsingAArch32(EL1)) & MDSCR_EL1[TDCC] == 0b1 then {
+            if (EL2Enabled() & not_bool(ELUsingAArch32(EL2))) & HCR_EL2[TGE] == 0b1 then {
                 AArch64_AArch32SystemAccessTrap(EL2, UInt(0x06))
             } else {
                 AArch64_AArch32SystemAccessTrap(EL1, UInt(0x06))
             }
-        } else if ELUsingAArch32(EL1) & Slice(DBGDSCRext_read(), 12, 1) == 0b1 then {
-            if (EL2Enabled() & not_bool(ELUsingAArch32(EL2))) & Slice(HCR_EL2, 27, 1) == 0b1 then {
+        } else if ELUsingAArch32(EL1) & DBGDSCRext_read()[UDCCdis] == 0b1 then {
+            if (EL2Enabled() & not_bool(ELUsingAArch32(EL2))) & HCR_EL2[TGE] == 0b1 then {
                 AArch64_AArch32SystemAccessTrap(EL2, UInt(0x06))
-            } else if (EL2Enabled() & ELUsingAArch32(EL2)) & Slice(HCR_read(), 27, 1) == 0b1 then {
+            } else if (EL2Enabled() & ELUsingAArch32(EL2)) & HCR_read()[TGE] == 0b1 then {
                 AArch32_TakeHypTrapException(UInt(0x00))
             } else {
                 throw(Error_Undefined())
             }
-        } else if (EL2Enabled() & not_bool(ELUsingAArch32(EL2))) & Slice(MDCR_EL2, 27, 1) == 0b1 then {
+        } else if (EL2Enabled() & not_bool(ELUsingAArch32(EL2))) & MDCR_EL2[TDCC] == 0b1 then {
             AArch64_AArch32SystemAccessTrap(EL2, UInt(0x06))
-        } else if (EL2Enabled() & ELUsingAArch32(EL2)) & Slice(HDCR_read(), 27, 1) == 0b1 then {
+        } else if (EL2Enabled() & ELUsingAArch32(EL2)) & HDCR_read()[TDCC] == 0b1 then {
             AArch32_TakeHypTrapException(UInt(0x06))
-        } else if (EL2Enabled() & not_bool(ELUsingAArch32(EL2))) & (Slice(HCR_EL2, 27, 1) == 0b1 | (Slice(MDCR_EL2, 8, 1) @ Slice(MDCR_EL2, 9, 1)) != 0b00) then {
+        } else if (EL2Enabled() & not_bool(ELUsingAArch32(EL2))) & (HCR_EL2[TGE] == 0b1 | (MDCR_EL2[TDE] @ MDCR_EL2[TDA]) != 0b00) then {
             AArch64_AArch32SystemAccessTrap(EL2, UInt(0x06))
-        } else if (EL2Enabled() & ELUsingAArch32(EL2)) & (Slice(HCR_read(), 27, 1) == 0b1 | (Slice(HDCR_read(), 8, 1) @ Slice(HDCR_read(), 9, 1)) != 0b00) then {
+        } else if (EL2Enabled() & ELUsingAArch32(EL2)) & (HCR_read()[TGE] == 0b1 | (HDCR_read()[TDE] @ HDCR_read()[TDA]) != 0b00) then {
             AArch32_TakeHypTrapException(UInt(0x06))
-        } else if (HaveEL(EL3) & not_bool(ELUsingAArch32(EL3))) & Slice(MDCR_EL3, 27, 1) == 0b1 then {
+        } else if (HaveEL(EL3) & not_bool(ELUsingAArch32(EL3))) & MDCR_EL3[TDCC] == 0b1 then {
             AArch64_AArch32SystemAccessTrap(EL3, UInt(0x06))
-        } else if (HaveEL(EL3) & ELUsingAArch32(EL3)) & Slice(SDCR, 27, 1) == 0b1 then {
+        } else if (HaveEL(EL3) & ELUsingAArch32(EL3)) & SDCR[TDCC] == 0b1 then {
             AArch32_TakeMonitorTrapException()
-        } else if (HaveEL(EL3) & not_bool(ELUsingAArch32(EL3))) & Slice(MDCR_EL3, 9, 1) == 0b1 then {
+        } else if (HaveEL(EL3) & not_bool(ELUsingAArch32(EL3))) & MDCR_EL3[TDA] == 0b1 then {
             AArch64_AArch32SystemAccessTrap(EL3, UInt(0x06))
         } else {
             MemA_set(address, 4) = DBGDTR_EL0_read(8 * 4)
         }
     } else if PSTATE.EL == EL1 then {
-        if (EL2Enabled() & not_bool(ELUsingAArch32(EL2))) & Slice(MDCR_EL2, 27, 1) == 0b1 then {
+        if (EL2Enabled() & not_bool(ELUsingAArch32(EL2))) & MDCR_EL2[TDCC] == 0b1 then {
             AArch64_AArch32SystemAccessTrap(EL2, UInt(0x06))
-        } else if (EL2Enabled() & ELUsingAArch32(EL2)) & Slice(HDCR_read(), 27, 1) == 0b1 then {
+        } else if (EL2Enabled() & ELUsingAArch32(EL2)) & HDCR_read()[TDCC] == 0b1 then {
             AArch32_TakeHypTrapException(UInt(0x06))
-        } else if (EL2Enabled() & not_bool(ELUsingAArch32(EL2))) & (Slice(MDCR_EL2, 8, 1) @ Slice(MDCR_EL2, 9, 1)) != 0b00 then {
+        } else if (EL2Enabled() & not_bool(ELUsingAArch32(EL2))) & (MDCR_EL2[TDE] @ MDCR_EL2[TDA]) != 0b00 then {
             AArch64_AArch32SystemAccessTrap(EL2, UInt(0x06))
-        } else if (EL2Enabled() & ELUsingAArch32(EL2)) & (Slice(HDCR_read(), 8, 1) @ Slice(HDCR_read(), 9, 1)) != 0b00 then {
+        } else if (EL2Enabled() & ELUsingAArch32(EL2)) & (HDCR_read()[TDE] @ HDCR_read()[TDA]) != 0b00 then {
             AArch32_TakeHypTrapException(UInt(0x06))
-        } else if (HaveEL(EL3) & not_bool(ELUsingAArch32(EL3))) & Slice(MDCR_EL3, 27, 1) == 0b1 then {
+        } else if (HaveEL(EL3) & not_bool(ELUsingAArch32(EL3))) & MDCR_EL3[TDCC] == 0b1 then {
             AArch64_AArch32SystemAccessTrap(EL3, UInt(0x06))
-        } else if (HaveEL(EL3) & ELUsingAArch32(EL3)) & Slice(SDCR, 27, 1) == 0b1 then {
+        } else if (HaveEL(EL3) & ELUsingAArch32(EL3)) & SDCR[TDCC] == 0b1 then {
             AArch32_TakeMonitorTrapException()
-        } else if (HaveEL(EL3) & not_bool(ELUsingAArch32(EL3))) & Slice(MDCR_EL3, 9, 1) == 0b1 then {
+        } else if (HaveEL(EL3) & not_bool(ELUsingAArch32(EL3))) & MDCR_EL3[TDA] == 0b1 then {
             AArch64_AArch32SystemAccessTrap(EL3, UInt(0x06))
         } else {
             MemA_set(address, 4) = DBGDTR_EL0_read(8 * 4)
         }
     } else if PSTATE.EL == EL2 then {
-        if (HaveEL(EL3) & not_bool(ELUsingAArch32(EL3))) & Slice(MDCR_EL3, 27, 1) == 0b1 then {
+        if (HaveEL(EL3) & not_bool(ELUsingAArch32(EL3))) & MDCR_EL3[TDCC] == 0b1 then {
             AArch64_AArch32SystemAccessTrap(EL3, UInt(0x06))
-        } else if (HaveEL(EL3) & ELUsingAArch32(EL3)) & Slice(SDCR, 27, 1) == 0b1 then {
+        } else if (HaveEL(EL3) & ELUsingAArch32(EL3)) & SDCR[TDCC] == 0b1 then {
             AArch32_TakeMonitorTrapException()
-        } else if (HaveEL(EL3) & not_bool(ELUsingAArch32(EL3))) & Slice(MDCR_EL3, 9, 1) == 0b1 then {
+        } else if (HaveEL(EL3) & not_bool(ELUsingAArch32(EL3))) & MDCR_EL3[TDA] == 0b1 then {
             AArch64_AArch32SystemAccessTrap(EL3, UInt(0x06))
         } else {
             MemA_set(address, 4) = DBGDTR_EL0_read(8 * 4)
         }
     } else if PSTATE.EL == EL3 then {
-        if PSTATE.M != M32_Monitor & Slice(SDCR, 27, 1) == 0b1 then {
+        if PSTATE.M != M32_Monitor & SDCR[TDCC] == 0b1 then {
             AArch32_TakeMonitorTrapException()
         } else {
             MemA_set(address, 4) = DBGDTR_EL0_read(8 * 4)
@@ -13455,7 +13455,7 @@ function decode_aarch32_instrs_STC_A1enc_A_txt (cond, P, U, W, Rn, imm8) = {
             throw(Error_Undefined())
         };
         let 'n = UInt(Rn);
-        cp = 14;
+        let 'cp = 14;
         let imm32 : bits(32) = ZeroExtend(imm8 @ 0b00, 32);
         let index : bool = P == 0b1;
         let add : bool = U == 0b1;
@@ -13487,7 +13487,7 @@ function decode_aarch32_instrs_STC_T1enc_A_txt (P, U, W, Rn, imm8) = {
             throw(Error_Undefined())
         };
         let 'n = UInt(Rn);
-        cp = 14;
+        let 'cp = 14;
         let imm32 : bits(32) = ZeroExtend(imm8 @ 0b00, 32);
         let index : bool = P == 0b1;
         let add : bool = U == 0b1;
@@ -17161,10 +17161,10 @@ function execute_aarch32_instrs_UADD8_Op_A_txt (d, m, n) = {
     R_set(d) = [R_read(d) with 15 .. 8 = sum2[7 .. 0]];
     R_set(d) = [R_read(d) with 23 .. 16 = sum3[7 .. 0]];
     R_set(d) = [R_read(d) with 31 .. 24 = sum4[7 .. 0]];
-    PSTATE.GE[0 .. 0] = if sum1 >= UInt(0x100) then 0b1 else 0b0;
-    PSTATE.GE[1 .. 1] = if sum2 >= UInt(0x100) then 0b1 else 0b0;
-    PSTATE.GE[2 .. 2] = if sum3 >= UInt(0x100) then 0b1 else 0b0;
-    PSTATE.GE[3 .. 3] = if sum4 >= UInt(0x100) then 0b1 else 0b0
+    PSTATE.GE[0] = Bit(if sum1 >= UInt(0x100) then 0b1 else 0b0);
+    PSTATE.GE[1] = Bit(if sum2 >= UInt(0x100) then 0b1 else 0b0);
+    PSTATE.GE[2] = Bit(if sum3 >= UInt(0x100) then 0b1 else 0b0);
+    PSTATE.GE[3] = Bit(if sum4 >= UInt(0x100) then 0b1 else 0b0)
 }
 
 val decode_aarch32_instrs_UADD8_A1enc_A_txt : (bits(4), bits(4), bits(4), bits(4)) -> unit
@@ -17364,7 +17364,7 @@ val decode_aarch32_instrs_UDF_A1enc_A_txt : (bits(12), bits(4)) -> unit
 
 function decode_aarch32_instrs_UDF_A1enc_A_txt (imm12, imm4) = {
     if ConditionPassed() then {
-        imm32 = ZeroExtend(imm12 @ imm4, 32);
+        let imm32 : bits(32) = ZeroExtend(imm12 @ imm4, 32);
         execute_aarch32_instrs_UDF_Op_A_txt()
     };
     ()
@@ -17381,7 +17381,7 @@ val decode_aarch32_instrs_UDF_T1enc_A_txt : bits(8) -> unit
 
 function decode_aarch32_instrs_UDF_T1enc_A_txt imm8 = {
     if ConditionPassed() then {
-        imm32 = ZeroExtend(imm8, 32);
+        let imm32 : bits(32) = ZeroExtend(imm8, 32);
         execute_aarch32_instrs_UDF_Op_A_txt()
     };
     ()
@@ -17397,7 +17397,7 @@ val decode_aarch32_instrs_UDF_T2enc_A_txt : (bits(4), bits(12)) -> unit
 
 function decode_aarch32_instrs_UDF_T2enc_A_txt (imm4, imm12) = {
     if ConditionPassed() then {
-        imm32 = ZeroExtend(imm4 @ imm12, 32);
+        let imm32 : bits(32) = ZeroExtend(imm4 @ imm12, 32);
         execute_aarch32_instrs_UDF_Op_A_txt()
     };
     ()
@@ -18908,10 +18908,10 @@ function execute_aarch32_instrs_USUB8_Op_A_txt (d, m, n) = {
     R_set(d) = [R_read(d) with 15 .. 8 = diff2[7 .. 0]];
     R_set(d) = [R_read(d) with 23 .. 16 = diff3[7 .. 0]];
     R_set(d) = [R_read(d) with 31 .. 24 = diff4[7 .. 0]];
-    PSTATE.GE[0 .. 0] = if diff1 >= 0 then 0b1 else 0b0;
-    PSTATE.GE[1 .. 1] = if diff2 >= 0 then 0b1 else 0b0;
-    PSTATE.GE[2 .. 2] = if diff3 >= 0 then 0b1 else 0b0;
-    PSTATE.GE[3 .. 3] = if diff4 >= 0 then 0b1 else 0b0
+    PSTATE.GE[0] = Bit(if diff1 >= 0 then 0b1 else 0b0);
+    PSTATE.GE[1] = Bit(if diff2 >= 0 then 0b1 else 0b0);
+    PSTATE.GE[2] = Bit(if diff3 >= 0 then 0b1 else 0b0);
+    PSTATE.GE[3] = Bit(if diff4 >= 0 then 0b1 else 0b0)
 }
 
 val decode_aarch32_instrs_USUB8_A1enc_A_txt : (bits(4), bits(4), bits(4), bits(4)) -> unit
@@ -19958,9 +19958,9 @@ function decode_aarch32_instrs_VABS_A2enc_A_txt (cond, D, Vd, size, M, Vm) = {
     if ConditionPassed() then {
         assert(cond != 0b1111);
         floating_point : bool = undefined;
-        regs : int = undefined;
         elements : int = undefined;
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        regs : int = undefined;
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -19969,8 +19969,8 @@ function decode_aarch32_instrs_VABS_A2enc_A_txt (cond, D, Vd, size, M, Vm) = {
         if size == 0b01 & cond != 0b1110 then {
             throw(Error_Unpredictable())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let floating_point = floating_point;
         let advsimd : bool = false;
         esize : {|16, 32, 64|} = 16;
@@ -20058,9 +20058,9 @@ val decode_aarch32_instrs_VABS_T2enc_A_txt : (bits(1), bits(4), bits(2), bits(1)
 function decode_aarch32_instrs_VABS_T2enc_A_txt (D, Vd, size, M, Vm) = {
     if ConditionPassed() then {
         floating_point : bool = undefined;
-        regs : int = undefined;
         elements : int = undefined;
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        regs : int = undefined;
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -20069,8 +20069,8 @@ function decode_aarch32_instrs_VABS_T2enc_A_txt (D, Vd, size, M, Vm) = {
         if size == 0b01 & InITBlock() then {
             throw(Error_Unpredictable())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let floating_point = floating_point;
         let advsimd : bool = false;
         esize : {|16, 32, 64|} = 16;
@@ -20319,9 +20319,9 @@ val decode_aarch32_instrs_VADD_f_A2enc_A_txt : (bits(4), bits(1), bits(4), bits(
 function decode_aarch32_instrs_VADD_f_A2enc_A_txt (cond, D, Vn, Vd, size, N, M, Vm) = {
     if ConditionPassed() then {
         assert(cond != 0b1111);
-        regs : int = undefined;
         elements : int = undefined;
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        regs : int = undefined;
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -20330,8 +20330,8 @@ function decode_aarch32_instrs_VADD_f_A2enc_A_txt (cond, D, Vn, Vd, size, N, M, 
         if size == 0b01 & cond != 0b1110 then {
             throw(Error_Unpredictable())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let advsimd : bool = false;
         esize : {|16, 32, 64|} = 16;
         d : range(0, 31) = undefined;
@@ -20434,9 +20434,9 @@ val decode_aarch32_instrs_VADD_f_T2enc_A_txt : (bits(1), bits(4), bits(4), bits(
 
 function decode_aarch32_instrs_VADD_f_T2enc_A_txt (D, Vn, Vd, size, N, M, Vm) = {
     if ConditionPassed() then {
-        regs : int = undefined;
         elements : int = undefined;
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        regs : int = undefined;
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -20445,8 +20445,8 @@ function decode_aarch32_instrs_VADD_f_T2enc_A_txt (D, Vn, Vd, size, N, M, Vm) = 
         if size == 0b01 & InITBlock() then {
             throw(Error_Unpredictable())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let advsimd : bool = false;
         esize : {|16, 32, 64|} = 16;
         d : range(0, 31) = undefined;
@@ -22394,7 +22394,7 @@ function execute_aarch32_instrs_VCMP_Op_A_txt (d, esize, m, quiet_nan_exc, with_
       },
       _ => ()
     };
-    FPSCR_write() = [FPSCR_read__1() with 31 .. 28 = nzcv]
+    FPSCR_write() = Mk_FPSCR_Type([FPSCR_read__1().bits with 31 .. 28 = nzcv])
 }
 
 val decode_aarch32_instrs_VCMP_A1enc_A_txt : (bits(4), bits(1), bits(4), bits(2), bits(1), bits(1), bits(4)) -> unit
@@ -22880,7 +22880,7 @@ function decode_aarch32_instrs_VCVT_hs_A1enc_A_txt (D, size, Vd, op, M, Vm) = {
         if not_bool(half_to_single) & [Vm[0]] == 0b1 then {
             throw(Error_Undefined())
         };
-        esize = 16;
+        let 'esize = 16;
         let 'elements = 4;
         let 'm = UInt(M @ Vm);
         let 'd = UInt(D @ Vd);
@@ -22914,7 +22914,7 @@ function decode_aarch32_instrs_VCVT_hs_T1enc_A_txt (D, size, Vd, op, M, Vm) = {
         if not_bool(half_to_single) & [Vm[0]] == 0b1 then {
             throw(Error_Undefined())
         };
-        esize = 16;
+        let 'esize = 16;
         let 'elements = 4;
         let 'm = UInt(M @ Vm);
         let 'd = UInt(D @ Vd);
@@ -23586,7 +23586,7 @@ val decode_aarch32_instrs_VDIV_A1enc_A_txt : (bits(4), bits(1), bits(4), bits(4)
 function decode_aarch32_instrs_VDIV_A1enc_A_txt (cond, D, Vn, Vd, size, N, M, Vm) = {
     if ConditionPassed() then {
         assert(cond != 0b1111);
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -23649,7 +23649,7 @@ function decode_aarch32_instrs_VDIV_T1enc_A_txt (D, Vn, Vd, size, N, M, Vm) = {
         if size == 0b01 & InITBlock() then {
             throw(Error_Unpredictable())
         };
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -24198,9 +24198,9 @@ function decode_aarch32_instrs_VFMA_A2enc_A_txt (cond, D, Vn, Vd, size, N, op, M
     if ConditionPassed() then {
         assert(cond != 0b1111);
         floating_point : bool = undefined;
-        regs : int = undefined;
         elements : int = undefined;
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        regs : int = undefined;
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -24209,8 +24209,8 @@ function decode_aarch32_instrs_VFMA_A2enc_A_txt (cond, D, Vn, Vd, size, N, op, M
         if size == 0b01 & cond != 0b1110 then {
             throw(Error_Unpredictable())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let floating_point = floating_point;
         let advsimd : bool = false;
         let op1_neg : bool = op == 0b1;
@@ -24319,9 +24319,9 @@ val decode_aarch32_instrs_VFMA_T2enc_A_txt : (bits(1), bits(4), bits(4), bits(2)
 function decode_aarch32_instrs_VFMA_T2enc_A_txt (D, Vn, Vd, size, N, op, M, Vm) = {
     if ConditionPassed() then {
         floating_point : bool = undefined;
-        regs : int = undefined;
         elements : int = undefined;
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        regs : int = undefined;
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -24330,8 +24330,8 @@ function decode_aarch32_instrs_VFMA_T2enc_A_txt (D, Vn, Vd, size, N, op, M, Vm) 
         if size == 0b01 & InITBlock() then {
             throw(Error_Unpredictable())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let floating_point = floating_point;
         let advsimd : bool = false;
         let op1_neg : bool = op == 0b1;
@@ -24414,7 +24414,7 @@ val decode_aarch32_instrs_VFNMA_A1enc_A_txt : (bits(4), bits(1), bits(4), bits(4
 function decode_aarch32_instrs_VFNMA_A1enc_A_txt (cond, D, Vn, Vd, size, N, op, M, Vm) = {
     if ConditionPassed() then {
         assert(cond != 0b1111);
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -24476,7 +24476,7 @@ val decode_aarch32_instrs_VFNMA_T1enc_A_txt : (bits(1), bits(4), bits(4), bits(2
 
 function decode_aarch32_instrs_VFNMA_T1enc_A_txt (D, Vn, Vd, size, N, op, M, Vm) = {
     if ConditionPassed() then {
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -27497,19 +27497,19 @@ function decode_aarch32_instrs_VMLA_f_A2enc_A_txt (cond, D, Vn, Vd, size, N, op,
     if ConditionPassed() then {
         assert(cond != 0b1111);
         floating_point : bool = undefined;
-        regs : int = undefined;
         elements : int = undefined;
+        regs : int = undefined;
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
             throw(Error_Undefined())
         };
         if size == 0b01 & cond != 0b1110 then {
             throw(Error_Unpredictable())
         };
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let floating_point = floating_point;
         let advsimd : bool = false;
         let add : bool = op == 0b0;
@@ -27618,19 +27618,19 @@ val decode_aarch32_instrs_VMLA_f_T2enc_A_txt : (bits(1), bits(4), bits(4), bits(
 function decode_aarch32_instrs_VMLA_f_T2enc_A_txt (D, Vn, Vd, size, N, op, M, Vm) = {
     if ConditionPassed() then {
         floating_point : bool = undefined;
-        regs : int = undefined;
         elements : int = undefined;
+        regs : int = undefined;
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
             throw(Error_Undefined())
         };
         if size == 0b01 & InITBlock() then {
             throw(Error_Unpredictable())
         };
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let floating_point = floating_point;
         let advsimd : bool = false;
         let add : bool = op == 0b0;
@@ -28145,7 +28145,7 @@ function decode_aarch32_instrs_VMOVX_A1enc_A_txt (D, Vd, M, Vm) = {
         if not_bool(HaveFP16Ext()) then {
             throw(Error_Undefined())
         };
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         let 'd = UInt(Vd @ D);
@@ -28174,7 +28174,7 @@ function decode_aarch32_instrs_VMOVX_T1enc_A_txt (D, Vd, M, Vm) = {
         if not_bool(HaveFP16Ext()) then {
             throw(Error_Undefined())
         };
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         let 'd = UInt(Vd @ D);
@@ -28209,7 +28209,7 @@ function decode_aarch32_instrs_VINS_A1enc_A_txt (D, Vd, M, Vm) = {
         if not_bool(HaveFP16Ext()) then {
             throw(Error_Undefined())
         };
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         let 'd = UInt(Vd @ D);
@@ -28238,7 +28238,7 @@ function decode_aarch32_instrs_VINS_T1enc_A_txt (D, Vd, M, Vm) = {
         if not_bool(HaveFP16Ext()) then {
             throw(Error_Undefined())
         };
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         let 'd = UInt(Vd @ D);
@@ -28390,7 +28390,7 @@ val decode_aarch32_instrs_VMOV_i_A2enc_A_txt : (bits(4), bits(1), bits(4), bits(
 function decode_aarch32_instrs_VMOV_i_A2enc_A_txt (cond, D, imm4H, Vd, size, imm4L) = {
     if ConditionPassed() then {
         assert(cond != 0b1111);
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -28601,7 +28601,7 @@ val decode_aarch32_instrs_VMOV_i_T2enc_A_txt : (bits(1), bits(4), bits(4), bits(
 
 function decode_aarch32_instrs_VMOV_i_T2enc_A_txt (D, imm4H, Vd, size, imm4L) = {
     if ConditionPassed() then {
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -29026,7 +29026,7 @@ val decode_aarch32_instrs_VMOV_r_A2enc_A_txt : (bits(4), bits(1), bits(4), bits(
 function decode_aarch32_instrs_VMOV_r_A2enc_A_txt (cond, D, Vd, size, M, Vm) = {
     if ConditionPassed() then {
         assert(cond != 0b1111);
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         let single_register : bool = size == 0b10;
@@ -29065,7 +29065,7 @@ val decode_aarch32_instrs_VMOV_r_T2enc_A_txt : (bits(1), bits(4), bits(2), bits(
 
 function decode_aarch32_instrs_VMOV_r_T2enc_A_txt (D, Vd, size, M, Vm) = {
     if ConditionPassed() then {
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         let single_register : bool = size == 0b10;
@@ -29632,9 +29632,9 @@ function decode_aarch32_instrs_VMUL_f_A2enc_A_txt (cond, D, Vn, Vd, size, N, M, 
     if ConditionPassed() then {
         assert(cond != 0b1111);
         floating_point : bool = undefined;
-        regs : int = undefined;
         elements : int = undefined;
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        regs : int = undefined;
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -29643,8 +29643,8 @@ function decode_aarch32_instrs_VMUL_f_A2enc_A_txt (cond, D, Vn, Vd, size, N, M, 
         if size == 0b01 & cond != 0b1110 then {
             throw(Error_Unpredictable())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let floating_point = floating_point;
         let advsimd : bool = false;
         esize : {|16, 32, 64|} = 16;
@@ -29749,19 +29749,19 @@ val decode_aarch32_instrs_VMUL_f_T2enc_A_txt : (bits(1), bits(4), bits(4), bits(
 function decode_aarch32_instrs_VMUL_f_T2enc_A_txt (D, Vn, Vd, size, N, M, Vm) = {
     if ConditionPassed() then {
         floating_point : bool = undefined;
-        regs : int = undefined;
         elements : int = undefined;
+        regs : int = undefined;
         if size == 0b01 & InITBlock() then {
             throw(Error_Unpredictable())
         };
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
             throw(Error_Undefined())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let floating_point = floating_point;
         let advsimd : bool = false;
         esize : {|16, 32, 64|} = 16;
@@ -30625,19 +30625,19 @@ function decode_aarch32_instrs_VNEG_A2enc_A_txt (cond, D, Vd, size, M, Vm) = {
     if ConditionPassed() then {
         assert(cond != 0b1111);
         floating_point : bool = undefined;
-        regs : int = undefined;
         elements : int = undefined;
+        regs : int = undefined;
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
             throw(Error_Undefined())
         };
         if size == 0b01 & cond != 0b1110 then {
             throw(Error_Unpredictable())
         };
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let floating_point = floating_point;
         let advsimd : bool = false;
         esize : {|16, 32, 64|} = 16;
@@ -30725,19 +30725,19 @@ val decode_aarch32_instrs_VNEG_T2enc_A_txt : (bits(1), bits(4), bits(2), bits(1)
 function decode_aarch32_instrs_VNEG_T2enc_A_txt (D, Vd, size, M, Vm) = {
     if ConditionPassed() then {
         floating_point : bool = undefined;
-        regs : int = undefined;
         elements : int = undefined;
+        regs : int = undefined;
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
             throw(Error_Undefined())
         };
         if size == 0b01 & InITBlock() then {
             throw(Error_Unpredictable())
         };
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let floating_point = floating_point;
         let advsimd : bool = false;
         esize : {|16, 32, 64|} = 16;
@@ -30840,7 +30840,7 @@ val decode_aarch32_instrs_VNMLA_A1enc_A_txt : (bits(4), bits(1), bits(4), bits(4
 function decode_aarch32_instrs_VNMLA_A1enc_A_txt (cond, D, Vn, Vd, size, N, op, M, Vm) = {
     if ConditionPassed() then {
         assert(cond != 0b1111);
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -30904,7 +30904,7 @@ val decode_aarch32_instrs_VNMLA_A2enc_A_txt : (bits(4), bits(1), bits(4), bits(4
 function decode_aarch32_instrs_VNMLA_A2enc_A_txt (cond, D, Vn, Vd, size, N, M, Vm) = {
     if ConditionPassed() then {
         assert(cond != 0b1111);
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -30965,7 +30965,7 @@ val decode_aarch32_instrs_VNMLA_T1enc_A_txt : (bits(1), bits(4), bits(4), bits(2
 
 function decode_aarch32_instrs_VNMLA_T1enc_A_txt (D, Vn, Vd, size, N, op, M, Vm) = {
     if ConditionPassed() then {
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -31027,7 +31027,7 @@ val decode_aarch32_instrs_VNMLA_T2enc_A_txt : (bits(1), bits(4), bits(4), bits(2
 
 function decode_aarch32_instrs_VNMLA_T2enc_A_txt (D, Vn, Vd, size, N, M, Vm) = {
     if ConditionPassed() then {
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -31931,7 +31931,7 @@ function execute_aarch32_instrs_VQABS_Op_A_txt (d__arg, elements, esize, m, regs
                   sat = __tup_1
               };
             if sat then {
-                FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+                FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
             };
             ()
         }
@@ -32020,7 +32020,7 @@ function execute_aarch32_instrs_VQADD_Op_A_txt (d__arg, elements, esize, m, n, r
                   sat = __tup_1
               };
             if sat then {
-                FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+                FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
             };
             ()
         }
@@ -32129,7 +32129,7 @@ function execute_aarch32_instrs_VQDMLAL_Op_A_txt (add, d__arg, elements, esize, 
               sat2 = __tup_1
           };
         if sat1 | sat2 then {
-            FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+            FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
         };
         ()
     }
@@ -32351,7 +32351,7 @@ function execute_aarch32_instrs_VQDMLSL_Op_A_txt (add, d__arg, elements, esize, 
               sat2 = __tup_1
           };
         if sat1 | sat2 then {
-            FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+            FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
         };
         ()
     }
@@ -32560,7 +32560,7 @@ function execute_aarch32_instrs_VQDMULH_Op_A_txt (d__arg, elements, esize, index
             (result, sat) = SignedSatQ(((2 * op1 * op2) >> esize), esize);
             D_set(d + r) = Elem_set(D_read(d + r), e, esize, result);
             if sat then {
-                FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+                FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
             };
             ()
         }
@@ -32775,7 +32775,7 @@ function execute_aarch32_instrs_VQDMULL_Op_A_txt (d__arg, elements, esize, index
         (product, sat) = SignedSatQ(2 * op1 * op2, 2 * esize);
         Q_set((d >> 1)) = Elem_set(Q_read((d >> 1)), e, 2 * esize, product);
         if sat then {
-            FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+            FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
         };
         ()
     }
@@ -32972,7 +32972,7 @@ function execute_aarch32_instrs_VQMOVN_Op_A_txt (d__arg, dest_unsigned, elements
               sat = __tup_1
           };
         if sat then {
-            FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+            FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
         };
         ()
     }
@@ -33062,7 +33062,7 @@ function execute_aarch32_instrs_VQNEG_Op_A_txt (d__arg, elements, esize, m, regs
                   sat = __tup_1
               };
             if sat then {
-                FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+                FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
             };
             ()
         }
@@ -33155,7 +33155,7 @@ function execute_aarch32_instrs_VQRDMULH_Op_A_txt (d__arg, elements, esize, inde
             (result, sat) = SignedSatQ(((2 * op1 * op2 + round_const) >> esize), esize);
             D_set(d + r) = Elem_set(D_read(d + r), e, esize, result);
             if sat then {
-                FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+                FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
             };
             ()
         }
@@ -33374,7 +33374,7 @@ function execute_aarch32_instrs_VQRDMLAH_Op_A_txt (d__arg, elements, esize, inde
             (result, sat) = SignedSatQ(((op3 + 2 * (op1 * op2) + round_const) >> esize), esize);
             D_set(d + r) = Elem_set(D_read(d + r), e, esize, result);
             if sat then {
-                FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+                FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
             };
             ()
         }
@@ -33395,7 +33395,7 @@ function decode_aarch32_instrs_VQRDMLAH_A1enc_A_txt (D, size, Vn, Vd, N, Q, M, V
         throw(Error_Undefined())
     };
     let index = index;
-    add = true;
+    let add : bool = true;
     let scalar_form : bool = false;
     let 'esize = (8 << UInt(size));
     let 'elements = DIV(64, esize);
@@ -33434,7 +33434,7 @@ function decode_aarch32_instrs_VQRDMLAH_A2enc_A_txt (Q, D, size, Vn, Vd, N, M, V
     if Q == 0b1 & ([Vd[0]] == 0b1 | [Vn[0]] == 0b1) then {
         throw(Error_Undefined())
     };
-    add = true;
+    let add : bool = true;
     let scalar_form : bool = true;
     let 'd = UInt(D @ Vd);
     let 'n = UInt(N @ Vn);
@@ -33493,7 +33493,7 @@ function decode_aarch32_instrs_VQRDMLAH_T1enc_A_txt (D, size, Vn, Vd, N, Q, M, V
         throw(Error_Undefined())
     };
     let index = index;
-    add = true;
+    let add : bool = true;
     let scalar_form : bool = false;
     let 'esize = (8 << UInt(size));
     let 'elements = DIV(64, esize);
@@ -33535,7 +33535,7 @@ function decode_aarch32_instrs_VQRDMLAH_T2enc_A_txt (Q, D, size, Vn, Vd, N, M, V
     if Q == 0b1 & ([Vd[0]] == 0b1 | [Vn[0]] == 0b1) then {
         throw(Error_Undefined())
     };
-    add = true;
+    let add : bool = true;
     let scalar_form : bool = true;
     let 'd = UInt(D @ Vd);
     let 'n = UInt(N @ Vn);
@@ -33603,7 +33603,7 @@ function execute_aarch32_instrs_VQRDMLSH_Op_A_txt (d__arg, elements, esize, inde
             (result, sat) = SignedSatQ(((op3 - 2 * (op1 * op2) + round_const) >> esize), esize);
             D_set(d + r) = Elem_set(D_read(d + r), e, esize, result);
             if sat then {
-                FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+                FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
             };
             ()
         }
@@ -33624,7 +33624,7 @@ function decode_aarch32_instrs_VQRDMLSH_A1enc_A_txt (D, size, Vn, Vd, N, Q, M, V
         throw(Error_Undefined())
     };
     let index = index;
-    add = false;
+    let add : bool = false;
     let scalar_form : bool = false;
     let 'esize = (8 << UInt(size));
     let 'elements = DIV(64, esize);
@@ -33663,7 +33663,7 @@ function decode_aarch32_instrs_VQRDMLSH_A2enc_A_txt (Q, D, size, Vn, Vd, N, M, V
     if Q == 0b1 & ([Vd[0]] == 0b1 | [Vn[0]] == 0b1) then {
         throw(Error_Undefined())
     };
-    add = false;
+    let add : bool = false;
     let scalar_form : bool = true;
     let 'd = UInt(D @ Vd);
     let 'n = UInt(N @ Vn);
@@ -33722,7 +33722,7 @@ function decode_aarch32_instrs_VQRDMLSH_T1enc_A_txt (D, size, Vn, Vd, N, Q, M, V
         throw(Error_Undefined())
     };
     let index = index;
-    add = false;
+    let add : bool = false;
     let scalar_form : bool = false;
     let 'esize = (8 << UInt(size));
     let 'elements = DIV(64, esize);
@@ -33764,7 +33764,7 @@ function decode_aarch32_instrs_VQRDMLSH_T2enc_A_txt (Q, D, size, Vn, Vd, N, M, V
     if Q == 0b1 & ([Vd[0]] == 0b1 | [Vn[0]] == 0b1) then {
         throw(Error_Undefined())
     };
-    add = false;
+    let add : bool = false;
     let scalar_form : bool = true;
     let 'd = UInt(D @ Vd);
     let 'n = UInt(N @ Vn);
@@ -33826,7 +33826,7 @@ function execute_aarch32_instrs_VQRSHL_Op_A_txt (d__arg, elements, esize, m, n, 
             (result, sat) = SatQ(((operand + round_const) << shift), esize, is_unsigned);
             D_set(d + r) = Elem_set(D_read(d + r), e, esize, result);
             if sat then {
-                FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+                FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
             };
             ()
         }
@@ -33915,7 +33915,7 @@ function execute_aarch32_instrs_VQRSHRN_Op_A_txt (d__arg, dest_unsigned, element
         (result, sat) = SatQ(((operand + round_const) >> shift_amount), esize, dest_unsigned);
         D_set(d) = Elem_set(D_read(d), e, esize, result);
         if sat then {
-            FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+            FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
         };
         ()
     }
@@ -34059,7 +34059,7 @@ function execute_aarch32_instrs_VQSHL_i_Op_A_txt (d__arg, dest_unsigned, element
             (result, sat) = SatQ((operand << shift_amount), esize, dest_unsigned);
             D_set(d + r) = Elem_set(D_read(d + r), e, esize, result);
             if sat then {
-                FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+                FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
             };
             ()
         }
@@ -34254,7 +34254,7 @@ function execute_aarch32_instrs_VQSHL_r_Op_A_txt (d__arg, elements, esize, m, n,
             (result, sat) = SatQ((operand << shift), esize, is_unsigned);
             D_set(d + r) = Elem_set(D_read(d + r), e, esize, result);
             if sat then {
-                FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+                FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
             };
             ()
         }
@@ -34342,7 +34342,7 @@ function execute_aarch32_instrs_VQSHRN_Op_A_txt (d__arg, dest_unsigned, elements
         (result, sat) = SatQ((operand >> shift_amount), esize, dest_unsigned);
         D_set(d) = Elem_set(D_read(d), e, esize, result);
         if sat then {
-            FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+            FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
         };
         ()
     }
@@ -34490,7 +34490,7 @@ function execute_aarch32_instrs_VQSUB_Op_A_txt (d__arg, elements, esize, m, n, r
                   sat = __tup_1
               };
             if sat then {
-                FPSCR_write() = SetSlice(1, FPSCR_read__1(), 27, 0b1)
+                FPSCR_write() = [FPSCR_read__1() with QC = 0b1]
             };
             ()
         }
@@ -36889,7 +36889,7 @@ function decode_aarch32_instrs_VSQRT_A1enc_A_txt (cond, D, Vd, size, M, Vm) = {
         if size == 0b01 & cond != 0b1110 then {
             throw(Error_Unpredictable())
         };
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         esize : {|16, 32, 64|} = 16;
@@ -36942,7 +36942,7 @@ function decode_aarch32_instrs_VSQRT_T1enc_A_txt (D, Vd, size, M, Vm) = {
         if size == 0b01 & InITBlock() then {
             throw(Error_Unpredictable())
         };
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         esize : {|16, 32, 64|} = 16;
@@ -39561,9 +39561,9 @@ val decode_aarch32_instrs_VSUB_f_A2enc_A_txt : (bits(4), bits(1), bits(4), bits(
 function decode_aarch32_instrs_VSUB_f_A2enc_A_txt (cond, D, Vn, Vd, size, N, M, Vm) = {
     if ConditionPassed() then {
         assert(cond != 0b1111);
-        regs : int = undefined;
         elements : int = undefined;
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        regs : int = undefined;
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -39572,8 +39572,8 @@ function decode_aarch32_instrs_VSUB_f_A2enc_A_txt (cond, D, Vn, Vd, size, N, M, 
         if size == 0b01 & cond != 0b1110 then {
             throw(Error_Unpredictable())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let advsimd : bool = false;
         esize : {|16, 32, 64|} = 16;
         d : range(0, 31) = undefined;
@@ -39676,9 +39676,9 @@ val decode_aarch32_instrs_VSUB_f_T2enc_A_txt : (bits(1), bits(4), bits(4), bits(
 
 function decode_aarch32_instrs_VSUB_f_T2enc_A_txt (D, Vn, Vd, size, N, M, Vm) = {
     if ConditionPassed() then {
-        regs : int = undefined;
         elements : int = undefined;
-        if Slice(FPSCR_read__1(), 16, 3) != 0b000 | Slice(FPSCR_read__1(), 20, 2) != 0b00 then {
+        regs : int = undefined;
+        if FPSCR_read__1()[length] != 0b000 | FPSCR_read__1()[Stride] != 0b00 then {
             throw(Error_Undefined())
         };
         if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
@@ -39687,8 +39687,8 @@ function decode_aarch32_instrs_VSUB_f_T2enc_A_txt (D, Vn, Vd, size, N, M, Vm) = 
         if size == 0b01 & InITBlock() then {
             throw(Error_Unpredictable())
         };
-        let elements = elements;
         let regs = regs;
+        let elements = elements;
         let advsimd : bool = false;
         esize : {|16, 32, 64|} = 16;
         d : range(0, 31) = undefined;
@@ -40846,12 +40846,12 @@ function clause __DecodeT32 ((pc, ([bitone, bitone, bitone, bitone, bitzero, bit
 val execute_aarch32_instrs_ERET_Op_AS_txt : unit -> unit
 
 function execute_aarch32_instrs_ERET_Op_AS_txt () = {
-    new_pc_value : bits(32) = undefined;
+    new_pc_value : ELR_hyp_Type = undefined;
     if not_bool(Halted()) then {
         if PSTATE.M == M32_User | PSTATE.M == M32_System then {
             throw(Error_Unpredictable())
         } else {
-            let new_pc_value : bits(32) = if PSTATE.EL == EL2 then
+            let new_pc_value : ELR_hyp_Type = if PSTATE.EL == EL2 then
               ELR_hyp_read()
             else
               R_read(14);
@@ -40918,16 +40918,14 @@ function execute_aarch32_instrs_HVC_Op_AS_txt imm16 = {
     };
     hvc_enable : bits(1) = undefined;
     if HaveEL(EL3) then {
-        if (ELUsingAArch32(EL3) & Slice(SCR, 8, 1) == 0b0) & PSTATE.EL == EL2 then {
+        if (ELUsingAArch32(EL3) & SCR[HCE] == 0b0) & PSTATE.EL == EL2 then {
             throw(Error_Unpredictable())
         } else {
-            hvc_enable = [SCR_GEN_read()[8]]
+            hvc_enable = SCR_GEN_read()[HCE]
         }
     } else {
-        hvc_enable = if ELUsingAArch32(EL2) then
-          not_vec(Slice(HCR_read(), 29, 1))
-        else
-          not_vec(Slice(HCR_EL2, 29, 1))
+        hvc_enable = if ELUsingAArch32(EL2) then not_vec(HCR_read()[HCD]) else
+          not_vec(HCR_EL2[HCD])
     };
     if hvc_enable == 0b0 then {
         throw(Error_Undefined())
@@ -41191,28 +41189,28 @@ function execute_aarch32_instrs_MRS_br_Op_AS_txt (SYSm, d, read_spsr) = {
             SPSRaccessValid(SYSm, mode);
             match SYSm {
               0b01110 => {
-                  R_set(d) = SPSR_fiq[31 .. 0]
+                  R_set(d) = SPSR_fiq.bits[31 .. 0]
               },
               0b10000 => {
-                  R_set(d) = SPSR_irq[31 .. 0]
+                  R_set(d) = SPSR_irq.bits[31 .. 0]
               },
               0b10010 => {
-                  R_set(d) = SPSR_svc_read()[31 .. 0]
+                  R_set(d) = SPSR_svc_read().bits[31 .. 0]
               },
               0b10100 => {
-                  R_set(d) = SPSR_abt[31 .. 0]
+                  R_set(d) = SPSR_abt.bits[31 .. 0]
               },
               0b10110 => {
-                  R_set(d) = SPSR_und[31 .. 0]
+                  R_set(d) = SPSR_und.bits[31 .. 0]
               },
               0b11100 => {
                   if not_bool(ELUsingAArch32(EL3)) then {
                       AArch64_MonitorModeTrap()
                   };
-                  R_set(d) = SPSR_mon
+                  R_set(d) = SPSR_mon.bits
               },
               0b11110 => {
-                  R_set(d) = SPSR_hyp_read()[31 .. 0]
+                  R_set(d) = SPSR_hyp_read().bits[31 .. 0]
               },
               _ => ()
             }
@@ -41335,28 +41333,28 @@ function execute_aarch32_instrs_MSR_br_Op_AS_txt (SYSm, n, write_spsr) = {
             SPSRaccessValid(SYSm, mode);
             match SYSm {
               0b01110 => {
-                  SPSR_fiq = ZeroExtend(R_read(n))
+                  SPSR_fiq = Mk_SPSR_fiq_Type(ZeroExtend(R_read(n)))
               },
               0b10000 => {
-                  SPSR_irq = ZeroExtend(R_read(n))
+                  SPSR_irq = Mk_SPSR_irq_Type(ZeroExtend(R_read(n)))
               },
               0b10010 => {
-                  SPSR_svc_write() = ZeroExtend(R_read(n))
+                  SPSR_svc_write() = Mk_SPSR_svc_Type(ZeroExtend(R_read(n)))
               },
               0b10100 => {
-                  SPSR_abt = ZeroExtend(R_read(n))
+                  SPSR_abt = Mk_SPSR_abt_Type(ZeroExtend(R_read(n)))
               },
               0b10110 => {
-                  SPSR_und = ZeroExtend(R_read(n))
+                  SPSR_und = Mk_SPSR_und_Type(ZeroExtend(R_read(n)))
               },
               0b11100 => {
                   if not_bool(ELUsingAArch32(EL3)) then {
                       AArch64_MonitorModeTrap()
                   };
-                  SPSR_mon = R_read(n)
+                  SPSR_mon = Mk_SPSR_mon_Type(R_read(n))
               },
               0b11110 => {
-                  SPSR_hyp_write() = R_read(n)
+                  SPSR_hyp_write() = Mk_SPSR_hyp_Type(R_read(n))
               },
               _ => ()
             }
@@ -41707,12 +41705,12 @@ function execute_aarch32_instrs_SMC_Op_AS_txt () = {
     c : Constraint = undefined;
     AArch32_CheckForSMCUndefOrTrap();
     if not_bool(ELUsingAArch32(EL3)) then {
-        if Slice(SCR_EL3, 7, 1) == 0b1 then {
+        if SCR_EL3[SMD] == 0b1 then {
             throw(Error_Undefined())
         };
         ()
     } else {
-        if Slice(SCR, 7, 1) == 0b1 then {
+        if SCR[SCD] == 0b1 then {
             if IsSecure() then {
                 let c : Constraint = ConstrainUnpredictable(Unpredictable_SMD);
                 assert(c == Constraint_NOP | c == Constraint_UNDEF);
@@ -41982,9 +41980,9 @@ function execute_aarch32_instrs_VMRS_Op_AS_txt (reg, t) = {
     if reg == 0b0001 then {
         CheckVFPEnabled(true);
         if t == 15 then {
-            (PSTATE.N @ PSTATE.Z @ PSTATE.C @ PSTATE.V) = Slice(FPSR, 31, 1) @ (Slice(FPSR, 30, 1) @ (Slice(FPSR, 29, 1) @ Slice(FPSR, 28, 1)))
+            (PSTATE.N @ PSTATE.Z @ PSTATE.C @ PSTATE.V) = FPSR[N] @ (FPSR[Z] @ (FPSR[C] @ FPSR[V]))
         } else {
-            R_set(t) = FPSCR_read__1()
+            R_set(t) = FPSCR_read__1().bits
         }
     } else if PSTATE.EL == EL0 then {
         throw(Error_Undefined())
@@ -41993,19 +41991,19 @@ function execute_aarch32_instrs_VMRS_Op_AS_txt (reg, t) = {
         AArch32_CheckAdvSIMDOrFPRegisterTraps(reg);
         match reg {
           0b0000 => {
-              R_set(t) = FPSID
+              R_set(t) = FPSID.bits
           },
           0b0101 => {
-              R_set(t) = MVFR2_read()
+              R_set(t) = MVFR2_read().bits
           },
           0b0110 => {
-              R_set(t) = MVFR1_read()
+              R_set(t) = MVFR1_read().bits
           },
           0b0111 => {
-              R_set(t) = MVFR0_read()
+              R_set(t) = MVFR0_read().bits
           },
           0b1000 => {
-              R_set(t) = FPEXC_read()
+              R_set(t) = FPEXC_read().bits
           },
           _ => {
               Unreachable()
@@ -42088,7 +42086,7 @@ val execute_aarch32_instrs_VMSR_Op_AS_txt : forall 't, (0 <= 't & 't <= 15).
 function execute_aarch32_instrs_VMSR_Op_AS_txt (reg, t) = {
     if reg == 0b0001 then {
         CheckVFPEnabled(true);
-        FPSCR_write() = R_read(t)
+        FPSCR_write() = Mk_FPSCR_Type(R_read(t))
     } else if PSTATE.EL == EL0 then {
         throw(Error_Undefined())
     } else {
@@ -42096,7 +42094,7 @@ function execute_aarch32_instrs_VMSR_Op_AS_txt (reg, t) = {
         match reg {
           0b0000 => (),
           0b1000 => {
-              FPEXC_write() = R_read(t)
+              FPEXC_write() = Mk_FPEXC_Type(R_read(t))
           },
           _ => {
               Unreachable()
@@ -42580,9 +42578,8 @@ function execute_aarch32_instrs_DCPS1_Op_A_txt () = {
         throw(Error_Undefined())
     };
     if EL2Enabled() & PSTATE.EL == EL0 then {
-        let tge : bits(1) = if ELUsingAArch32(EL2) then Slice(HCR_read(), 27, 1)
-        else
-          Slice(HCR_EL2, 27, 1);
+        let tge : bits(1) = if ELUsingAArch32(EL2) then HCR_read()[TGE] else
+          HCR_EL2[TGE];
         if tge == 0b1 then {
             throw(Error_Undefined())
         };
@@ -42590,42 +42587,42 @@ function execute_aarch32_instrs_DCPS1_Op_A_txt () = {
     };
     if PSTATE.EL != EL0 | ELUsingAArch32(EL1) then {
         if PSTATE.M == M32_Monitor then {
-            SCR = SetSlice(1, SCR, 0, 0b0)
+            SCR[NS] = 0b0
         };
         if PSTATE.EL != EL2 then {
             AArch32_WriteMode(M32_Svc);
-            PSTATE.E = Slice(SCTLR_read__2(), 25, 1);
-            if HavePANExt() & Slice(SCTLR_read__2(), 23, 1) == 0b0 then {
+            PSTATE.E = SCTLR_read__2()[EE];
+            if HavePANExt() & SCTLR_read__2()[SPAN] == 0b0 then {
                 PSTATE.PAN = 0b1
             };
             LR_svc = __UNKNOWN_bits(32);
-            SPSR_svc_write() = __UNKNOWN_bits(32)
+            SPSR_svc_write() = Mk_SPSR_svc_Type(__UNKNOWN_bits(32))
         } else {
-            PSTATE.E = Slice(HSCTLR_read(), 25, 1);
+            PSTATE.E = HSCTLR_read()[EE];
             ELR_hyp_write() = __UNKNOWN_bits(32);
-            HSR_write() = __UNKNOWN_bits(32);
-            SPSR_hyp_write() = __UNKNOWN_bits(32)
+            HSR_write() = Mk_HSR_Type(__UNKNOWN_bits(32));
+            SPSR_hyp_write() = Mk_SPSR_hyp_Type(__UNKNOWN_bits(32))
         };
         DLR_write() = __UNKNOWN_bits(32);
-        DSPSR_write() = __UNKNOWN_bits(32)
+        DSPSR_write() = Mk_DSPSR_Type(__UNKNOWN_bits(32))
     } else {
         AArch64_MaybeZeroRegisterUppers();
         MaybeZeroSVEUppers(EL1);
         PSTATE.nRW = 0b0;
         PSTATE.SP = 0b1;
         PSTATE.EL = EL1;
-        if HavePANExt() & Slice(SCTLR_EL1, 23, 1) == 0b0 then {
+        if HavePANExt() & SCTLR_EL1[SPAN] == 0b0 then {
             PSTATE.PAN = 0b1
         };
         if HaveUAOExt() then {
             PSTATE.UAO = 0b0
         };
         ELR_EL1 = __UNKNOWN_bits(64);
-        ESR_EL1 = __UNKNOWN_bits(64);
-        SPSR_EL1 = __UNKNOWN_bits(64);
+        ESR_EL1 = Mk_ESR_EL1_Type(__UNKNOWN_bits(64));
+        SPSR_EL1 = Mk_SPSR_EL1_Type(__UNKNOWN_bits(64));
         DLR_EL0 = __UNKNOWN_bits(64);
-        DSPSR_EL0 = __UNKNOWN_bits(64);
-        if (HaveIESB() & Slice(SCTLR_EL1, 21, 1) == 0b1) & not_bool(ConstrainUnpredictableBool(Unpredictable_IESBinDebug)) then {
+        DSPSR_EL0 = Mk_DSPSR_EL0_Type(__UNKNOWN_bits(64));
+        if (HaveIESB() & SCTLR_EL1[IESB] == 0b1) & not_bool(ConstrainUnpredictableBool(Unpredictable_IESBinDebug)) then {
             SynchronizeErrors()
         };
         ()
@@ -42652,30 +42649,30 @@ function execute_aarch32_instrs_DCPS2_Op_A_txt () = {
     };
     if ELUsingAArch32(EL2) then {
         AArch32_WriteMode(M32_Hyp);
-        PSTATE.E = Slice(HSCTLR_read(), 25, 1);
+        PSTATE.E = HSCTLR_read()[EE];
         ELR_hyp_write() = __UNKNOWN_bits(32);
-        HSR_write() = __UNKNOWN_bits(32);
-        SPSR_hyp_write() = __UNKNOWN_bits(32);
+        HSR_write() = Mk_HSR_Type(__UNKNOWN_bits(32));
+        SPSR_hyp_write() = Mk_SPSR_hyp_Type(__UNKNOWN_bits(32));
         DLR_write() = __UNKNOWN_bits(32);
-        DSPSR_write() = __UNKNOWN_bits(32)
+        DSPSR_write() = Mk_DSPSR_Type(__UNKNOWN_bits(32))
     } else {
         AArch64_MaybeZeroRegisterUppers();
         MaybeZeroSVEUppers(EL2);
         PSTATE.nRW = 0b0;
         PSTATE.SP = 0b1;
         PSTATE.EL = EL2;
-        if ((HavePANExt() & Slice(SCTLR_EL2, 23, 1) == 0b0) & Slice(HCR_EL2, 34, 1) == 0b1) & Slice(HCR_EL2, 27, 1) == 0b1 then {
+        if ((HavePANExt() & SCTLR_EL2[SPAN] == 0b0) & HCR_EL2[E2H] == 0b1) & HCR_EL2[TGE] == 0b1 then {
             PSTATE.PAN = 0b1
         };
         if HaveUAOExt() then {
             PSTATE.UAO = 0b0
         };
         ELR_EL2 = __UNKNOWN_bits(64);
-        ESR_EL2 = __UNKNOWN_bits(64);
-        SPSR_EL2 = __UNKNOWN_bits(64);
+        ESR_EL2 = Mk_ESR_EL2_Type(__UNKNOWN_bits(64));
+        SPSR_EL2 = Mk_SPSR_EL2_Type(__UNKNOWN_bits(64));
         DLR_EL0 = __UNKNOWN_bits(64);
-        DSPSR_EL0 = __UNKNOWN_bits(64);
-        if (HaveIESB() & Slice(SCTLR_EL2, 21, 1) == 0b1) & not_bool(ConstrainUnpredictableBool(Unpredictable_IESBinDebug)) then {
+        DSPSR_EL0 = Mk_DSPSR_EL0_Type(__UNKNOWN_bits(64));
+        if (HaveIESB() & SCTLR_EL2[IESB] == 0b1) & not_bool(ConstrainUnpredictableBool(Unpredictable_IESBinDebug)) then {
             SynchronizeErrors()
         };
         ()
@@ -42702,27 +42699,27 @@ val execute_aarch32_instrs_DCPS3_Op_A_txt : unit -> unit
 function execute_aarch32_instrs_DCPS3_Op_A_txt () = {
     from_secure : bool = undefined;
     sync_errors : bool = undefined;
-    if not_bool(Halted()) | Slice(EDSCR_read(), 16, 1) == 0b1 then {
+    if not_bool(Halted()) | EDSCR_read()[SDD] == 0b1 then {
         throw(Error_Undefined())
     };
     if ELUsingAArch32(EL3) then {
         let from_secure : bool = IsSecure();
         if PSTATE.M == M32_Monitor then {
-            SCR = SetSlice(1, SCR, 0, 0b0)
+            SCR[NS] = 0b0
         };
         AArch32_WriteMode(M32_Monitor);
         if HavePANExt() then {
             if not_bool(from_secure) then {
                 PSTATE.PAN = 0b0
-            } else if Slice(SCTLR_read__2(), 23, 1) == 0b0 then {
+            } else if SCTLR_read__2()[SPAN] == 0b0 then {
                 PSTATE.PAN = 0b1
             } else ()
         };
-        PSTATE.E = Slice(SCTLR_read__2(), 25, 1);
+        PSTATE.E = SCTLR_read__2()[EE];
         LR_mon = __UNKNOWN_bits(32);
-        SPSR_mon = __UNKNOWN_bits(32);
+        SPSR_mon = Mk_SPSR_mon_Type(__UNKNOWN_bits(32));
         DLR_write() = __UNKNOWN_bits(32);
-        DSPSR_write() = __UNKNOWN_bits(32)
+        DSPSR_write() = Mk_DSPSR_Type(__UNKNOWN_bits(32))
     } else {
         AArch64_MaybeZeroRegisterUppers();
         MaybeZeroSVEUppers(EL3);
@@ -42733,12 +42730,12 @@ function execute_aarch32_instrs_DCPS3_Op_A_txt () = {
             PSTATE.UAO = 0b0
         };
         ELR_EL3 = __UNKNOWN_bits(64);
-        ESR_EL3 = __UNKNOWN_bits(64);
-        SPSR_EL3 = __UNKNOWN_bits(64);
+        ESR_EL3 = Mk_ESR_EL3_Type(__UNKNOWN_bits(64));
+        SPSR_EL3 = Mk_SPSR_EL3_Type(__UNKNOWN_bits(64));
         DLR_EL0 = __UNKNOWN_bits(64);
-        DSPSR_EL0 = __UNKNOWN_bits(64);
-        sync_errors : bool = HaveIESB() & Slice(SCTLR_EL3, 21, 1) == 0b1;
-        if (HaveDoubleFaultExt() & Slice(SCR_EL3, 3, 1) == 0b1) & Slice(SCR_EL3, 20, 1) == 0b1 then {
+        DSPSR_EL0 = Mk_DSPSR_EL0_Type(__UNKNOWN_bits(64));
+        sync_errors : bool = HaveIESB() & SCTLR_EL3[IESB] == 0b1;
+        if (HaveDoubleFaultExt() & SCR_EL3[EA] == 0b1) & SCR_EL3[NMEA] == 0b1 then {
             sync_errors = true
         };
         if not_bool(ConstrainUnpredictableBool(Unpredictable_IESBinDebug)) then {
@@ -42776,7 +42773,7 @@ val decode_aarch32_instrs_HLT_A1enc_A_txt : (bits(4), bits(12), bits(4)) -> unit
 
 function decode_aarch32_instrs_HLT_A1enc_A_txt (cond, imm12, imm4) = {
     assert(cond != 0b1111);
-    if Slice(EDSCR_read(), 14, 1) == 0b0 | not_bool(HaltingAllowed()) then {
+    if EDSCR_read()[HDE] == 0b0 | not_bool(HaltingAllowed()) then {
         throw(Error_Undefined())
     };
     if cond != 0b1110 then {
@@ -42796,7 +42793,7 @@ function clause __DecodeA32 ((pc, ([_, _, _, _, bitzero, bitzero, bitzero, biton
 val decode_aarch32_instrs_HLT_T1enc_A_txt : bits(6) -> unit
 
 function decode_aarch32_instrs_HLT_T1enc_A_txt imm6 = {
-    if Slice(EDSCR_read(), 14, 1) == 0b0 | not_bool(HaltingAllowed()) then {
+    if EDSCR_read()[HDE] == 0b0 | not_bool(HaltingAllowed()) then {
         throw(Error_Undefined())
     };
     execute_aarch32_instrs_HLT_Op_A_txt()
@@ -44964,13 +44961,13 @@ function clause __DecodeA32 ((pc, ([bitone, bitone, bitone, bitone, bitzero, bit
 val decode_aarch32_instrs_VMAXNM_A2enc_A_txt : (bits(1), bits(4), bits(4), bits(2), bits(1), bits(1), bits(1), bits(4)) -> unit
 
 function decode_aarch32_instrs_VMAXNM_A2enc_A_txt (D, Vn, Vd, size, N, op, M, Vm) = {
-    regs : int = undefined;
     elements : int = undefined;
+    regs : int = undefined;
     if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
         throw(Error_Undefined())
     };
-    let elements = elements;
     let regs = regs;
+    let elements = elements;
     let advsimd : bool = false;
     let maximum : bool = op == 0b0;
     esize : {|16, 32, 64|} = 16;
@@ -45070,16 +45067,16 @@ function clause __DecodeT32 ((pc, ([bitone, bitone, bitone, bitone, bitone, bito
 val decode_aarch32_instrs_VMAXNM_T2enc_A_txt : (bits(1), bits(4), bits(4), bits(2), bits(1), bits(1), bits(1), bits(4)) -> unit
 
 function decode_aarch32_instrs_VMAXNM_T2enc_A_txt (D, Vn, Vd, size, N, op, M, Vm) = {
-    regs : int = undefined;
     elements : int = undefined;
+    regs : int = undefined;
     if InITBlock() then {
         throw(Error_Unpredictable())
     };
     if size == 0b00 | size == 0b01 & not_bool(HaveFP16Ext()) then {
         throw(Error_Undefined())
     };
-    let elements = elements;
     let regs = regs;
+    let elements = elements;
     let advsimd : bool = false;
     let maximum : bool = op == 0b0;
     esize : {|16, 32, 64|} = 16;
@@ -46472,7 +46469,7 @@ function execute_aarch32_instrs_VJCVT_Op_A_txt (d, m) = {
     intval : bits(32) = undefined;
     Z : bits(1) = undefined;
     (intval, Z) = FPToFixedJS(32, fltval, FPSCR_read(), false);
-    FPSCR_write() = [FPSCR_read__1() with 31 .. 28 = (0b0 @ Z) @ 0b00];
+    FPSCR_write() = Mk_FPSCR_Type([FPSCR_read__1().bits with 31 .. 28 = (0b0 @ Z) @ 0b00]);
     S_set(d) = intval
 }
 

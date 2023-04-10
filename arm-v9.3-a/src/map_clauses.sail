@@ -778,13 +778,13 @@ and __IMPDEF_integer_map (x if x == "SVE Extended BFloat16 instructions are impl
     return(__has_sve_extended_bf16)
 }
 and __IMPDEF_integer_map (x if x == "Data Cache Invalidate Watchpoint Size") = {
-    return(4 * pow2(UInt(Slice(CTR_EL0, 16, 4))))
+    return(4 * pow2(UInt(CTR_EL0[DminLine])))
 }
 and __IMPDEF_integer_map (x if x == "Instruction Cache Invalidate by VA Size") = {
-    return(4 * pow2(UInt(Slice(CTR_EL0, 16, 4))))
+    return(4 * pow2(UInt(CTR_EL0[DminLine])))
 }
 and __IMPDEF_integer_map (x if x == "Linesize for DC SW instructions") = {
-    return(4 * pow2(UInt(Slice(CTR_EL0, 16, 4))))
+    return(4 * pow2(UInt(CTR_EL0[DminLine])))
 }
 and __IMPDEF_integer_map (x if x == "Assosciativity for DC SW instructions") = {
     return(2)
@@ -839,10 +839,10 @@ and __SetConfig ((arg, value_name) if arg == "cpu.cpu0.RVBAR") = {
     CFG_RVBAR = value_name[63 .. 0]
 }
 and __SetConfig ((arg, value_name) if arg == "cpu.num_loregions") = {
-    LORID_EL1 = SetSlice(8, LORID_EL1, 0, value_name[7 .. 0])
+    LORID_EL1[LR] = value_name[7 .. 0]
 }
 and __SetConfig ((arg, value_name) if arg == "cpu.num_loregion_descriptors") = {
-    LORID_EL1 = SetSlice(8, LORID_EL1, 16, value_name[7 .. 0])
+    LORID_EL1[LD] = value_name[7 .. 0]
 }
 and __SetConfig ((arg, value_name) if arg == "cpu.has_mops_option") = {
     __mops_option_a_supported = value_name == 1

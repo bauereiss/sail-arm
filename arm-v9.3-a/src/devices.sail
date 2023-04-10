@@ -139,8 +139,8 @@ function __ReadGIC(offset) = {
 
     // ***** CPU Interface 0 *****
     0x2000 => {
-      prerr_bits("[GIC] Read GICC_CTLR ", GICC_CTLR);
-      GICC_CTLR
+      prerr_bits("[GIC] Read GICC_CTLR ", GICC_CTLR.bits);
+      GICC_CTLR.bits
     },
     0x200C => {
        let intid : bits(32) = __GIC_AcknowledgeInterrupt();
@@ -174,7 +174,7 @@ function __WriteGIC(offset, data) = {
     // ***** CPU Interface 0 *****
     0x2000 => {
       prerr_bits("[GIC] GICC_CTLR = ", data);
-      GICC_CTLR = data
+      GICC_CTLR.bits = data
     },
     0x200C => gic_readonly(offset),
     0x20FC => gic_readonly(offset),

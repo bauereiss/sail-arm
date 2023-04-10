@@ -99,944 +99,942 @@ function EncodeVARange () = {
     }
 }
 
-val AArch32_IMPDEFResets : unit -> unit effect {rreg, wreg}
+val AArch32_IMPDEFResets : unit -> unit
 
 function AArch32_IMPDEFResets () = {
-    PMCR_write() = SetSlice(8, PMCR_read(), 24, Zeros());
-    PMCR_write() = SetSlice(8, PMCR_read(), 16, if IsZero(Slice(PMCR_read(), 24, 8)) then
+    PMCR_write() = [PMCR_read() with IMP = Zeros()];
+    PMCR_write() = [PMCR_read() with IDCODE = if IsZero(PMCR_read()[IMP]) then
       Zeros()
     else
-      CFG_PMCR_IDCODE);
-    PMCR_write() = SetSlice(5, PMCR_read(), 11, __num_event_counters[4 .. 0]);
-    PMCR_write() = SetSlice(1, PMCR_read(), 2, 0b0);
-    PMCR_write() = SetSlice(1, PMCR_read(), 1, 0b0);
-    PMCEID0_write() = 0b01001000000000100000000100000001;
-    PMCEID2_write() = ZeroExtend(0b1111, 32);
-    PMCEID1_write() = Zeros();
-    PMCEID3_write() = Zeros();
-    PMCFGR = SetSlice(4, PMCFGR, 28, 0b0000);
-    PMCFGR = SetSlice(1, PMCFGR, 21, 0b1);
-    PMCFGR = SetSlice(1, PMCFGR, 19, 0b0);
-    PMCFGR = SetSlice(1, PMCFGR, 18, 0b0);
-    PMCFGR = SetSlice(1, PMCFGR, 17, 0b0);
-    PMCFGR = SetSlice(1, PMCFGR, 16, 0b0);
-    PMCFGR = SetSlice(1, PMCFGR, 15, 0b1);
-    PMCFGR = SetSlice(1, PMCFGR, 14, 0b1);
-    PMCFGR = SetSlice(6, PMCFGR, 8, 0b111111);
-    PMCFGR = SetSlice(8, PMCFGR, 0, 0b000 @ __num_event_counters[4 .. 0]);
-    PMDEVTYPE = SetSlice(4, PMDEVTYPE, 4, 0b0001);
-    PMDEVTYPE = SetSlice(4, PMDEVTYPE, 0, 0b0110);
-    PMPIDR0 = SetSlice(8, PMPIDR0, 0, 0b00001111);
-    PMPIDR1 = SetSlice(4, PMPIDR1, 4, 0b1011);
-    PMPIDR1 = SetSlice(4, PMPIDR1, 0, 0b1101);
-    PMPIDR2 = SetSlice(4, PMPIDR2, 4, 0b0000);
-    PMPIDR2 = SetSlice(1, PMPIDR2, 3, 0b1);
-    PMPIDR2 = SetSlice(3, PMPIDR2, 0, 0b011);
-    PMPIDR3 = SetSlice(4, PMPIDR3, 4, 0b0000);
-    PMPIDR3 = SetSlice(4, PMPIDR3, 0, 0b0000);
-    PMPIDR4 = SetSlice(4, PMPIDR4, 4, 0b0000);
-    PMPIDR4 = SetSlice(4, PMPIDR4, 0, 0b0100);
-    PMCIDR0 = SetSlice(8, PMCIDR0, 0, 0b00001101);
-    PMCIDR1 = SetSlice(4, PMCIDR1, 4, 0b1001);
-    PMCIDR1 = SetSlice(4, PMCIDR1, 0, 0b0000);
-    PMCIDR2 = SetSlice(8, PMCIDR2, 0, 0b00000101);
-    PMCIDR3 = SetSlice(8, PMCIDR3, 0, 0b10110001);
+      CFG_PMCR_IDCODE];
+    PMCR_write() = [PMCR_read() with N = __num_event_counters[4 .. 0]];
+    PMCR_write() = [PMCR_read() with C = 0b0];
+    PMCR_write() = [PMCR_read() with P = 0b0];
+    PMCEID0_write() = Mk_PMCEID0_Type(0b01001000000000100000000100000001);
+    PMCEID2_write() = Mk_PMCEID2_Type(ZeroExtend(0b1111, 32));
+    PMCEID1_write() = Mk_PMCEID1_Type(Zeros());
+    PMCEID3_write() = Mk_PMCEID3_Type(Zeros());
+    PMCFGR[NCG] = 0b0000;
+    PMCFGR[FZO] = 0b1;
+    PMCFGR[UEN] = 0b0;
+    PMCFGR[WT] = 0b0;
+    PMCFGR[NA] = 0b0;
+    PMCFGR[EX] = 0b0;
+    PMCFGR[CCD] = 0b1;
+    PMCFGR[CC] = 0b1;
+    PMCFGR[SIZE] = 0b111111;
+    PMCFGR[N] = 0b000 @ __num_event_counters[4 .. 0];
+    PMDEVTYPE[SUB] = 0b0001;
+    PMDEVTYPE[MAJOR] = 0b0110;
+    PMPIDR0[PART_0] = 0b00001111;
+    PMPIDR1[DES_0] = 0b1011;
+    PMPIDR1[PART_1] = 0b1101;
+    PMPIDR2[REVISION] = 0b0000;
+    PMPIDR2[JEDEC] = 0b1;
+    PMPIDR2[DES_1] = 0b011;
+    PMPIDR3[REVAND] = 0b0000;
+    PMPIDR3[CMOD] = 0b0000;
+    PMPIDR4[SIZE] = 0b0000;
+    PMPIDR4[DES_2] = 0b0100;
+    PMCIDR0[PRMBL_0] = 0b00001101;
+    PMCIDR1[CLASS] = 0b1001;
+    PMCIDR1[PRMBL_1] = 0b0000;
+    PMCIDR2[PRMBL_2] = 0b00000101;
+    PMCIDR3[PRMBL_3] = 0b10110001;
     VBAR_S[31 .. 5] = Zeros();
-    CCSIDR_write() = SetSlice(21, CCSIDR_read(), 3, ZeroExtend(0x1, 21));
-    CCSIDR_write() = SetSlice(3, CCSIDR_read(), 0, 0b010);
-    CLIDR_write() = SetSlice(2, CLIDR_read(), 30, 0b00);
-    CLIDR_write() = SetSlice(3, CLIDR_read(), 27, 0b000);
-    CLIDR_write() = SetSlice(3, CLIDR_read(), 24, 0b010);
-    CLIDR_write() = SetSlice(3, CLIDR_read(), 21, 0b000);
-    CLIDR_write() = [CLIDR_read() with 20 .. 0 = 0b000000000000000100011];
-    CTR_write() = SetSlice(1, CTR_read(), 29, 0b0);
-    CTR_write() = SetSlice(1, CTR_read(), 28, 0b0);
-    CTR_write() = SetSlice(4, CTR_read(), 24, 0b0100);
-    CTR_write() = SetSlice(4, CTR_read(), 20, __exclusive_granule_size);
-    CTR_write() = SetSlice(4, CTR_read(), 16, 0b0100);
-    CTR_write() = SetSlice(2, CTR_read(), 14, 0b10);
-    CTR_write() = SetSlice(4, CTR_read(), 0, 0b0100);
-    FPSID = SetSlice(8, FPSID, 24, 0b01000001);
-    FPSID = SetSlice(1, FPSID, 23, 0b0);
-    FPSID = SetSlice(7, FPSID, 16, 0b0000100);
-    FPSID = SetSlice(8, FPSID, 8, 0b00110000);
-    FPSID = SetSlice(4, FPSID, 4, 0b0111);
-    FPSID = SetSlice(4, FPSID, 0, 0b0000);
-    ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 20, 0b0000);
-    ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 8, 0b0000);
-    if not_bool(HaveEL(EL3)) & Slice(SCR, 0, 1) == 0b1 then {
-        ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 4, 0b0000)
+    CCSIDR_write() = [CCSIDR_read() with Associativity = ZeroExtend(0x1, 21)];
+    CCSIDR_write() = [CCSIDR_read() with LineSize = 0b010];
+    CLIDR_write() = [CLIDR_read() with ICB = 0b00];
+    CLIDR_write() = [CLIDR_read() with LoUU = 0b000];
+    CLIDR_write() = [CLIDR_read() with LoC = 0b010];
+    CLIDR_write() = [CLIDR_read() with LoUIS = 0b000];
+    CLIDR_write() = Mk_CLIDR_Type([CLIDR_read().bits with 20 .. 0 = 0b000000000000000100011]);
+    CTR_write() = [CTR_read() with DIC = 0b0];
+    CTR_write() = [CTR_read() with IDC = 0b0];
+    CTR_write() = [CTR_read() with CWG = 0b0100];
+    CTR_write() = [CTR_read() with ERG = __exclusive_granule_size];
+    CTR_write() = [CTR_read() with DminLine = 0b0100];
+    CTR_write() = [CTR_read() with L1Ip = 0b10];
+    CTR_write() = [CTR_read() with IminLine = 0b0100];
+    FPSID[Implementer] = 0b01000001;
+    FPSID[SW] = 0b0;
+    FPSID[Subarchitecture] = 0b0000100;
+    FPSID[PartNum] = 0b00110000;
+    FPSID[Variant] = 0b0111;
+    FPSID[Revision] = 0b0000;
+    ID_DFR0_write() = [ID_DFR0_read() with MProfDbg = 0b0000];
+    ID_DFR0_write() = [ID_DFR0_read() with MMapDbg = 0b0000];
+    if not_bool(HaveEL(EL3)) & SCR[NS] == 0b1 then {
+        ID_DFR0_write() = [ID_DFR0_read() with CopSDbg = 0b0000]
     } else {
-        ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 4, Slice(ID_DFR0_read(), 0, 4))
+        ID_DFR0_write() = [ID_DFR0_read() with CopSDbg = ID_DFR0_read()[CopDbg]]
     };
-    ID_ISAR0_write() = SetSlice(4, ID_ISAR0_read(), 24, 0b0010);
-    ID_ISAR0_write() = SetSlice(4, ID_ISAR0_read(), 20, 0b0001);
-    ID_ISAR0_write() = SetSlice(4, ID_ISAR0_read(), 16, 0b0000);
-    ID_ISAR0_write() = SetSlice(4, ID_ISAR0_read(), 12, 0b0001);
-    ID_ISAR0_write() = SetSlice(4, ID_ISAR0_read(), 8, 0b0001);
-    ID_ISAR0_write() = SetSlice(4, ID_ISAR0_read(), 4, 0b0001);
-    ID_ISAR0_write() = SetSlice(4, ID_ISAR0_read(), 0, 0b0000);
-    ID_ISAR1_write() = SetSlice(4, ID_ISAR1_read(), 28, 0b0001);
-    ID_ISAR1_write() = SetSlice(4, ID_ISAR1_read(), 24, 0b0011);
-    ID_ISAR1_write() = SetSlice(4, ID_ISAR1_read(), 20, 0b0001);
-    ID_ISAR1_write() = SetSlice(4, ID_ISAR1_read(), 16, 0b0001);
-    ID_ISAR1_write() = SetSlice(4, ID_ISAR1_read(), 12, 0b0010);
-    ID_ISAR1_write() = SetSlice(4, ID_ISAR1_read(), 8, 0b0001);
-    ID_ISAR1_write() = SetSlice(4, ID_ISAR1_read(), 4, 0b0001);
-    ID_ISAR1_write() = SetSlice(4, ID_ISAR1_read(), 0, 0b0001);
-    ID_ISAR2_write() = SetSlice(4, ID_ISAR2_read(), 28, 0b0010);
-    ID_ISAR2_write() = SetSlice(4, ID_ISAR2_read(), 24, 0b0001);
-    ID_ISAR2_write() = SetSlice(4, ID_ISAR2_read(), 20, 0b0010);
-    ID_ISAR2_write() = SetSlice(4, ID_ISAR2_read(), 16, 0b0011);
-    ID_ISAR2_write() = SetSlice(4, ID_ISAR2_read(), 12, 0b0010);
-    ID_ISAR2_write() = SetSlice(4, ID_ISAR2_read(), 8, 0b0000);
-    ID_ISAR2_write() = SetSlice(4, ID_ISAR2_read(), 4, 0b0100);
-    ID_ISAR2_write() = SetSlice(4, ID_ISAR2_read(), 0, 0b0010);
-    ID_ISAR3_write() = SetSlice(4, ID_ISAR3_read(), 28, 0b0000);
-    ID_ISAR3_write() = SetSlice(4, ID_ISAR3_read(), 24, 0b0001);
-    ID_ISAR3_write() = SetSlice(4, ID_ISAR3_read(), 20, 0b0001);
-    ID_ISAR3_write() = SetSlice(4, ID_ISAR3_read(), 16, 0b0001);
-    ID_ISAR3_write() = SetSlice(4, ID_ISAR3_read(), 12, 0b0010);
-    ID_ISAR3_write() = SetSlice(4, ID_ISAR3_read(), 8, 0b0001);
-    ID_ISAR3_write() = SetSlice(4, ID_ISAR3_read(), 4, 0b0011);
-    ID_ISAR3_write() = SetSlice(4, ID_ISAR3_read(), 0, 0b0001);
-    ID_ISAR4_write() = SetSlice(4, ID_ISAR4_read(), 28, 0b0000);
-    ID_ISAR4_write() = SetSlice(4, ID_ISAR4_read(), 24, 0b0000);
-    ID_ISAR4_write() = SetSlice(4, ID_ISAR4_read(), 20, 0b0000);
-    ID_ISAR4_write() = SetSlice(4, ID_ISAR4_read(), 16, 0b0001);
-    ID_ISAR4_write() = SetSlice(4, ID_ISAR4_read(), 12, 0b0000);
-    ID_ISAR4_write() = SetSlice(4, ID_ISAR4_read(), 8, 0b0001);
-    ID_ISAR4_write() = SetSlice(4, ID_ISAR4_read(), 4, 0b0100);
-    ID_ISAR4_write() = SetSlice(4, ID_ISAR4_read(), 0, 0b0010);
-    ID_MMFR5_EL1 = SetSlice(4, ID_MMFR5_EL1, 4, 0b0001);
-    ID_ISAR5_write() = SetSlice(4, ID_ISAR5_read(), 28, 0b0001);
-    ID_ISAR5_write() = SetSlice(4, ID_ISAR5_read(), 24, 0b0001);
-    ID_ISAR5_write() = SetSlice(4, ID_ISAR5_read(), 16, 0b0000);
-    ID_ISAR5_write() = SetSlice(4, ID_ISAR5_read(), 12, 0b0001);
-    ID_ISAR5_write() = SetSlice(4, ID_ISAR5_read(), 8, 0b0001);
-    ID_ISAR5_write() = SetSlice(4, ID_ISAR5_read(), 4, 0b0010);
-    ID_ISAR5_write() = SetSlice(4, ID_ISAR5_read(), 0, 0b0001);
-    ID_ISAR6_write() = SetSlice(4, ID_ISAR6_read(), 4, 0b0001);
-    ID_ISAR6_write() = SetSlice(4, ID_ISAR6_read(), 20, 0b0001);
-    ID_ISAR6_write() = SetSlice(4, ID_ISAR6_read(), 24, 0b0001);
+    ID_ISAR0_write() = [ID_ISAR0_read() with Divide = 0b0010];
+    ID_ISAR0_write() = [ID_ISAR0_read() with Debug = 0b0001];
+    ID_ISAR0_write() = [ID_ISAR0_read() with Coproc = 0b0000];
+    ID_ISAR0_write() = [ID_ISAR0_read() with CmpBranch = 0b0001];
+    ID_ISAR0_write() = [ID_ISAR0_read() with BitField = 0b0001];
+    ID_ISAR0_write() = [ID_ISAR0_read() with BitCount = 0b0001];
+    ID_ISAR0_write() = [ID_ISAR0_read() with Swap = 0b0000];
+    ID_ISAR1_write() = [ID_ISAR1_read() with Jazelle = 0b0001];
+    ID_ISAR1_write() = [ID_ISAR1_read() with Interwork = 0b0011];
+    ID_ISAR1_write() = [ID_ISAR1_read() with Immediate = 0b0001];
+    ID_ISAR1_write() = [ID_ISAR1_read() with IfThen = 0b0001];
+    ID_ISAR1_write() = [ID_ISAR1_read() with Extend = 0b0010];
+    ID_ISAR1_write() = [ID_ISAR1_read() with Except_AR = 0b0001];
+    ID_ISAR1_write() = [ID_ISAR1_read() with Except = 0b0001];
+    ID_ISAR1_write() = [ID_ISAR1_read() with Endian = 0b0001];
+    ID_ISAR2_write() = [ID_ISAR2_read() with Reversal = 0b0010];
+    ID_ISAR2_write() = [ID_ISAR2_read() with PSR_AR = 0b0001];
+    ID_ISAR2_write() = [ID_ISAR2_read() with MultU = 0b0010];
+    ID_ISAR2_write() = [ID_ISAR2_read() with MultS = 0b0011];
+    ID_ISAR2_write() = [ID_ISAR2_read() with Mult = 0b0010];
+    ID_ISAR2_write() = [ID_ISAR2_read() with MultiAccessInt = 0b0000];
+    ID_ISAR2_write() = [ID_ISAR2_read() with MemHint = 0b0100];
+    ID_ISAR2_write() = [ID_ISAR2_read() with LoadStore = 0b0010];
+    ID_ISAR3_write() = [ID_ISAR3_read() with T32EE = 0b0000];
+    ID_ISAR3_write() = [ID_ISAR3_read() with TrueNOP = 0b0001];
+    ID_ISAR3_write() = [ID_ISAR3_read() with T32Copy = 0b0001];
+    ID_ISAR3_write() = [ID_ISAR3_read() with TabBranch = 0b0001];
+    ID_ISAR3_write() = [ID_ISAR3_read() with SynchPrim = 0b0010];
+    ID_ISAR3_write() = [ID_ISAR3_read() with SVC = 0b0001];
+    ID_ISAR3_write() = [ID_ISAR3_read() with SIMD = 0b0011];
+    ID_ISAR3_write() = [ID_ISAR3_read() with Saturate = 0b0001];
+    ID_ISAR4_write() = [ID_ISAR4_read() with SWP_frac = 0b0000];
+    ID_ISAR4_write() = [ID_ISAR4_read() with PSR_M = 0b0000];
+    ID_ISAR4_write() = [ID_ISAR4_read() with SynchPrim_frac = 0b0000];
+    ID_ISAR4_write() = [ID_ISAR4_read() with Barrier = 0b0001];
+    ID_ISAR4_write() = [ID_ISAR4_read() with SMC = 0b0000];
+    ID_ISAR4_write() = [ID_ISAR4_read() with Writeback = 0b0001];
+    ID_ISAR4_write() = [ID_ISAR4_read() with WithShifts = 0b0100];
+    ID_ISAR4_write() = [ID_ISAR4_read() with Unpriv = 0b0010];
+    ID_MMFR5_EL1[nTLBPA] = 0b0001;
+    ID_ISAR5_write() = [ID_ISAR5_read() with VCMA = 0b0001];
+    ID_ISAR5_write() = [ID_ISAR5_read() with RDM = 0b0001];
+    ID_ISAR5_write() = [ID_ISAR5_read() with CRC32 = 0b0000];
+    ID_ISAR5_write() = [ID_ISAR5_read() with SHA2 = 0b0001];
+    ID_ISAR5_write() = [ID_ISAR5_read() with SHA1 = 0b0001];
+    ID_ISAR5_write() = [ID_ISAR5_read() with AES = 0b0010];
+    ID_ISAR5_write() = [ID_ISAR5_read() with SEVL = 0b0001];
+    ID_ISAR6_write() = [ID_ISAR6_read() with DP = 0b0001];
+    ID_ISAR6_write() = [ID_ISAR6_read() with BF16 = 0b0001];
+    ID_ISAR6_write() = [ID_ISAR6_read() with I8MM = 0b0001];
     if __fp16_implemented then {
-        MVFR1_write() = SetSlice(4, MVFR1_read(), 24, 0b0011);
-        MVFR1_write() = SetSlice(4, MVFR1_read(), 20, 0b0010)
+        MVFR1_write() = [MVFR1_read() with FPHP = 0b0011];
+        MVFR1_write() = [MVFR1_read() with SIMDHP = 0b0010]
     } else {
-        MVFR1_write() = SetSlice(4, MVFR1_read(), 24, 0b0010);
-        MVFR1_write() = SetSlice(4, MVFR1_read(), 20, 0b0001)
+        MVFR1_write() = [MVFR1_read() with FPHP = 0b0010];
+        MVFR1_write() = [MVFR1_read() with SIMDHP = 0b0001]
     };
     if HasArchVersion(ARMv8p3) then {
-        ID_MMFR4_write() = SetSlice(4, ID_MMFR4_read(), 24, 0b0001);
-        ID_ISAR6_write() = SetSlice(4, ID_ISAR6_read(), 0, 0b0001);
-        ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 28, 0b0001)
+        ID_MMFR4_write() = Mk_ID_MMFR4_Type(SetSlice(4, ID_MMFR4_read().bits, 24, 0b0001));
+        ID_ISAR6_write() = Mk_ID_ISAR6_Type(SetSlice(4, ID_ISAR6_read().bits, 0, 0b0001));
+        ID_DFR0_write() = [ID_DFR0_read() with TraceFilt = 0b0001]
     };
     if HasArchVersion(ARMv8p4) then {
-        EDPFR = SetSlice(4, EDPFR, 36, 0b0001);
-        ID_ISAR6_write() = SetSlice(4, ID_ISAR6_read(), 8, 0b0001);
-        ID_PFR0_write() = SetSlice(4, ID_PFR0_read(), 20, 0b0001);
-        ID_PFR0_write() = SetSlice(4, ID_PFR0_read(), 24, 0b0001);
-        ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 0, 0b1001);
-        if not_bool(HaveEL(EL3)) & Slice(SCR, 0, 1) == 0b1 then {
-            ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 4, 0b0000)
+        EDPFR.bits[39 .. 36] = 0b0001;
+        ID_ISAR6_write() = [ID_ISAR6_read() with FHM = 0b0001];
+        ID_PFR0_write() = [ID_PFR0_read() with AMU = 0b0001];
+        ID_PFR0_write() = [ID_PFR0_read() with DIT = 0b0001];
+        ID_DFR0_write() = [ID_DFR0_read() with CopDbg = 0b1001];
+        if not_bool(HaveEL(EL3)) & SCR[NS] == 0b1 then {
+            ID_DFR0_write() = [ID_DFR0_read() with CopSDbg = 0b0000]
         } else {
-            ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 4, Slice(ID_DFR0_EL1, 0, 4))
+            ID_DFR0_write() = [ID_DFR0_read() with CopSDbg = ID_DFR0_EL1[CopDbg]]
         }
     };
     if HasArchVersion(ARMv8p7) then {
-        ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 24, 0b0111);
-        ID_MMFR5_write() = SetSlice(4, ID_MMFR5_read(), 0, 0b0001)
+        ID_DFR0_write() = [ID_DFR0_read() with PerfMon = 0b0111];
+        ID_MMFR5_write() = [ID_MMFR5_read() with ETS = 0b0001]
     };
     if HasArchVersion(ARMv8p8) then {
-        ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 0, 0b1010);
-        if not_bool(HaveEL(EL3)) & Slice(SCR, 0, 1) == 0b1 then {
-            ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 4, 0b0000)
+        ID_DFR0_write() = [ID_DFR0_read() with CopDbg = 0b1010];
+        if not_bool(HaveEL(EL3)) & SCR[NS] == 0b1 then {
+            ID_DFR0_write() = [ID_DFR0_read() with CopSDbg = 0b0000]
         } else {
-            ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 4, Slice(ID_DFR0_read(), 0, 4))
+            ID_DFR0_write() = [ID_DFR0_read() with CopSDbg = ID_DFR0_read()[CopDbg]]
         }
     };
     if HasArchVersion(ARMv8p6) then {
-        ID_PFR1_write() = SetSlice(4, ID_PFR1_read(), 16, 0b0010);
-        ID_PFR0_write() = SetSlice(4, ID_PFR0_read(), 20, 0b0010)
+        ID_PFR1_write() = [ID_PFR1_read() with GenTimer = 0b0010];
+        ID_PFR0_write() = [ID_PFR0_read() with AMU = 0b0010]
     };
-    ID_MMFR0_write() = SetSlice(4, ID_MMFR0_read(), 28, 0b0001);
-    ID_MMFR0_write() = SetSlice(4, ID_MMFR0_read(), 24, 0b0000);
-    ID_MMFR0_write() = SetSlice(4, ID_MMFR0_read(), 20, 0b0010);
-    ID_MMFR0_write() = SetSlice(4, ID_MMFR0_read(), 16, 0b0000);
-    ID_MMFR0_write() = SetSlice(4, ID_MMFR0_read(), 12, 0b0001);
-    ID_MMFR0_write() = SetSlice(4, ID_MMFR0_read(), 8, 0b0001);
-    ID_MMFR0_write() = SetSlice(4, ID_MMFR0_read(), 4, 0b0000);
-    ID_MMFR0_write() = SetSlice(4, ID_MMFR0_read(), 0, 0b0101);
-    ID_MMFR1_write() = SetSlice(4, ID_MMFR1_read(), 28, 0b0010);
-    ID_MMFR1_write() = SetSlice(4, ID_MMFR1_read(), 24, 0b0000);
-    ID_MMFR1_write() = SetSlice(4, ID_MMFR1_read(), 20, 0b0000);
-    ID_MMFR1_write() = SetSlice(4, ID_MMFR1_read(), 16, 0b0000);
-    ID_MMFR1_write() = SetSlice(4, ID_MMFR1_read(), 12, 0b0000);
-    ID_MMFR1_write() = SetSlice(4, ID_MMFR1_read(), 8, 0b0000);
-    ID_MMFR1_write() = SetSlice(4, ID_MMFR1_read(), 4, 0b0000);
-    ID_MMFR1_write() = SetSlice(4, ID_MMFR1_read(), 0, 0b0000);
-    ID_MMFR2_write() = SetSlice(4, ID_MMFR2_read(), 28, 0b0000);
-    ID_MMFR2_write() = SetSlice(4, ID_MMFR2_read(), 24, 0b0001);
-    ID_MMFR2_write() = SetSlice(4, ID_MMFR2_read(), 20, 0b0010);
-    ID_MMFR2_write() = SetSlice(4, ID_MMFR2_read(), 16, 0b0110);
-    ID_MMFR2_write() = SetSlice(4, ID_MMFR2_read(), 12, 0b0000);
-    ID_MMFR2_write() = SetSlice(4, ID_MMFR2_read(), 8, 0b0000);
-    ID_MMFR2_write() = SetSlice(4, ID_MMFR2_read(), 4, 0b0000);
-    ID_MMFR2_write() = SetSlice(4, ID_MMFR2_read(), 0, 0b0000);
-    ID_MMFR3_write() = SetSlice(4, ID_MMFR3_read(), 28, 0b0000);
-    ID_MMFR3_write() = SetSlice(4, ID_MMFR3_read(), 24, 0b0010);
-    ID_MMFR3_write() = SetSlice(4, ID_MMFR3_read(), 20, 0b0001);
-    ID_MMFR3_write() = SetSlice(4, ID_MMFR3_read(), 16, 0b0001);
-    ID_MMFR3_write() = SetSlice(4, ID_MMFR3_read(), 12, 0b0010);
-    ID_MMFR3_write() = SetSlice(4, ID_MMFR3_read(), 8, 0b0010);
-    ID_MMFR3_write() = SetSlice(4, ID_MMFR3_read(), 4, 0b0001);
-    ID_MMFR3_write() = SetSlice(4, ID_MMFR3_read(), 0, 0b0001);
-    ID_PFR0_write() = SetSlice(4, ID_PFR0_read(), 28, 0b0010);
-    ID_PFR0_write() = SetSlice(4, ID_PFR0_read(), 12, 0b0000);
-    ID_PFR0_write() = SetSlice(4, ID_PFR0_read(), 8, 0b0001);
-    ID_PFR0_write() = SetSlice(4, ID_PFR0_read(), 4, 0b0011);
-    ID_PFR0_write() = SetSlice(4, ID_PFR0_read(), 0, 0b0001);
-    ID_DFR1_write() = SetSlice(4, ID_DFR1_read(), 0, 0b0001);
+    ID_MMFR0_write() = [ID_MMFR0_read() with InnerShr = 0b0001];
+    ID_MMFR0_write() = [ID_MMFR0_read() with FCSE = 0b0000];
+    ID_MMFR0_write() = [ID_MMFR0_read() with AuxReg = 0b0010];
+    ID_MMFR0_write() = [ID_MMFR0_read() with TCM = 0b0000];
+    ID_MMFR0_write() = [ID_MMFR0_read() with ShareLvl = 0b0001];
+    ID_MMFR0_write() = [ID_MMFR0_read() with OuterShr = 0b0001];
+    ID_MMFR0_write() = [ID_MMFR0_read() with PMSA = 0b0000];
+    ID_MMFR0_write() = [ID_MMFR0_read() with VMSA = 0b0101];
+    ID_MMFR1_write() = [ID_MMFR1_read() with BPred = 0b0010];
+    ID_MMFR1_write() = [ID_MMFR1_read() with L1TstCln = 0b0000];
+    ID_MMFR1_write() = [ID_MMFR1_read() with L1Uni = 0b0000];
+    ID_MMFR1_write() = [ID_MMFR1_read() with L1Hvd = 0b0000];
+    ID_MMFR1_write() = [ID_MMFR1_read() with L1UniSW = 0b0000];
+    ID_MMFR1_write() = [ID_MMFR1_read() with L1HvdSW = 0b0000];
+    ID_MMFR1_write() = [ID_MMFR1_read() with L1UniVA = 0b0000];
+    ID_MMFR1_write() = [ID_MMFR1_read() with L1HvdVA = 0b0000];
+    ID_MMFR2_write() = [ID_MMFR2_read() with HWAccFlg = 0b0000];
+    ID_MMFR2_write() = [ID_MMFR2_read() with WFIStall = 0b0001];
+    ID_MMFR2_write() = [ID_MMFR2_read() with MemBarr = 0b0010];
+    ID_MMFR2_write() = [ID_MMFR2_read() with UniTLB = 0b0110];
+    ID_MMFR2_write() = [ID_MMFR2_read() with HvdTLB = 0b0000];
+    ID_MMFR2_write() = [ID_MMFR2_read() with L1HvdRng = 0b0000];
+    ID_MMFR2_write() = [ID_MMFR2_read() with L1HvdBG = 0b0000];
+    ID_MMFR2_write() = [ID_MMFR2_read() with L1HvdFG = 0b0000];
+    ID_MMFR3_write() = [ID_MMFR3_read() with Supersec = 0b0000];
+    ID_MMFR3_write() = [ID_MMFR3_read() with CMemSz = 0b0010];
+    ID_MMFR3_write() = [ID_MMFR3_read() with CohWalk = 0b0001];
+    ID_MMFR3_write() = [ID_MMFR3_read() with PAN = 0b0001];
+    ID_MMFR3_write() = [ID_MMFR3_read() with MaintBcst = 0b0010];
+    ID_MMFR3_write() = [ID_MMFR3_read() with BPMaint = 0b0010];
+    ID_MMFR3_write() = [ID_MMFR3_read() with CMaintSW = 0b0001];
+    ID_MMFR3_write() = [ID_MMFR3_read() with CMaintVA = 0b0001];
+    ID_PFR0_write() = [ID_PFR0_read() with RAS = 0b0010];
+    ID_PFR0_write() = [ID_PFR0_read() with State3 = 0b0000];
+    ID_PFR0_write() = [ID_PFR0_read() with State2 = 0b0001];
+    ID_PFR0_write() = [ID_PFR0_read() with State1 = 0b0011];
+    ID_PFR0_write() = [ID_PFR0_read() with State0 = 0b0001];
+    ID_DFR1_write() = [ID_DFR1_read() with MTPMU = 0b0001];
     if HasArchVersion(ARMv8p5) then {
-        ID_PFR0_write() = SetSlice(4, ID_PFR0_read(), 16, 0b0001);
-        ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 24, 0b0110)
+        ID_PFR0_write() = [ID_PFR0_read() with CSV2 = 0b0001];
+        ID_DFR0_write() = [ID_DFR0_read() with PerfMon = 0b0110]
     };
-    ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 16, 0b0001);
-    ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 12, 0b0001);
-    ID_PFR1_write() = SetSlice(4, ID_PFR1_read(), 28, 0b0011);
-    ID_PFR1_write() = SetSlice(4, ID_PFR1_read(), 24, 0b0000);
-    ID_PFR1_write() = SetSlice(4, ID_PFR1_read(), 20, 0b0000);
-    ID_PFR1_write() = SetSlice(4, ID_PFR1_read(), 8, 0b0000);
-    ID_PFR1_write() = SetSlice(4, ID_PFR1_read(), 0, 0b0000);
-    ID_PFR1_write() = SetSlice(4, ID_PFR1_read(), 4, 0b0000);
-    ID_PFR1_write() = SetSlice(4, ID_PFR1_read(), 12, 0b0000);
-    MIDR_write() = SetSlice(8, MIDR_read(), 24, 0b01000001);
-    MIDR_write() = SetSlice(4, MIDR_read(), 20, 0b0000);
-    MIDR_write() = SetSlice(4, MIDR_read(), 16, 0b1111);
-    MIDR_write() = SetSlice(12, MIDR_read(), 4, 0b110100001111);
-    MIDR_write() = SetSlice(4, MIDR_read(), 0, 0b0000);
-    VPIDR_write() = SetSlice(8, VPIDR_read(), 24, 0b01000001);
-    VPIDR_write() = SetSlice(4, VPIDR_read(), 20, 0b0000);
-    VPIDR_write() = SetSlice(4, VPIDR_read(), 16, 0b1111);
-    VPIDR_write() = SetSlice(12, VPIDR_read(), 4, 0b110100001111);
-    VPIDR_write() = SetSlice(4, VPIDR_read(), 0, 0b0000);
-    MPIDR_write() = SetSlice(1, MPIDR_read(), 31, 0b1);
-    MPIDR_write() = SetSlice(1, MPIDR_read(), 30, 0b0);
-    MPIDR_write() = SetSlice(1, MPIDR_read(), 24, 0b0);
-    MPIDR_write() = SetSlice(8, MPIDR_read(), 16, 0b00000000);
-    MPIDR_write() = SetSlice(8, MPIDR_read(), 8, 0b00000000);
-    MPIDR_write() = SetSlice(8, MPIDR_read(), 0, 0b00000000);
-    MVFR0_write() = SetSlice(4, MVFR0_read(), 28, 0b0001);
-    MVFR0_write() = SetSlice(4, MVFR0_read(), 24, 0b0000);
-    MVFR0_write() = SetSlice(4, MVFR0_read(), 20, 0b0001);
-    MVFR0_write() = SetSlice(4, MVFR0_read(), 16, 0b0001);
-    MVFR0_write() = SetSlice(4, MVFR0_read(), 12, 0b0001);
-    MVFR0_write() = SetSlice(4, MVFR0_read(), 8, 0b0010);
-    MVFR0_write() = SetSlice(4, MVFR0_read(), 4, 0b0010);
-    MVFR0_write() = SetSlice(4, MVFR0_read(), 0, 0b0010);
-    MVFR1_write() = SetSlice(4, MVFR1_read(), 28, 0b0001);
-    MVFR1_write() = SetSlice(4, MVFR1_read(), 16, 0b0001);
-    MVFR1_write() = SetSlice(4, MVFR1_read(), 12, 0b0001);
-    MVFR1_write() = SetSlice(4, MVFR1_read(), 8, 0b0001);
-    MVFR1_write() = SetSlice(4, MVFR1_read(), 4, 0b0001);
-    MVFR1_write() = SetSlice(4, MVFR1_read(), 0, 0b0001);
-    MVFR2_write() = SetSlice(4, MVFR2_read(), 4, 0b0100);
-    MVFR2_write() = SetSlice(4, MVFR2_read(), 0, 0b0011);
-    TLBTR = SetSlice(1, TLBTR, 0, 0b0);
-    HSCTLR_write() = SetSlice(1, HSCTLR_read(), 25, 0b0);
-    SCTLR_write() = SetSlice(1, SCTLR_read__2(), 30, [_ConfigReg[22]]);
-    SCTLR_write() = SetSlice(1, SCTLR_read__2(), 25, [_ConfigReg[2]]);
-    SCTLR_write() = SetSlice(1, SCTLR_read__2(), 23, 0b0);
-    SCTLR_write() = SetSlice(1, SCTLR_read__2(), 13, 0b0);
-    SCTLR_write() = SetSlice(1, SCTLR_read__2(), 6, 0b0);
-    FPEXC_write() = SetSlice(1, FPEXC_read(), 31, 0b0);
-    FPEXC_write() = SetSlice(1, FPEXC_read(), 28, 0b0);
-    FPEXC_write() = SetSlice(1, FPEXC_read(), 27, 0b0);
-    FPEXC_write() = SetSlice(1, FPEXC_read(), 26, 0b0);
-    FPEXC_write() = SetSlice(3, FPEXC_read(), 8, 0b111);
-    HTCR_write() = SetSlice(1, HTCR_read(), 28, 0b0);
-    HTCR_write() = SetSlice(1, HTCR_read(), 27, 0b0);
-    HTCR_write() = SetSlice(1, HTCR_read(), 26, 0b0);
-    HTCR_write() = SetSlice(1, HTCR_read(), 25, 0b0);
-    HTCR_write() = SetSlice(1, HTCR_read(), 24, 0b0);
-    HTCR_write() = SetSlice(2, HTCR_read(), 12, 0b00);
-    HTCR_write() = SetSlice(2, HTCR_read(), 10, 0b00);
-    HTCR_write() = SetSlice(2, HTCR_read(), 8, 0b00);
-    HTCR_write() = SetSlice(3, HTCR_read(), 0, 0b000);
-    NMRR_write() = [NMRR_read() with 31 .. 16 = 0b0100010011100000];
-    NMRR_write() = [NMRR_read() with 15 .. 0 = 0b0100100011100000];
-    NSACR = SetSlice(1, NSACR, 11, 0b0);
-    NSACR = SetSlice(1, NSACR, 10, 0b0);
-    PRRR_write() = [PRRR_read() with 31 .. 24 = Zeros()];
-    PRRR_write() = SetSlice(1, PRRR_read(), 19, 0b1);
-    PRRR_write() = SetSlice(1, PRRR_read(), 18, 0b0);
-    PRRR_write() = SetSlice(1, PRRR_read(), 17, 0b0);
-    PRRR_write() = SetSlice(1, PRRR_read(), 16, 0b1);
-    PRRR_write() = [PRRR_read() with 15 .. 0 = 0b1000101010100100];
-    DBGDIDR = SetSlice(4, DBGDIDR, 28, (__num_watchpoints - 1)[3 .. 0]);
-    DBGDIDR = SetSlice(4, DBGDIDR, 24, (__num_breakpoints - 1)[3 .. 0]);
-    DBGDIDR = SetSlice(4, DBGDIDR, 20, (__num_ctx_breakpoints - 1)[3 .. 0]);
+    ID_DFR0_write() = [ID_DFR0_read() with MMapTrc = 0b0001];
+    ID_DFR0_write() = [ID_DFR0_read() with CopTrc = 0b0001];
+    ID_PFR1_write() = [ID_PFR1_read() with GIC = 0b0000]; // In this model, no system register interface to the GIC is supported
+    ID_PFR1_write() = [ID_PFR1_read() with Virt_frac = 0b0000];
+    ID_PFR1_write() = [ID_PFR1_read() with Sec_frac = 0b0000];
+    ID_PFR1_write() = [ID_PFR1_read() with MProgMod = 0b0000];
+    ID_PFR1_write() = [ID_PFR1_read() with ProgMod = 0b0000];
+    ID_PFR1_write() = [ID_PFR1_read() with Security = 0b0000];
+    ID_PFR1_write() = [ID_PFR1_read() with Virtualization = 0b0000];
+    MIDR_write() = [MIDR_read() with Implementer = 0b01000001];
+    MIDR_write() = [MIDR_read() with Variant = 0b0000];
+    MIDR_write() = [MIDR_read() with Architecture = 0b1111];
+    MIDR_write() = [MIDR_read() with PartNum = 0b110100001111];
+    MIDR_write() = [MIDR_read() with Revision = 0b0000];
+    VPIDR_write() = [VPIDR_read() with Implementer = 0b01000001];
+    VPIDR_write() = [VPIDR_read() with Variant = 0b0000];
+    VPIDR_write() = [VPIDR_read() with Architecture = 0b1111];
+    VPIDR_write() = [VPIDR_read() with PartNum = 0b110100001111];
+    VPIDR_write() = [VPIDR_read() with Revision = 0b0000];
+    MPIDR_write() = [MPIDR_read() with M = 0b1];
+    MPIDR_write() = [MPIDR_read() with U = 0b0];
+    MPIDR_write() = [MPIDR_read() with MT = 0b0];
+    MPIDR_write() = [MPIDR_read() with Aff2 = 0b00000000];
+    MPIDR_write() = [MPIDR_read() with Aff1 = 0b00000000];
+    MPIDR_write() = [MPIDR_read() with Aff0 = 0b00000000];
+    MVFR0_write() = [MVFR0_read() with FPRound = 0b0001];
+    MVFR0_write() = [MVFR0_read() with FPShVec = 0b0000];
+    MVFR0_write() = [MVFR0_read() with FPSqrt = 0b0001];
+    MVFR0_write() = [MVFR0_read() with FPDivide = 0b0001];
+    MVFR0_write() = [MVFR0_read() with FPTrap = 0b0001];
+    MVFR0_write() = [MVFR0_read() with FPDP = 0b0010];
+    MVFR0_write() = [MVFR0_read() with FPSP = 0b0010];
+    MVFR0_write() = [MVFR0_read() with SIMDReg = 0b0010];
+    MVFR1_write() = [MVFR1_read() with SIMDFMAC = 0b0001];
+    MVFR1_write() = [MVFR1_read() with SIMDSP = 0b0001];
+    MVFR1_write() = [MVFR1_read() with SIMDInt = 0b0001];
+    MVFR1_write() = [MVFR1_read() with SIMDLS = 0b0001];
+    MVFR1_write() = [MVFR1_read() with FPDNaN = 0b0001];
+    MVFR1_write() = [MVFR1_read() with FPFtZ = 0b0001];
+    MVFR2_write() = [MVFR2_read() with FPMisc = 0b0100];
+    MVFR2_write() = [MVFR2_read() with SIMDMisc = 0b0011];
+    TLBTR[nU] = 0b0;
+    HSCTLR_write() = [HSCTLR_read() with EE = 0b0];
+    SCTLR_write() = [SCTLR_read__2() with TE = _ConfigReg[ExceptInit]];
+    SCTLR_write() = [SCTLR_read__2() with EE = _ConfigReg[CFGEND]];
+    SCTLR_write() = [SCTLR_read__2() with SPAN = 0b0];
+    SCTLR_write() = [SCTLR_read__2() with V = 0b0];
+    SCTLR_write() = [SCTLR_read__2() with UNK = 0b0];
+    FPEXC_write() = [FPEXC_read() with EX = 0b0];
+    FPEXC_write() = [FPEXC_read() with FP2V = 0b0];
+    FPEXC_write() = [FPEXC_read() with VV = 0b0];
+    FPEXC_write() = [FPEXC_read() with TFV = 0b0];
+    FPEXC_write() = [FPEXC_read() with VECITR = 0b111];
+    HTCR_write() = [HTCR_read() with HWU62 = 0b0];
+    HTCR_write() = [HTCR_read() with HWU61 = 0b0];
+    HTCR_write() = [HTCR_read() with HWU60 = 0b0];
+    HTCR_write() = [HTCR_read() with HWU59 = 0b0];
+    HTCR_write() = [HTCR_read() with HPD = 0b0];
+    HTCR_write() = [HTCR_read() with SH0 = 0b00];
+    HTCR_write() = [HTCR_read() with ORGN0 = 0b00];
+    HTCR_write() = [HTCR_read() with IRGN0 = 0b00];
+    HTCR_write() = [HTCR_read() with T0SZ = 0b000];
+    NMRR_write() = Mk_NMRR_Type([NMRR_read().bits with 31 .. 16 = 0b0100010011100000]);
+    NMRR_write() = Mk_NMRR_Type([NMRR_read().bits with 15 .. 0 = 0b0100100011100000]);
+    NSACR[cp11] = 0b0;
+    NSACR[cp10] = 0b0;
+    PRRR_write() = Mk_PRRR_Type([PRRR_read().bits with 31 .. 24 = Zeros()]);
+    PRRR_write() = [PRRR_read() with NS1 = 0b1];
+    PRRR_write() = [PRRR_read() with NS0 = 0b0];
+    PRRR_write() = [PRRR_read() with DS1 = 0b0];
+    PRRR_write() = [PRRR_read() with DS0 = 0b1];
+    PRRR_write() = Mk_PRRR_Type([PRRR_read().bits with 15 .. 0 = 0b1000101010100100]);
+    DBGDIDR[WRPs] = (__num_watchpoints - 1)[3 .. 0];
+    DBGDIDR[BRPs] = (__num_breakpoints - 1)[3 .. 0];
+    DBGDIDR[CTX_CMPs] = (__num_ctx_breakpoints - 1)[3 .. 0];
     if HasArchVersion(ARMv8p2) then {
-        DBGDIDR = SetSlice(4, DBGDIDR, 16, 0b1000)
+        DBGDIDR[Version] = 0b1000
     };
     if HasArchVersion(ARMv8p4) then {
-        DBGDIDR = SetSlice(4, DBGDIDR, 16, 0b1001)
+        DBGDIDR[Version] = 0b1001
     };
     if HasArchVersion(ARMv8p8) then {
-        DBGDIDR = SetSlice(4, DBGDIDR, 16, 0b1010);
-        ID_DFR0_write() = SetSlice(4, ID_DFR0_read(), 24, 0b1000)
+        DBGDIDR[Version] = 0b1010;
+        ID_DFR0_write() = [ID_DFR0_read() with PerfMon = 0b1000]
     };
-    DBGDIDR = SetSlice(1, DBGDIDR, 14, 0b1);
-    DBGDIDR = SetSlice(1, DBGDIDR, 12, 0b1);
-    DBGDEVID = SetSlice(4, DBGDEVID, 4, 0b0001);
-    DBGDEVID = SetSlice(4, DBGDEVID, 8, 0b1111);
-    DBGDEVID = SetSlice(4, DBGDEVID, 12, 0b0000);
-    DBGDEVID = SetSlice(4, DBGDEVID, 16, 0b0001);
-    DBGDEVID = SetSlice(4, DBGDEVID, 24, 0b0001);
-    HDCR_write() = SetSlice(5, HDCR_read(), 0, Slice(PMCR_read(), 11, 5));
-    ICC_MSRE = SetSlice(1, ICC_MSRE, 0, 0b1);
-    ICC_HSRE_write() = SetSlice(1, ICC_HSRE_read(), 0, 0b1);
+    DBGDIDR[nSUHD_imp] = 0b1;
+    DBGDIDR[SE_imp] = 0b1;
+    DBGDEVID[WPAddrMask] = 0b0001;
+    DBGDEVID[BPAddrMask] = 0b1111;
+    DBGDEVID[VectorCatch] = 0b0000;
+    DBGDEVID[VirtExtns] = 0b0001;
+    DBGDEVID[AuxRegs] = 0b0001;
+    HDCR_write() = [HDCR_read() with HPMN = PMCR_read()[N]];
+    ICC_MSRE[SRE] = 0b1;
+    ICC_HSRE_write() = [ICC_HSRE_read() with SRE = 0b1];
     JMCR = Zeros();
     JOSCR = Zeros();
     JIDR = Zeros();
-    DBGOSLSR_write() = SetSlice(1, DBGOSLSR_read(), 3, Slice(0b10, 1, 1));
-    DBGOSLSR_write() = SetSlice(1, DBGOSLSR_read(), 0, Slice(0b10, 0, 1));
-    HCPTR_write() = SetSlice(1, HCPTR_read(), 31, 0b0);
-    HCPTR_write() = SetSlice(1, HCPTR_read(), 20, 0b0);
-    HCPTR_write() = SetSlice(1, HCPTR_read(), 15, 0b0);
-    HCPTR_write() = SetSlice(1, HCPTR_read(), 11, 0b0);
-    HCPTR_write() = SetSlice(1, HCPTR_read(), 10, 0b0);
+    DBGOSLSR_write() = [DBGOSLSR_read() with OSLM = 0b10];
+    HCPTR_write() = [HCPTR_read() with TCPAC = 0b0];
+    HCPTR_write() = [HCPTR_read() with TTA = 0b0];
+    HCPTR_write() = [HCPTR_read() with TASE = 0b0];
+    HCPTR_write() = [HCPTR_read() with TCP11 = 0b0];
+    HCPTR_write() = [HCPTR_read() with TCP10 = 0b0];
     return()
 }
 
-val AArch64_IMPDEFResets : unit -> unit effect {rreg, wreg}
+val AArch64_IMPDEFResets : unit -> unit
 
 function AArch64_IMPDEFResets () = {
-    DCZID_EL0 = SetSlice(1, DCZID_EL0, 4, 0b0);
-    DCZID_EL0 = SetSlice(4, DCZID_EL0, 0, __dczid_log2_block_size[3 .. 0]);
-    ERRIDR_EL1 = SetSlice(16, ERRIDR_EL1, 0, ZeroExtend(0x4, 16));
-    foreach (i from 0 to (UInt(Slice(ERRIDR_EL1, 0, 16)) - 1) by 1 in inc) {
+    DCZID_EL0[DZP] = 0b0;
+    DCZID_EL0[BS] = __dczid_log2_block_size[3 .. 0];
+    ERRIDR_EL1[NUM] = ZeroExtend(0x4, 16);
+    foreach (i from 0 to (UInt(ERRIDR_EL1[NUM]) - 1) by 1 in inc) {
         assert(constraint((0 <= 'loop_i & 'loop_i < 4)));
-        ERRnFR[i][54 .. 53] = 0b11;
-        ERRnFR[i][52 .. 52] = 0b1;
-        ERRnFR[i][51 .. 51] = 0b1;
-        ERRnFR[i][50 .. 50] = 0b1;
-        ERRnFR[i][49 .. 49] = 0b1;
-        ERRnFR[i][48 .. 48] = 0b1;
-        ERRnFR[i][31 .. 31] = 0b1
+        ERRnFR[i][CE] = 0b11;
+        ERRnFR[i][DE] = 0b1;
+        ERRnFR[i][UEO] = 0b1;
+        ERRnFR[i][UER] = 0b1;
+        ERRnFR[i][UEU] = 0b1;
+        ERRnFR[i][UC] = 0b1;
+        ERRnFR[i][FRX] = 0b1
     };
-    ERRnFR[0][25 .. 24] = 0b01;
-    ERRnFR[0][23 .. 22] = 0b10;
-    ERRnFR[0][21 .. 20] = 0b01;
-    ERRnFR[0][19 .. 18] = 0b01;
-    ERRnFR[0][17 .. 16] = 0b10;
-    ERRnFR[0][15 .. 15] = 0b1;
-    ERRnFR[0][14 .. 12] = 0b100;
-    ERRnFR[0][11 .. 10] = 0b10;
-    ERRnFR[0][9 .. 8] = 0b11;
-    ERRnFR[0][7 .. 6] = 0b10;
-    ERRnFR[0][5 .. 4] = 0b11;
-    ERRnFR[0][1 .. 0] = 0b10;
-    PMCR_EL0 = SetSlice(8, PMCR_EL0, 24, Zeros());
-    PMCR_EL0 = SetSlice(8, PMCR_EL0, 16, if IsZero(Slice(PMCR_EL0, 24, 8)) then
-      Zeros()
-    else
-      CFG_PMCR_IDCODE);
-    PMCR_EL0 = SetSlice(5, PMCR_EL0, 11, __num_event_counters[4 .. 0]);
-    PMCR_EL0 = SetSlice(1, PMCR_EL0, 2, 0b0);
-    PMCR_EL0 = SetSlice(1, PMCR_EL0, 1, 0b0);
-    PMCEID0_EL0 = ZeroExtend(0b111101001000000000100000000100000001, 64);
-    PMCEID1_EL0 = Zeros();
-    PMCFGR = SetSlice(4, PMCFGR, 28, 0b0000);
-    PMCFGR = SetSlice(1, PMCFGR, 21, 0b1);
-    PMCFGR = SetSlice(1, PMCFGR, 19, 0b0);
-    PMCFGR = SetSlice(1, PMCFGR, 18, 0b0);
-    PMCFGR = SetSlice(1, PMCFGR, 17, 0b0);
-    PMCFGR = SetSlice(1, PMCFGR, 16, 0b0);
-    PMCFGR = SetSlice(1, PMCFGR, 15, 0b1);
-    PMCFGR = SetSlice(1, PMCFGR, 14, 0b1);
-    PMCFGR = SetSlice(6, PMCFGR, 8, 0b111111);
-    PMCFGR = SetSlice(8, PMCFGR, 0, 0b000 @ __num_event_counters[4 .. 0]);
-    PMDEVTYPE = SetSlice(4, PMDEVTYPE, 4, 0b0001);
-    PMDEVTYPE = SetSlice(4, PMDEVTYPE, 0, 0b0110);
-    PMPIDR0 = SetSlice(8, PMPIDR0, 0, 0b00001111);
-    PMPIDR1 = SetSlice(4, PMPIDR1, 4, 0b1011);
-    PMPIDR1 = SetSlice(4, PMPIDR1, 0, 0b1101);
-    PMPIDR2 = SetSlice(4, PMPIDR2, 4, 0b0000);
-    PMPIDR2 = SetSlice(1, PMPIDR2, 3, 0b1);
-    PMPIDR2 = SetSlice(3, PMPIDR2, 0, 0b011);
-    PMPIDR3 = SetSlice(4, PMPIDR3, 4, 0b0000);
-    PMPIDR3 = SetSlice(4, PMPIDR3, 0, 0b0000);
-    PMPIDR4 = SetSlice(4, PMPIDR4, 4, 0b0000);
-    PMPIDR4 = SetSlice(4, PMPIDR4, 0, 0b0100);
-    PMCIDR0 = SetSlice(8, PMCIDR0, 0, 0b00001101);
-    PMCIDR1 = SetSlice(4, PMCIDR1, 4, 0b1001);
-    PMCIDR1 = SetSlice(4, PMCIDR1, 0, 0b0000);
-    PMCIDR2 = SetSlice(8, PMCIDR2, 0, 0b00000101);
-    PMCIDR3 = SetSlice(8, PMCIDR3, 0, 0b10110001);
-    CNTFID0 = __CNTbase_frequency;
-    ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 48, 0b0001);
-    ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 36, 0b1111);
-    ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 32, 0b0000);
-    ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 40, 0b0000);
-    ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 28, (__num_ctx_breakpoints - 1)[3 .. 0]);
-    ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 20, (__num_watchpoints - 1)[3 .. 0]);
-    ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 12, (__num_breakpoints - 1)[3 .. 0]);
-    ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 4, 0b0000);
-    ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 0, 0b1001);
+    ERRnFR[0][TS] = 0b01;
+    ERRnFR[0][CI] = 0b10;
+    ERRnFR[0][INJ] = 0b01;
+    ERRnFR[0][CEO] = 0b01;
+    ERRnFR[0][DUI] = 0b10;
+    ERRnFR[0][RP] = 0b1;
+    ERRnFR[0][CEC] = 0b100;
+    ERRnFR[0][CFI] = 0b10;
+    ERRnFR[0][UE] = 0b11;
+    ERRnFR[0][FI] = 0b10;
+    ERRnFR[0][UI] = 0b11;
+    ERRnFR[0][ED] = 0b10;
+    PMCR_EL0[IMP] = Zeros();
+    PMCR_EL0[IDCODE] = if IsZero(PMCR_EL0[IMP]) then Zeros() else
+      CFG_PMCR_IDCODE;
+    PMCR_EL0[N] = __num_event_counters[4 .. 0];
+    PMCR_EL0[C] = 0b0;
+    PMCR_EL0[P] = 0b0;
+    PMCEID0_EL0 = Mk_PMCEID0_EL0_Type(ZeroExtend(0b111101001000000000100000000100000001, 64));
+    PMCEID1_EL0 = Mk_PMCEID1_EL0_Type(Zeros());
+    PMCFGR[NCG] = 0b0000;
+    PMCFGR[FZO] = 0b1;
+    PMCFGR[UEN] = 0b0;
+    PMCFGR[WT] = 0b0;
+    PMCFGR[NA] = 0b0;
+    PMCFGR[EX] = 0b0;
+    PMCFGR[CCD] = 0b1;
+    PMCFGR[CC] = 0b1;
+    PMCFGR[SIZE] = 0b111111;
+    PMCFGR[N] = 0b000 @ __num_event_counters[4 .. 0];
+    PMDEVTYPE[SUB] = 0b0001;
+    PMDEVTYPE[MAJOR] = 0b0110;
+    PMPIDR0[PART_0] = 0b00001111;
+    PMPIDR1[DES_0] = 0b1011;
+    PMPIDR1[PART_1] = 0b1101;
+    PMPIDR2[REVISION] = 0b0000;
+    PMPIDR2[JEDEC] = 0b1;
+    PMPIDR2[DES_1] = 0b011;
+    PMPIDR3[REVAND] = 0b0000;
+    PMPIDR3[CMOD] = 0b0000;
+    PMPIDR4[SIZE] = 0b0000;
+    PMPIDR4[DES_2] = 0b0100;
+    PMCIDR0[PRMBL_0] = 0b00001101;
+    PMCIDR1[CLASS] = 0b1001;
+    PMCIDR1[PRMBL_1] = 0b0000;
+    PMCIDR2[PRMBL_2] = 0b00000101;
+    PMCIDR3[PRMBL_3] = 0b10110001;
+    CNTFID0 = Mk_CNTFID0_Type(__CNTbase_frequency);
+    ID_AA64MMFR1_EL1[nTLBPA] = 0b0001;
+    ID_AA64DFR0_EL1[DoubleLock] = 0b1111;
+    ID_AA64DFR0_EL1[PMSVer] = 0b0010;
+    ID_AA64DFR0_EL1[TraceFilt] = 0b0001;
+    ID_AA64DFR0_EL1[CTX_CMPs] = (__num_ctx_breakpoints - 1)[3 .. 0];
+    ID_AA64DFR0_EL1[WRPs] = (__num_watchpoints - 1)[3 .. 0];
+    ID_AA64DFR0_EL1[BRPs] = (__num_breakpoints - 1)[3 .. 0];
+    ID_AA64DFR0_EL1[TraceVer] = 0b0001;
+    ID_AA64DFR0_EL1[DebugVer] = 0b1001;
     if __rme_implemented then {
-        ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 52, 0b0001);
-        GPCCR_EL3 = SetSlice(4, GPCCR_EL3, 20, __rme_l0gptsz)
+        ID_AA64PFR0_EL1[RME] = 0b0001;
+        GPCCR_EL3[L0GPTSZ] = __rme_l0gptsz
     } else {
-        ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 52, 0b0000)
+        ID_AA64PFR0_EL1[RME] = 0b0000
     };
     if __brbe_implemented then {
-        ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 52, 0b0010);
-        BRBIDR0_EL1 = SetSlice(4, BRBIDR0_EL1, 12, 0b0101);
-        BRBIDR0_EL1 = SetSlice(4, BRBIDR0_EL1, 8, 0b0000);
-        BRBIDR0_EL1 = SetSlice(8, BRBIDR0_EL1, 0, __num_brb_records[7 .. 0])
+        ID_AA64DFR0_EL1[BRBE] = 0b0010;
+        BRBIDR0_EL1[CC] = 0b0101;
+        BRBIDR0_EL1[FORMAT] = 0b0000;
+        BRBIDR0_EL1[NUMREC] = __num_brb_records[7 .. 0]
     };
-    ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 44, 0b0000);
-    ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 40, 0b0000);
-    ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 36, 0b0000);
-    ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 32, 0b0000);
-    ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 28, 0b0000);
-    ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 20, 0b0000);
-    ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 16, 0b0000);
-    ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 12, 0b0001);
-    ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 8, 0b0001);
-    ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 4, 0b0010);
-    ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 28, 0b0000);
-    ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 24, 0b0000);
-    ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 20, 0b0000);
-    ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 16, 0b0000);
-    ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 12, 0b0000);
-    ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 8, 0b0000);
-    ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 4, 0b0000);
-    ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 0, 0b0000);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 32, 0b0010);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 36, 0b0010);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 40, 0b0010);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 44, 0b0001);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 56, 0b0001);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 60, 0b0010);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 28, 0b0000);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 24, 0b0000);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 20, 0b0001);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 16, 0b0000);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 12, 0b0001);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 8, 0b0001);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 4, 0b0010);
-    ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 0, EncodePARange());
-    ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 16, EncodeVARange());
-    ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 28, 0b0000);
-    ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 24, 0b0000);
-    ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 20, 0b0000);
-    ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 16, 0b0000);
-    ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 8, 0b0000);
-    ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 12, 0b0000);
-    ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 4, 0b0000);
-    ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 0, 0b0000);
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 32, 0b0001);
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 12, 0b0001);
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 8, 0b0001);
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 4, 0b0001);
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 0, 0b0010);
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 60, 0b0001);
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 56, 0b0010);
-    ID_PFR2_EL1 = SetSlice(4, ID_PFR2_EL1, 0, 0b0001);
-    ID_PFR2_EL1 = SetSlice(4, ID_PFR2_EL1, 4, 0b0001);
+    ID_AA64ISAR0_EL1[DP] = 0b0000;
+    ID_AA64ISAR0_EL1[SM4] = 0b0000;
+    ID_AA64ISAR0_EL1[SM3] = 0b0000;
+    ID_AA64ISAR0_EL1[SHA3] = 0b0000;
+    ID_AA64ISAR0_EL1[RDM] = 0b0000;
+    ID_AA64ISAR0_EL1[Atomic] = 0b0000;
+    ID_AA64ISAR0_EL1[CRC32] = 0b0000;
+    ID_AA64ISAR0_EL1[SHA2] = 0b0001;
+    ID_AA64ISAR0_EL1[SHA1] = 0b0001;
+    ID_AA64ISAR0_EL1[AES] = 0b0010;
+    ID_AA64ISAR1_EL1[GPI] = 0b0000;
+    ID_AA64ISAR1_EL1[GPA] = 0b0000;
+    ID_AA64ISAR1_EL1[LRCPC] = 0b0000;
+    ID_AA64ISAR1_EL1[FCMA] = 0b0000;
+    ID_AA64ISAR1_EL1[JSCVT] = 0b0000;
+    ID_AA64ISAR1_EL1[API] = 0b0000;
+    ID_AA64ISAR1_EL1[APA] = 0b0000;
+    ID_AA64ISAR1_EL1[DPB] = 0b0000;
+    ID_AA64MMFR0_EL1[TGran16_2] = 0b0010;
+    ID_AA64MMFR0_EL1[TGran64_2] = 0b0010;
+    ID_AA64MMFR0_EL1[TGran4_2] = 0b0010;
+    ID_AA64MMFR0_EL1[ExS] = 0b0001;
+    ID_AA64MMFR0_EL1[FGT] = 0b0001;
+    ID_AA64MMFR0_EL1[ECV] = 0b0010;
+    ID_AA64MMFR0_EL1[TGran4] = 0b0000;
+    ID_AA64MMFR0_EL1[TGran64] = 0b0000;
+    ID_AA64MMFR0_EL1[TGran16] = 0b0001;
+    ID_AA64MMFR0_EL1[BigEndEL0] = 0b0000;
+    ID_AA64MMFR0_EL1[SNSMem] = 0b0001;
+    ID_AA64MMFR0_EL1[BigEnd] = 0b0001;
+    ID_AA64MMFR0_EL1[ASIDBits] = 0b0010;
+    ID_AA64MMFR0_EL1[PARange] = EncodePARange();
+    ID_AA64MMFR2_EL1[VARange] = EncodeVARange();
+    ID_AA64MMFR1_EL1[XNX] = 0b0000;
+    ID_AA64MMFR1_EL1[SpecSEI] = 0b0000;
+    ID_AA64MMFR1_EL1[PAN] = 0b0000;
+    ID_AA64MMFR1_EL1[LO] = 0b0000;
+    ID_AA64MMFR1_EL1[VH] = 0b0000;
+    ID_AA64MMFR1_EL1[HPDS] = 0b0000;
+    ID_AA64MMFR1_EL1[VMIDBits] = 0b0000;
+    ID_AA64MMFR1_EL1[HAFDBS] = 0b0000;
+    ID_AA64PFR0_EL1[SVE] = 0b0001;
+    ID_AA64PFR0_EL1[EL3] = 0b0001;
+    ID_AA64PFR0_EL1[EL2] = 0b0001;
+    ID_AA64PFR0_EL1[EL1] = 0b0001;
+    ID_AA64PFR0_EL1[EL0] = 0b0010;
+    ID_AA64PFR0_EL1[CSV3] = 0b0001;
+    ID_AA64PFR0_EL1[CSV2] = 0b0010;
+    ID_PFR2_EL1[CSV3] = 0b0001;
+    ID_PFR2_EL1[SSBS] = 0b0001;
     if HaveCNTSCExt() then {
-        CNTID = SetSlice(4, CNTID, 0, 0b0001)
+        CNTID[CNTSC] = 0b0001
     };
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 44, 0b0001);
-    AMCIDR0 = SetSlice(8, AMCIDR0, 0, 0b00001101);
-    AMCIDR1 = SetSlice(4, AMCIDR1, 4, 0b1001);
-    AMCIDR2 = SetSlice(8, AMCIDR2, 0, 0b00000101);
-    AMCIDR3 = SetSlice(8, AMCIDR3, 0, 0b10110001);
-    AMCFGR_EL0 = SetSlice(8, AMCFGR_EL0, 0, 0b00010011);
-    AMCFGR_EL0 = SetSlice(6, AMCFGR_EL0, 8, 0b111111);
-    AMCFGR_EL0 = SetSlice(1, AMCFGR_EL0, 24, 0b1);
-    AMCFGR_EL0 = SetSlice(4, AMCFGR_EL0, 28, 0b0001);
-    AMCGCR_EL0 = SetSlice(8, AMCGCR_EL0, 0, 0b00000100);
-    AMCGCR_EL0 = SetSlice(8, AMCGCR_EL0, 8, 0b00010000);
-    AMDEVARCH = SetSlice(11, AMDEVARCH, 21, 0b0100 @ 0b0111011);
-    AMDEVARCH = SetSlice(1, AMDEVARCH, 20, 0b1);
-    AMDEVARCH = SetSlice(16, AMDEVARCH, 0, 0b0000 @ 0b101001100110);
-    AMDEVTYPE = SetSlice(4, AMDEVTYPE, 4, 0b0001);
-    AMDEVTYPE = SetSlice(4, AMDEVTYPE, 0, 0b0110);
-    AMEVTYPER0_EL0[0][15 .. 0] = 0b0000000000010001;
-    AMEVTYPER0_EL0[1][15 .. 0] = 0b0100000000000100;
-    AMEVTYPER0_EL0[2][15 .. 0] = 0b0000000000001000;
-    AMEVTYPER0_EL0[3][15 .. 0] = 0b0100000000000101;
-    AMIIDR = SetSlice(12, AMIIDR, 0, 0b010000111011);
-    AMPIDR1 = SetSlice(4, AMPIDR1, 4, 0b1011);
-    AMPIDR2 = SetSlice(1, AMPIDR2, 3, 0b1);
-    AMPIDR2 = SetSlice(3, AMPIDR2, 0, 0b011);
-    AMPIDR4 = SetSlice(4, AMPIDR4, 0, 0b0100);
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 48, 0b0001);
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 28, 0b0000);
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 24, 0b0000); // In this model, no system register interface to the GIC is supported
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 20, 0b0000);
-    ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 16, 0b0000);
-    MPIDR_EL1[31 .. 0] = CFG_MPIDR;
-    VMPIDR_EL2 = SetSlice(8, VMPIDR_EL2, 32, 0b00000000);
-    VMPIDR_EL2 = SetSlice(1, VMPIDR_EL2, 30, 0b0);
-    VMPIDR_EL2 = SetSlice(1, VMPIDR_EL2, 24, 0b0);
-    VMPIDR_EL2 = SetSlice(8, VMPIDR_EL2, 16, 0b00000000);
-    VMPIDR_EL2 = SetSlice(8, VMPIDR_EL2, 8, 0b00000000);
-    VMPIDR_EL2 = SetSlice(8, VMPIDR_EL2, 0, 0b00000000);
-    VMPIDR_write() = SetSlice(1, VMPIDR_read(), 31, 0b1);
+    ID_AA64PFR0_EL1[AMU] = 0b0001;
+    AMCIDR0[PRMBL_0] = 0b00001101;
+    AMCIDR1[CLASS] = 0b1001;
+    AMCIDR2[PRMBL_2] = 0b00000101;
+    AMCIDR3[PRMBL_3] = 0b10110001;
+    AMCFGR_EL0[N] = 0b00010011;
+    AMCFGR_EL0[SIZE] = 0b111111;
+    AMCFGR_EL0[HDBG] = 0b1;
+    AMCFGR_EL0[NCG] = 0b0001;
+    AMCGCR_EL0[CG0NC] = 0b00000100;
+    AMCGCR_EL0[CG1NC] = 0b00010000;
+    AMDEVARCH[ARCHITECT] = 0b0100 @ 0b0111011;
+    AMDEVARCH[PRESENT] = 0b1;
+    AMDEVARCH[ARCHID] = 0b0000 @ 0b101001100110;
+    AMDEVTYPE[SUB] = 0b0001;
+    AMDEVTYPE[MAJOR] = 0b0110;
+    AMEVTYPER0_EL0[0][evtCount] = 0b0000000000010001;
+    AMEVTYPER0_EL0[1][evtCount] = 0b0100000000000100;
+    AMEVTYPER0_EL0[2][evtCount] = 0b0000000000001000;
+    AMEVTYPER0_EL0[3][evtCount] = 0b0100000000000101;
+    AMIIDR[Implementer] = 0b010000111011;
+    AMPIDR1[DES_0] = 0b1011;
+    AMPIDR2[JEDEC] = 0b1;
+    AMPIDR2[DES_1] = 0b011;
+    AMPIDR4[DES_2] = 0b0100;
+    ID_AA64PFR0_EL1[DIT] = 0b0001;
+    ID_AA64PFR0_EL1[RAS] = 0b0000;
+    ID_AA64PFR0_EL1[GIC] = 0b0000; // In this model, no system register interface to the GIC is supported
+    ID_AA64PFR0_EL1[AdvSIMD] = 0b0000;
+    ID_AA64PFR0_EL1[FP] = 0b0000;
+    MPIDR_EL1.bits[31 .. 0] = CFG_MPIDR;
+    VMPIDR_EL2[Aff3] = 0b00000000;
+    VMPIDR_EL2[U] = 0b0;
+    VMPIDR_EL2[MT] = 0b0;
+    VMPIDR_EL2[Aff2] = 0b00000000;
+    VMPIDR_EL2[Aff1] = 0b00000000;
+    VMPIDR_EL2[Aff0] = 0b00000000;
+    VMPIDR_write() = [VMPIDR_read() with M = 0b1];
     if HasArchVersion(ARMv8p1) then {
-        ID_ISAR5_EL1 = SetSlice(4, ID_ISAR5_EL1, 24, 0b0001);
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 20, 0b0010);
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 28, 0b0001);
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 16, 0b0001);
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 8, 0b0001);
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 12, 0b0001);
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 0, 0b0010)
+        ID_ISAR5_EL1[RDM] = 0b0001;
+        ID_AA64ISAR0_EL1[Atomic] = 0b0010;
+        ID_AA64ISAR0_EL1[RDM] = 0b0001;
+        ID_AA64MMFR1_EL1[LO] = 0b0001;
+        ID_AA64MMFR1_EL1[VH] = 0b0001;
+        ID_AA64MMFR1_EL1[HPDS] = 0b0001;
+        ID_AA64MMFR1_EL1[HAFDBS] = 0b0010
     };
     if __crc32_implemented then {
-        ID_ISAR5_EL1 = SetSlice(4, ID_ISAR5_EL1, 16, 0b0001);
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 16, 0b0001)
+        ID_ISAR5_EL1[CRC32] = 0b0001;
+        ID_AA64ISAR0_EL1[CRC32] = 0b0001
     };
     if __vmid16_implemented then {
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 4, 0b0010)
+        ID_AA64MMFR1_EL1[VMIDBits] = 0b0010
     };
     if __pan_implemented then {
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 20, 0b0001);
-        ID_MMFR3_EL1 = SetSlice(4, ID_MMFR3_EL1, 16, 0b0001)
+        ID_AA64MMFR1_EL1[PAN] = 0b0001;
+        ID_MMFR3_EL1[PAN] = 0b0001
     };
     if __crypto_aes_implemented == 0 then {
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 4, 0b0000)
+        ID_AA64ISAR0_EL1[AES] = 0b0000
     };
     if __crypto_aes_implemented == 1 then {
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 4, 0b0001)
+        ID_AA64ISAR0_EL1[AES] = 0b0001
     };
     if not_bool(__crypto_sha1_implemented) then {
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 8, 0b0000)
+        ID_AA64ISAR0_EL1[SHA1] = 0b0000
     };
     if not_bool(__crypto_sha256_implemented) then {
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 12, 0b0000)
+        ID_AA64ISAR0_EL1[SHA2] = 0b0000
     };
     if HasArchVersion(ARMv8p2) then {
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 28, 0b0001);
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 20, 0b0010);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 0, 0b0001);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 4, 0b0001);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 8, 0b0001);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 12, 0b0001);
-        ID_MMFR3_EL1 = SetSlice(4, ID_MMFR3_EL1, 16, 0b0010);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 36, 0b0001);
-        ID_MMFR4_EL1 = SetSlice(4, ID_MMFR4_EL1, 8, 0b0001);
-        ID_MMFR4_EL1 = SetSlice(4, ID_MMFR4_EL1, 12, 0b0001);
-        ID_MMFR4_EL1 = SetSlice(4, ID_MMFR4_EL1, 20, 0b0001);
-        ID_MMFR4_EL1 = SetSlice(4, ID_MMFR4_EL1, 4, 0b0001);
+        ID_AA64MMFR1_EL1[XNX] = 0b0001;
+        ID_AA64MMFR1_EL1[PAN] = 0b0010;
+        ID_AA64MMFR2_EL1[CnP] = 0b0001;
+        ID_AA64MMFR2_EL1[UAO] = 0b0001;
+        ID_AA64MMFR2_EL1[LSM] = 0b0001;
+        ID_AA64MMFR2_EL1[IESB] = 0b0001;
+        ID_MMFR3_EL1[PAN] = 0b0010;
+        ID_AA64MMFR2_EL1[IDS] = 0b0001;
+        ID_MMFR4_EL1[XNX] = 0b0001;
+        ID_MMFR4_EL1[CnP] = 0b0001;
+        ID_MMFR4_EL1[LSM] = 0b0001;
+        ID_MMFR4_EL1[AC2] = 0b0001;
         if HaveEL(EL2) then {
-            ID_MMFR4_EL1 = SetSlice(4, ID_MMFR4_EL1, 28, 0b0010);
-            ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 56, 0b0010)
+            ID_MMFR4_EL1[EVT] = 0b0010;
+            ID_AA64MMFR2_EL1[EVT] = 0b0010
         } else {
-            ID_MMFR4_EL1 = SetSlice(4, ID_MMFR4_EL1, 28, 0b0000);
-            ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 56, 0b0000)
+            ID_MMFR4_EL1[EVT] = 0b0000;
+            ID_AA64MMFR2_EL1[EVT] = 0b0000
         };
-        ID_MMFR4_EL1 = SetSlice(4, ID_MMFR4_EL1, 28, 0b0000);
-        ID_AA64SMFR0_EL1 = SetSlice(1, ID_AA64SMFR0_EL1, 32, 0b1);
-        ID_AA64SMFR0_EL1 = SetSlice(1, ID_AA64SMFR0_EL1, 34, 0b1);
-        ID_AA64SMFR0_EL1 = SetSlice(1, ID_AA64SMFR0_EL1, 35, 0b1);
-        ID_AA64SMFR0_EL1 = SetSlice(4, ID_AA64SMFR0_EL1, 36, 0b1111);
-        ID_AA64SMFR0_EL1 = SetSlice(1, ID_AA64SMFR0_EL1, 48, 0b1);
-        ID_AA64SMFR0_EL1 = SetSlice(4, ID_AA64SMFR0_EL1, 52, 0b1111);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 40, 0b0001);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 36, 0b0001);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 0, 0b0010);
-        ID_ISAR6_EL1 = SetSlice(4, ID_ISAR6_EL1, 4, 0b0001);
-        EDDEVID = SetSlice(4, EDDEVID, 4, 0b0000);
-        CTIDEVARCH = SetSlice(4, CTIDEVARCH, 16, 0b0000);
-        ID_AA64ZFR0_EL1 = SetSlice(4, ID_AA64ZFR0_EL1, 40, 0b0001);
-        ID_AA64ZFR0_EL1 = SetSlice(4, ID_AA64ZFR0_EL1, 32, 0b0001);
-        ID_AA64ZFR0_EL1 = SetSlice(4, ID_AA64ZFR0_EL1, 16, 0b0001);
-        ID_AA64ZFR0_EL1 = SetSlice(4, ID_AA64ZFR0_EL1, 4, 0b0010);
-        ID_AA64ZFR0_EL1 = SetSlice(4, ID_AA64ZFR0_EL1, 0, 0b0001);
-        ID_AA64ZFR0_EL1 = SetSlice(4, ID_AA64ZFR0_EL1, 20, 0b0001);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 44, 0b0001);
-        ID_AA64ZFR0_EL1 = SetSlice(4, ID_AA64ZFR0_EL1, 20, 0b0010);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 44, 0b0010);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 48, 0b0001);
-        ID_ISAR6_EL1 = SetSlice(4, ID_ISAR6_EL1, 20, 0b0001);
-        ID_AA64ZFR0_EL1 = SetSlice(4, ID_AA64ZFR0_EL1, 44, 0b0001);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 52, 0b0001);
-        ID_ISAR6_EL1 = SetSlice(4, ID_ISAR6_EL1, 24, 0b0001)
+        ID_MMFR4_EL1[EVT] = 0b0000;
+        ID_AA64SMFR0_EL1[F32F32] = 0b1;
+        ID_AA64SMFR0_EL1[B16F32] = 0b1;
+        ID_AA64SMFR0_EL1[F16F32] = 0b1;
+        ID_AA64SMFR0_EL1[I8I32] = 0b1111;
+        ID_AA64SMFR0_EL1[F64F64] = 0b1;
+        ID_AA64SMFR0_EL1[I16I64] = 0b1111;
+        ID_AA64ISAR1_EL1[SPECRES] = 0b0001;
+        ID_AA64ISAR1_EL1[SB] = 0b0001;
+        ID_AA64ISAR1_EL1[DPB] = 0b0010;
+        ID_ISAR6_EL1[DP] = 0b0001;
+        EDDEVID[DebugPower] = 0b0000;
+        CTIDEVARCH[REVISION] = 0b0000;
+        ID_AA64ZFR0_EL1[SM4] = 0b0001;
+        ID_AA64ZFR0_EL1[SHA3] = 0b0001;
+        ID_AA64ZFR0_EL1[BitPerm] = 0b0001;
+        ID_AA64ZFR0_EL1[AES] = 0b0010;
+        ID_AA64ZFR0_EL1[SVEver] = 0b0001;
+        ID_AA64ZFR0_EL1[BF16] = 0b0001;
+        ID_AA64ISAR1_EL1[BF16] = 0b0001;
+        ID_AA64ZFR0_EL1[BF16] = 0b0010;
+        ID_AA64ISAR1_EL1[BF16] = 0b0010;
+        ID_AA64ISAR1_EL1[DGH] = 0b0001;
+        ID_ISAR6_EL1[BF16] = 0b0001;
+        ID_AA64ZFR0_EL1[I8MM] = 0b0001;
+        ID_AA64ISAR1_EL1[I8MM] = 0b0001;
+        ID_ISAR6_EL1[I8MM] = 0b0001
     };
     if HasArchVersion(ARMv8p6) then {
-        ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 44, 0b0010);
-        ID_PFR0_EL1 = SetSlice(4, ID_PFR0_EL1, 20, 0b0010);
-        ID_AA64ZFR0_EL1 = SetSlice(4, ID_AA64ZFR0_EL1, 52, 0b0001);
-        ID_AA64ZFR0_EL1 = SetSlice(4, ID_AA64ZFR0_EL1, 56, 0b0001)
+        ID_AA64PFR0_EL1[AMU] = 0b0010;
+        ID_PFR0_EL1[AMU] = 0b0010;
+        ID_AA64ZFR0_EL1[F32MM] = 0b0001;
+        ID_AA64ZFR0_EL1[F64MM] = 0b0001
     };
     if __dot_product_implemented then {
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 44, 0b0001)
+        ID_AA64ISAR0_EL1[DP] = 0b0001
     };
     if __fp16_implemented then {
-        ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 16, 0b0001);
-        ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 20, 0b0001)
+        ID_AA64PFR0_EL1[FP] = 0b0001;
+        ID_AA64PFR0_EL1[AdvSIMD] = 0b0001
     };
     if __aa32_hpd_implemented then {
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 12, 0b0010);
-        ID_MMFR4_EL1 = SetSlice(4, ID_MMFR4_EL1, 16, 0b0010)
+        ID_AA64MMFR1_EL1[HPDS] = 0b0010;
+        ID_MMFR4_EL1[HPDS] = 0b0010
     };
     if __mpam_implemented then {
-        ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 40, CFG_ID_AA64PFR0_EL1_MPAM);
-        MPAMIDR_EL1 = SetSlice(16, MPAMIDR_EL1, 0, __mpam_partid_max);
-        MPAMIDR_EL1 = SetSlice(8, MPAMIDR_EL1, 32, __mpam_pmg_max);
+        ID_AA64PFR0_EL1[MPAM] = CFG_ID_AA64PFR0_EL1_MPAM;
+        MPAMIDR_EL1[PARTID_MAX] = __mpam_partid_max;
+        MPAMIDR_EL1[PMG_MAX] = __mpam_pmg_max;
         if __mpam_has_hcr then {
-            MPAMIDR_EL1 = SetSlice(1, MPAMIDR_EL1, 17, 0b1);
-            MPAMIDR_EL1 = SetSlice(3, MPAMIDR_EL1, 18, __mpam_vpmr_max)
+            MPAMIDR_EL1[HAS_HCR] = 0b1;
+            MPAMIDR_EL1[VPMR_MAX] = __mpam_vpmr_max
         };
         ()
     };
     if __empam_implemented then {
-        ID_AA64PFR1_EL1 = SetSlice(4, ID_AA64PFR1_EL1, 16, __empam_frac);
-        assert(UInt(Slice(ID_AA64PFR0_EL1, 40, 4)) > 1 | (match Slice(ID_AA64PFR0_EL1, 40, 4) {
+        ID_AA64PFR1_EL1[MPAM_frac] = __empam_frac;
+        assert(UInt(ID_AA64PFR0_EL1[MPAM]) > 1 | (match ID_AA64PFR0_EL1[MPAM] {
           [bitzero, bitzero, bitzero, _] => true,
           _ => false
-        }) : bool & Slice(ID_AA64PFR1_EL1, 16, 4) == 0b0001);
+        }) : bool & ID_AA64PFR1_EL1[MPAM_frac] == 0b0001);
         if __empam_sdeflt_implemented then {
-            MPAMIDR_EL1 = SetSlice(1, MPAMIDR_EL1, 61, 0b1)
+            MPAMIDR_EL1[HAS_SDEFLT] = 0b1
         };
         if __empam_tidr_implemented then {
-            MPAMIDR_EL1 = SetSlice(1, MPAMIDR_EL1, 58, 0b1)
+            MPAMIDR_EL1[HAS_TIDR] = 0b1
         };
         if __empam_force_ns_implemented then {
-            assert(Slice(ID_AA64PFR0_EL1, 40, 4) == 0b0000 & Slice(ID_AA64PFR1_EL1, 16, 4) == 0b0001);
-            MPAMIDR_EL1 = SetSlice(1, MPAMIDR_EL1, 60, 0b1)
+            assert(ID_AA64PFR0_EL1[MPAM] == 0b0000 & ID_AA64PFR1_EL1[MPAM_frac] == 0b0001);
+            MPAMIDR_EL1[HAS_FORCE_NS] = 0b1
         };
         ()
     };
     if HasArchVersion(ARMv9p2) & HaveRME() then {
-        MPAMIDR_EL1 = SetSlice(1, MPAMIDR_EL1, 59, 0b1);
+        MPAMIDR_EL1[SP4] = 0b1;
         if __mpam_has_altsp then {
-            MPAMIDR_EL1 = SetSlice(1, MPAMIDR_EL1, 57, 0b1)
+            MPAMIDR_EL1[HAS_ALTSP] = 0b1
         };
         ()
     };
     if HasArchVersion(ARMv8p3) then {
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 4, 0b0101);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 8, 0b0000);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 24, 0b0001);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 28, 0b0000);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 12, 0b0001);
-        ID_ISAR6_EL1 = SetSlice(4, ID_ISAR6_EL1, 0, 0b0001);
-        ID_MMFR4_EL1 = SetSlice(4, ID_MMFR4_EL1, 24, 0b0001);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 24, 0b0001);
-        ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 28, 0b0001);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 20, 0b0001);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 20, 0b0001);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 16, 0b0001)
+        ID_AA64ISAR1_EL1[APA] = 0b0101;
+        ID_AA64ISAR1_EL1[API] = 0b0000;
+        ID_AA64ISAR1_EL1[GPA] = 0b0001;
+        ID_AA64ISAR1_EL1[GPI] = 0b0000;
+        ID_AA64ISAR1_EL1[JSCVT] = 0b0001;
+        ID_ISAR6_EL1[JSCVT] = 0b0001;
+        ID_MMFR4_EL1[CCIDX] = 0b0001;
+        ID_AA64MMFR2_EL1[NV] = 0b0001;
+        ID_DFR0_EL1[TraceFilt] = 0b0001;
+        ID_AA64MMFR2_EL1[CCIDX] = 0b0001;
+        ID_AA64ISAR1_EL1[LRCPC] = 0b0001;
+        ID_AA64ISAR1_EL1[FCMA] = 0b0001
     };
     if HasArchVersion(ARMv8p4) then {
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 20, 0b0010);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 28, 0b0001);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 32, 0b0001);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 48, 0b0001);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 40, 0b0001);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 24, 0b0010);
-        ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 0, 0b1001);
-        if not_bool(HaveEL(EL3)) & Slice(SCR, 0, 1) == 0b1 then {
-            ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 4, 0b0000)
+        ID_AA64ISAR1_EL1[LRCPC] = 0b0010;
+        ID_AA64MMFR2_EL1[ST] = 0b0001;
+        ID_AA64MMFR2_EL1[AT] = 0b0001;
+        ID_AA64MMFR2_EL1[TTL] = 0b0001;
+        ID_AA64MMFR2_EL1[FWB] = 0b0001;
+        ID_AA64MMFR2_EL1[NV] = 0b0010;
+        ID_DFR0_EL1[CopDbg] = 0b1001;
+        if not_bool(HaveEL(EL3)) & SCR[NS] == 0b1 then {
+            ID_DFR0_EL1[CopSDbg] = 0b0000
         } else {
-            ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 4, Slice(ID_DFR0_EL1, 0, 4))
+            ID_DFR0_EL1[CopSDbg] = ID_DFR0_EL1[CopDbg]
         };
-        ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 36, 0b0001);
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 56, 0b0010);
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 52, 0b0000);
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 48, 0b0001);
-        ID_ISAR6_EL1 = SetSlice(4, ID_ISAR6_EL1, 8, 0b0001);
-        ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 28, 0b0010);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 52, __block_bbm_implemented[3 .. 0]);
+        ID_AA64PFR0_EL1[SEL2] = 0b0001;
+        ID_AA64ISAR0_EL1[TLB] = 0b0010;
+        ID_AA64ISAR0_EL1[TS] = 0b0000;
+        ID_AA64ISAR0_EL1[FHM] = 0b0001;
+        ID_ISAR6_EL1[FHM] = 0b0001;
+        ID_AA64PFR0_EL1[RAS] = 0b0010;
+        ID_AA64MMFR2_EL1[BBM] = __block_bbm_implemented[3 .. 0];
         if __crypto_sha512_implemented then {
-            ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 12, 0b0010)
+            ID_AA64ISAR0_EL1[SHA2] = 0b0010
         };
         if __crypto_sha3_implemented then {
-            ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 32, 0b0001)
+            ID_AA64ISAR0_EL1[SHA3] = 0b0001
         };
         if __crypto_sm3_implemented then {
-            ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 36, 0b0001)
+            ID_AA64ISAR0_EL1[SM3] = 0b0001
         };
         if __crypto_sm4_implemented then {
-            ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 40, 0b0001)
+            ID_AA64ISAR0_EL1[SM4] = 0b0001
         };
         if HavePMUv3p4() then {
             if HavePMUv3TH() then {
-                PMMIR_EL1 = SetSlice(4, PMMIR_EL1, 20, 0b1100)
+                PMMIR_EL1[THWIDTH] = 0b1100
             };
-            PMMIR_EL1 = SetSlice(4, PMMIR_EL1, 16, 0b0100);
-            PMMIR_EL1 = SetSlice(8, PMMIR_EL1, 8, 0b00000011)
+            PMMIR_EL1[BUS_WIDTH] = 0b0100;
+            PMMIR_EL1[BUS_SLOTS] = 0b00000011
         };
         ()
     };
-    ID_AA64PFR1_EL1 = SetSlice(4, ID_AA64PFR1_EL1, 4, 0b0010);
+    ID_AA64PFR1_EL1[SSBS] = 0b0010;
     if HasArchVersion(ARMv8p5) then {
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 52, 0b0010);
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 32, 0b0001);
-        ID_AA64PFR1_EL1 = SetSlice(4, ID_AA64PFR1_EL1, 0, 0b0001);
-        ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 24, 0b0110);
-        ID_AA64MMFR2_EL1 = SetSlice(4, ID_AA64MMFR2_EL1, 60, 0b0001);
-        ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 60, 0b0001);
+        ID_AA64ISAR0_EL1[TS] = 0b0010;
+        ID_AA64ISAR1_EL1[FRINTTS] = 0b0001;
+        ID_AA64PFR1_EL1[BT] = 0b0001;
+        ID_DFR0_EL1[PerfMon] = 0b0110;
+        ID_AA64MMFR2_EL1[E0PD] = 0b0001;
+        ID_AA64ISAR0_EL1[RNDR] = 0b0001;
         if HaveMTE2Ext() then {
-            ID_AA64PFR1_EL1 = SetSlice(4, ID_AA64PFR1_EL1, 8, 0b0010)
+            ID_AA64PFR1_EL1[MTE] = 0b0010
         };
-        ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 8, 0b0110);
-        EDDFR = SetSlice(4, EDDFR, 8, 0b0000);
-        ID_ISAR6_EL1 = SetSlice(4, ID_ISAR6_EL1, 12, 0b0001);
-        ID_ISAR6_EL1 = SetSlice(4, ID_ISAR6_EL1, 16, 0b0001)
+        ID_AA64DFR0_EL1[PMUVer] = 0b0110;
+        EDDFR[PMUVer] = 0b0000;
+        ID_ISAR6_EL1[SB] = 0b0001;
+        ID_ISAR6_EL1[SPECRES] = 0b0001
     };
-    ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 20, 0b0000);
-    ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 8, 0b0000);
+    ID_DFR0_EL1[MProfDbg] = 0b0000;
+    ID_DFR0_EL1[MMapDbg] = 0b0000;
     if HasArchVersion(ARMv8p6) then {
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 32, 0b0001)
+        ID_AA64MMFR1_EL1[TWED] = 0b0001
     };
-    ID_PFR1_EL1 = SetSlice(4, ID_PFR1_EL1, 16, 0b0010);
-    ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 48, 0b0001);
-    ID_DFR1_EL1 = SetSlice(4, ID_DFR1_EL1, 0, 0b0001);
+    ID_PFR1_EL1[GenTimer] = 0b0010;
+    ID_AA64DFR0_EL1[MTPMU] = 0b0001;
+    ID_DFR1_EL1[MTPMU] = 0b0001;
     if HasArchVersion(ARMv8p7) then {
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 40, 0b0001);
+        ID_AA64MMFR1_EL1[HCX] = 0b0001;
         if not_bool(HaveEL(EL3)) & HaveEL(EL2) then {
-            HCRX_EL2 = Zeros()
+            HCRX_EL2 = Mk_HCRX_EL2_Type(Zeros())
         };
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 44, 0b0001);
-        ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 8, 0b0111);
-        ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 24, 0b0111);
-        ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 32, 0b0011);
-        ID_AA64ISAR2_EL1 = SetSlice(4, ID_AA64ISAR2_EL1, 4, 0b0001);
+        ID_AA64MMFR1_EL1[AFP] = 0b0001;
+        ID_AA64DFR0_EL1[PMUVer] = 0b0111;
+        ID_DFR0_EL1[PerfMon] = 0b0111;
+        ID_AA64DFR0_EL1[PMSVer] = 0b0011;
+        ID_AA64ISAR2_EL1[RPRES] = 0b0001;
         if Have52BitIPAAndPASpaceExt() then {
-            ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 28, 0b0001);
-            ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 40, 0b0011);
-            ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 20, 0b0010);
-            ID_AA64MMFR0_EL1 = SetSlice(4, ID_AA64MMFR0_EL1, 32, 0b0011)
+            ID_AA64MMFR0_EL1[TGran4] = 0b0001;
+            ID_AA64MMFR0_EL1[TGran4_2] = 0b0011;
+            ID_AA64MMFR0_EL1[TGran16] = 0b0010;
+            ID_AA64MMFR0_EL1[TGran16_2] = 0b0011
         };
-        ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 56, 0b0001);
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 36, 0b0001);
-        ID_MMFR5_EL1 = SetSlice(4, ID_MMFR5_EL1, 0, 0b0001);
-        ID_AA64ISAR2_EL1 = SetSlice(4, ID_AA64ISAR2_EL1, 0, 0b0010);
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 20, 0b0011);
-        ID_AA64PFR1_EL1 = SetSlice(4, ID_AA64PFR1_EL1, 8, 0b0011);
+        ID_AA64ISAR1_EL1[XS] = 0b0001;
+        ID_AA64MMFR1_EL1[ETS] = 0b0001;
+        ID_MMFR5_EL1[ETS] = 0b0001;
+        ID_AA64ISAR2_EL1[WFxT] = 0b0010;
+        ID_AA64MMFR1_EL1[PAN] = 0b0011;
+        ID_AA64PFR1_EL1[MTE] = 0b0011;
         if HaveFeatLS64_ACCDATA() then {
-            ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 60, 0b0011)
+            ID_AA64ISAR1_EL1[LS64] = 0b0011
         } else if HaveFeatLS64_V() then {
-            ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 60, 0b0010)
+            ID_AA64ISAR1_EL1[LS64] = 0b0010
         } else if HaveFeatLS64() then {
-            ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 60, 0b0001)
+            ID_AA64ISAR1_EL1[LS64] = 0b0001
         } else {
-            ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 60, 0b0000)
+            ID_AA64ISAR1_EL1[LS64] = 0b0000
         }
     };
-    GICD_TYPER[9 .. 9] = 0b1;
-    GICD_TYPER = SetSlice(5, GICD_TYPER, 27, 0b11111);
-    GICD_TYPER = SetSlice(1, GICD_TYPER, 18, 0b1);
-    GICD_TYPER = SetSlice(1, GICD_TYPER, 17, 0b1);
-    GICD_TYPER = SetSlice(1, GICD_TYPER, 16, 0b1);
-    GICD_TYPER = SetSlice(1, GICD_TYPER, 8, 0b1);
-    GICD_TYPER = SetSlice(1, GICD_TYPER, 10, 0b1);
-    GICD_TYPER = SetSlice(5, GICD_TYPER, 0, 0b00111);
-    GICD_TYPER = SetSlice(5, GICD_TYPER, 19, 0b01111);
-    PMBIDR_EL1 = SetSlice(1, PMBIDR_EL1, 5, 0b1);
-    PMBIDR_EL1 = SetSlice(1, PMBIDR_EL1, 4, 0b0);
-    PMBIDR_EL1 = SetSlice(4, PMBIDR_EL1, 0, 0b0000);
+    GICD_TYPER.bits[9] = Bit(0b1);
+    GICD_TYPER[ESPI_range] = 0b11111;
+    GICD_TYPER[DVIS] = 0b1;
+    GICD_TYPER[LPIS] = 0b1;
+    GICD_TYPER[MBIS] = 0b1;
+    GICD_TYPER[ESPI] = 0b1;
+    GICD_TYPER[SecurityExtn] = 0b1;
+    GICD_TYPER[ITLinesNumber] = 0b00111;
+    GICD_TYPER[IDbits] = 0b01111;
+    PMBIDR_EL1[F] = 0b1;
+    PMBIDR_EL1[P] = 0b0;
+    PMBIDR_EL1[Align] = 0b0000;
     if HasArchVersion(ARMv8p8) then {
-        ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 24, 0b1000);
+        ID_DFR0_EL1[PerfMon] = 0b1000;
         if __pacqarma3_implemented then {
-            ID_AA64ISAR2_EL1[11 .. 8] = 0b0001;
-            ID_AA64ISAR2_EL1[15 .. 12] = 0b0101;
-            ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 4, 0b0000);
-            ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 24, 0b0000)
+            ID_AA64ISAR2_EL1.bits[11 .. 8] = 0b0001;
+            ID_AA64ISAR2_EL1.bits[15 .. 12] = 0b0101;
+            ID_AA64ISAR1_EL1[APA] = 0b0000;
+            ID_AA64ISAR1_EL1[GPA] = 0b0000
         } else {
-            ID_AA64ISAR2_EL1[11 .. 8] = 0b0000;
-            ID_AA64ISAR2_EL1[15 .. 12] = 0b0000;
-            ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 4, 0b0101);
-            ID_AA64ISAR1_EL1 = SetSlice(4, ID_AA64ISAR1_EL1, 24, 0b0001)
+            ID_AA64ISAR2_EL1.bits[11 .. 8] = 0b0000;
+            ID_AA64ISAR2_EL1.bits[15 .. 12] = 0b0000;
+            ID_AA64ISAR1_EL1[APA] = 0b0101;
+            ID_AA64ISAR1_EL1[GPA] = 0b0001
         };
         if __pac_frac_implemented then {
-            ID_AA64ISAR2_EL1[27 .. 24] = 0b0001
+            ID_AA64ISAR2_EL1.bits[27 .. 24] = 0b0001
         } else {
-            ID_AA64ISAR2_EL1[27 .. 24] = 0b0000
+            ID_AA64ISAR2_EL1.bits[27 .. 24] = 0b0000
         }
     };
     if HasArchVersion(ARMv9p2) then {
-        SMIDR_EL1[31 .. 24] = 0b01000001;
-        SMIDR_EL1[15 .. 15] = 0b1;
-        ID_AA64PFR1_EL1 = SetSlice(4, ID_AA64PFR1_EL1, 24, 0b0001)
+        SMIDR_EL1.bits[31 .. 24] = 0b01000001;
+        SMIDR_EL1.bits[15] = Bit(0b1);
+        ID_AA64PFR1_EL1[SME] = 0b0001
     };
     if HasArchVersion(ARMv8p8) then {
-        ID_AA64PFR1_EL1 = SetSlice(4, ID_AA64PFR1_EL1, 36, 0b0001);
-        ID_AA64PFR1_EL1 = SetSlice(4, ID_AA64PFR1_EL1, 28, 0b0001);
-        ID_AA64ISAR2_EL1 = SetSlice(4, ID_AA64ISAR2_EL1, 16, 0b0001);
-        ID_AA64ISAR2_EL1 = SetSlice(4, ID_AA64ISAR2_EL1, 20, 0b0001);
+        ID_AA64PFR1_EL1[NMI] = 0b0001;
+        ID_AA64PFR1_EL1[RNDR_trap] = 0b0001;
+        ID_AA64ISAR2_EL1[MOPS] = 0b0001;
+        ID_AA64ISAR2_EL1[BC] = 0b0001;
         if HaveStatisticalProfiling() then {
-            ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 32, 0b0100)
+            ID_AA64DFR0_EL1[PMSVer] = 0b0100
         };
-        ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 60, 0b0001);
-        ID_DFR1_EL1 = SetSlice(4, ID_DFR1_EL1, 4, 0b0001);
-        ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 0, 0b1010);
-        ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 0, 0b1010);
-        if not_bool(HaveEL(EL3)) & Slice(SCR, 0, 1) == 0b1 then {
-            ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 4, 0b0000)
+        ID_AA64DFR0_EL1[HPMN0] = 0b0001;
+        ID_DFR1_EL1[HPMN0] = 0b0001;
+        ID_AA64DFR0_EL1[DebugVer] = 0b1010;
+        ID_DFR0_EL1[CopDbg] = 0b1010;
+        if not_bool(HaveEL(EL3)) & SCR[NS] == 0b1 then {
+            ID_DFR0_EL1[CopSDbg] = 0b0000
         } else {
-            ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 4, Slice(ID_DFR0_EL1, 0, 4))
+            ID_DFR0_EL1[CopSDbg] = ID_DFR0_EL1[CopDbg]
         };
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 52, 0b0001);
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 52, 0b0001);
-        ID_AA64MMFR1_EL1 = SetSlice(4, ID_AA64MMFR1_EL1, 56, 0b0001);
-        ID_AA64DFR0_EL1 = SetSlice(4, ID_AA64DFR0_EL1, 8, 0b1000);
-        ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 24, 0b1000)
+        ID_AA64MMFR1_EL1[TIDCP1] = 0b0001;
+        ID_AA64MMFR1_EL1[TIDCP1] = 0b0001;
+        ID_AA64MMFR1_EL1[CMOW] = 0b0001;
+        ID_AA64DFR0_EL1[PMUVer] = 0b1000;
+        ID_DFR0_EL1[PerfMon] = 0b1000
     };
-    ID_AA64ISAR0_EL1 = SetSlice(4, ID_AA64ISAR0_EL1, 24, 0b0001);
-    ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 16, 0b0001);
-    ID_DFR0_EL1 = SetSlice(4, ID_DFR0_EL1, 12, 0b0001);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 18, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 17, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 16, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 15, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 14, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 13, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 12, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 11, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 10, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 9, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 8, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 7, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 3, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 2, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 1, 0b0);
-    SCR_EL3 = SetSlice(1, SCR_EL3, 0, 0b0);
-    CPTR_EL2 = SetSlice(1, CPTR_EL2, 31, 0b0);
-    CPTR_EL2 = SetSlice(1, CPTR_EL2, if HaveVirtHostExt() & Slice(HCR_EL2, 34, 1) == 0b1 then
-      28
-    else
-      20, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 49, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 52, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 50, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 44, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 43, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 42, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 41, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 40, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 38, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 37, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 36, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 33, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 32, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 31, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 30, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 29, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 28, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 27, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 26, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 25, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 24, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 23, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 22, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 21, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 20, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 19, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 18, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 17, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 16, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 15, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 14, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 13, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 12, 0b0);
-    HCR_EL2 = SetSlice(2, HCR_EL2, 10, 0b00);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 9, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 8, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 7, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 6, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 5, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 4, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 3, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 2, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 1, 0b0);
-    HCR_EL2 = SetSlice(1, HCR_EL2, 0, 0b0);
-    HSTR_EL2 = SetSlice(16, HSTR_EL2, 0, Zeros());
-    SCTLR_EL2 = SetSlice(1, SCTLR_EL2, 31, 0b0);
-    SCTLR_EL2 = SetSlice(1, SCTLR_EL2, 30, 0b0);
-    SCTLR_EL2 = SetSlice(1, SCTLR_EL2, 27, 0b0);
-    SCTLR_EL2 = SetSlice(1, SCTLR_EL2, 25, 0b0);
-    SCTLR_EL2 = SetSlice(1, SCTLR_EL2, 13, 0b0);
-    SCTLR_EL2 = SetSlice(1, SCTLR_EL2, 31, 0b0);
-    SCTLR_EL2 = SetSlice(1, SCTLR_EL2, 30, 0b0);
-    SCTLR_EL2 = SetSlice(1, SCTLR_EL2, 27, 0b0);
-    SCTLR_EL2 = SetSlice(1, SCTLR_EL2, 25, 0b0);
-    SCTLR_EL2 = SetSlice(1, SCTLR_EL2, 13, 0b0);
-    CPACR_EL1 = SetSlice(1, CPACR_EL1, 28, 0b0);
-    CPACR_EL1 = SetSlice(2, CPACR_EL1, 20, 0b00);
-    CPACR_EL1 = SetSlice(2, CPACR_EL1, 16, 0b00);
-    SCTLR_EL1 = SetSlice(1, SCTLR_EL1, 31, 0b0);
-    SCTLR_EL1 = SetSlice(1, SCTLR_EL1, 30, 0b0);
-    SCTLR_EL1 = SetSlice(1, SCTLR_EL1, 27, 0b0);
-    SCTLR_EL1 = SetSlice(1, SCTLR_EL1, 25, 0b0);
-    SCTLR_EL1 = SetSlice(1, SCTLR_EL1, 13, 0b0);
-    SCTLR_EL3 = SetSlice(1, SCTLR_EL3, 31, 0b0);
-    SCTLR_EL3 = SetSlice(1, SCTLR_EL3, 30, 0b0);
-    SCTLR_EL3 = SetSlice(1, SCTLR_EL3, 27, 0b0);
-    SCTLR_EL3 = SetSlice(1, SCTLR_EL3, 25, 0b0);
-    SCTLR_EL3 = SetSlice(1, SCTLR_EL3, 13, 0b0);
-    PMSIDR_EL1 = SetSlice(1, PMSIDR_EL1, 24, 0b1);
-    PMSIDR_EL1 = SetSlice(1, PMSIDR_EL1, 6, 0b1);
-    PMSIDR_EL1 = SetSlice(4, PMSIDR_EL1, 16, 0b0011);
-    PMSIDR_EL1 = SetSlice(4, PMSIDR_EL1, 12, 0b0110);
-    PMSIDR_EL1 = SetSlice(1, PMSIDR_EL1, 3, 0b1);
-    PMSIDR_EL1 = SetSlice(1, PMSIDR_EL1, 2, 0b1);
-    PMSIDR_EL1 = SetSlice(1, PMSIDR_EL1, 1, 0b1);
-    PMSIDR_EL1 = SetSlice(1, PMSIDR_EL1, 0, 0b1);
+    ID_AA64ISAR0_EL1[TME] = 0b0001;
+    ID_DFR0_EL1[MMapTrc] = 0b0001;
+    ID_DFR0_EL1[CopTrc] = 0b0001;
+    SCR_EL3[EEL2] = 0b0;
+    SCR_EL3[API] = 0b0;
+    SCR_EL3[APK] = 0b0;
+    SCR_EL3[TERR] = 0b0;
+    SCR_EL3[TLOR] = 0b0;
+    SCR_EL3[TWE] = 0b0;
+    SCR_EL3[TWI] = 0b0;
+    SCR_EL3[ST] = 0b0;
+    SCR_EL3[RW] = 0b0;
+    SCR_EL3[SIF] = 0b0;
+    SCR_EL3[HCE] = 0b0;
+    SCR_EL3[SMD] = 0b0;
+    SCR_EL3[EA] = 0b0;
+    SCR_EL3[FIQ] = 0b0;
+    SCR_EL3[IRQ] = 0b0;
+    SCR_EL3[NS] = 0b0;
+    CPTR_EL2[TCPAC] = 0b0;
+    CPTR_EL2.bits[if HaveVirtHostExt() & HCR_EL2[E2H] == 0b1 then 28 else 20] = Bit(0b0);
+    HCR_EL2[TID4] = 0b0;
+    HCR_EL2[TOCU] = 0b0;
+    HCR_EL2[TICAB] = 0b0;
+    HCR_EL2[AT] = 0b0;
+    HCR_EL2[NV1] = 0b0;
+    HCR_EL2[NV] = 0b0;
+    HCR_EL2[API] = 0b0;
+    HCR_EL2[APK] = 0b0;
+    HCR_EL2[MIOCNCE] = 0b0;
+    HCR_EL2[TEA] = 0b0;
+    HCR_EL2[TERR] = 0b0;
+    HCR_EL2[ID] = 0b0;
+    HCR_EL2[CD] = 0b0;
+    HCR_EL2[RW] = 0b0;
+    HCR_EL2[TRVM] = 0b0;
+    HCR_EL2[HCD] = 0b0;
+    HCR_EL2[TDZ] = 0b0;
+    HCR_EL2[TGE] = 0b0;
+    HCR_EL2[TVM] = 0b0;
+    HCR_EL2[TTLB] = 0b0;
+    HCR_EL2[TPU] = 0b0;
+    HCR_EL2[TPCP] = 0b0;
+    HCR_EL2[TSW] = 0b0;
+    HCR_EL2[TACR] = 0b0;
+    HCR_EL2[TIDCP] = 0b0;
+    HCR_EL2[TSC] = 0b0;
+    HCR_EL2[TID3] = 0b0;
+    HCR_EL2[TID2] = 0b0;
+    HCR_EL2[TID1] = 0b0;
+    HCR_EL2[TID0] = 0b0;
+    HCR_EL2[TWE] = 0b0;
+    HCR_EL2[TWI] = 0b0;
+    HCR_EL2[DC] = 0b0;
+    HCR_EL2[BSU] = 0b00;
+    HCR_EL2[FB] = 0b0;
+    HCR_EL2[VSE] = 0b0;
+    HCR_EL2[VI] = 0b0;
+    HCR_EL2[VF] = 0b0;
+    HCR_EL2[AMO] = 0b0;
+    HCR_EL2[IMO] = 0b0;
+    HCR_EL2[FMO] = 0b0;
+    HCR_EL2[PTW] = 0b0;
+    HCR_EL2[SWIO] = 0b0;
+    HCR_EL2[VM] = 0b0;
+    HSTR_EL2.bits[15 .. 0] = Zeros();
+    SCTLR_EL2[EnIA] = 0b0;
+    SCTLR_EL2[EnIB] = 0b0;
+    SCTLR_EL2[EnDA] = 0b0;
+    SCTLR_EL2[EE] = 0b0;
+    SCTLR_EL2[EnDB] = 0b0;
+    SCTLR_EL2[EnIA] = 0b0;
+    SCTLR_EL2[EnIB] = 0b0;
+    SCTLR_EL2[EnDA] = 0b0;
+    SCTLR_EL2[EE] = 0b0;
+    SCTLR_EL2[EnDB] = 0b0;
+    CPACR_EL1[TTA] = 0b0;
+    CPACR_EL1[FPEN] = 0b00;
+    CPACR_EL1[ZEN] = 0b00;
+    SCTLR_EL1[EnIA] = 0b0;
+    SCTLR_EL1[EnIB] = 0b0;
+    SCTLR_EL1[EnDA] = 0b0;
+    SCTLR_EL1[EE] = 0b0;
+    SCTLR_EL1[EnDB] = 0b0;
+    SCTLR_EL3[EnIA] = 0b0;
+    SCTLR_EL3[EnIB] = 0b0;
+    SCTLR_EL3[EnDA] = 0b0;
+    SCTLR_EL3[EE] = 0b0;
+    SCTLR_EL3[EnDB] = 0b0;
+    PMSIDR_EL1[PBT] = 0b1;
+    PMSIDR_EL1[FnE] = 0b1;
+    PMSIDR_EL1[CountSize] = 0b0011;
+    PMSIDR_EL1[MaxSize] = 0b0110;
+    PMSIDR_EL1[ArchInst] = 0b1;
+    PMSIDR_EL1[FL] = 0b1;
+    PMSIDR_EL1[FT] = 0b1;
+    PMSIDR_EL1[FE] = 0b1;
     if EL2Enabled() then {
-        MDCR_EL2 = SetSlice(1, MDCR_EL2, 14, 0b0);
-        MDCR_EL2 = SetSlice(2, MDCR_EL2, 12, 0b10)
+        MDCR_EL2[TPMS] = 0b0;
+        MDCR_EL2[E2PB] = 0b10
     };
-    MDCR_EL2 = SetSlice(5, MDCR_EL2, 0, Slice(PMCR_EL0, 11, 5));
-    ICC_SRE_EL3 = SetSlice(1, ICC_SRE_EL3, 0, 0b1);
-    ICC_SRE_EL3 = SetSlice(1, ICC_SRE_EL3, 3, 0b1);
-    ICC_SRE_EL1_S = SetSlice(1, ICC_SRE_EL1_S, 0, 0b1);
-    ICC_SRE_EL1_NS = SetSlice(1, ICC_SRE_EL1_NS, 0, 0b1);
-    ICC_SRE_EL2 = SetSlice(1, ICC_SRE_EL2, 0, 0b1);
-    CTR_EL0 = SetSlice(4, CTR_EL0, 24, 0b0100);
-    CTR_EL0 = SetSlice(4, CTR_EL0, 20, __exclusive_granule_size);
-    CTR_EL0 = SetSlice(4, CTR_EL0, 16, 0b0100);
-    CTR_EL0 = SetSlice(2, CTR_EL0, 14, 0b10);
-    CTR_EL0 = SetSlice(4, CTR_EL0, 0, 0b0100);
+    MDCR_EL2[HPMN] = PMCR_EL0[N];
+    ICC_SRE_EL3[SRE] = 0b1;
+    ICC_SRE_EL3[Enable] = 0b1;
+    ICC_SRE_EL1_S[SRE] = 0b1;
+    ICC_SRE_EL1_NS[SRE] = 0b1;
+    ICC_SRE_EL2[SRE] = 0b1;
+    CTR_EL0[CWG] = 0b0100;
+    CTR_EL0[ERG] = __exclusive_granule_size;
+    CTR_EL0[DminLine] = 0b0100;
+    CTR_EL0[L1Ip] = 0b10;
+    CTR_EL0[IminLine] = 0b0100;
     if HaveMTE2Ext() then {
-        CTR_EL0 = SetSlice(6, CTR_EL0, 32, 0b000100)
+        CTR_EL0[TminLine] = 0b000100
     };
     if HaveMTE2Ext() then {
-        GMID_EL1 = SetSlice(4, GMID_EL1, 0, __gmid_log2_block_size[3 .. 0])
+        GMID_EL1[BS] = __gmid_log2_block_size[3 .. 0]
     };
-    ICH_VMCR_EL2 = SetSlice(3, ICH_VMCR_EL2, 21, 0b010);
-    ICH_VMCR_EL2 = SetSlice(3, ICH_VMCR_EL2, 18, 0b011);
-    ICC_CTLR_EL1_write() = SetSlice(1, ICC_CTLR_EL1_read(), 19, 0b1);
-    ICC_CTLR_EL1_write() = SetSlice(3, ICC_CTLR_EL1_read(), 8, 0b100);
-    ICC_CTLR_EL1_write() = SetSlice(1, ICC_CTLR_EL1_read(), 15, 0b1);
-    ICC_CTLR_EL1_write() = SetSlice(3, ICC_CTLR_EL1_read(), 11, 0b001);
-    ICV_CTLR_EL1 = SetSlice(1, ICV_CTLR_EL1, 19, 0b1);
-    ICV_CTLR_EL1 = SetSlice(3, ICV_CTLR_EL1, 8, 0b100);
-    ICV_CTLR_EL1 = SetSlice(3, ICV_CTLR_EL1, 11, 0b001);
-    ICV_CTLR_EL1 = SetSlice(1, ICV_CTLR_EL1, 15, 0b1);
-    ICH_VTR_EL2 = SetSlice(3, ICH_VTR_EL2, 29, 0b100);
-    ICH_VTR_EL2 = SetSlice(3, ICH_VTR_EL2, 26, 0b100);
-    ICH_VTR_EL2 = SetSlice(3, ICH_VTR_EL2, 23, 0b001);
-    ICH_VTR_EL2 = SetSlice(1, ICH_VTR_EL2, 21, 0b1);
-    CCSIDR_EL1 = SetSlice(24, CCSIDR_EL1, if HaveExtendedCacheSets() then 32 else 13, ZeroExtend(0xFF, 24));
-    CCSIDR_EL1 = SetSlice(21, CCSIDR_EL1, 3, ZeroExtend(0x1, 21));
-    CCSIDR_EL1 = SetSlice(3, CCSIDR_EL1, 0, 0b010);
-    CCSIDR2_EL1 = SetSlice(24, CCSIDR2_EL1, 0, ZeroExtend(0xFF, 24));
-    ID_PFR1_EL1 = SetSlice(4, ID_PFR1_EL1, 0, 0b0000);
-    ID_PFR1_EL1 = SetSlice(4, ID_PFR1_EL1, 4, 0b0000);
-    ID_PFR1_EL1 = SetSlice(4, ID_PFR1_EL1, 12, 0b0000);
-    (OSLSR_EL1[3 .. 3] @ OSLSR_EL1[0 .. 0]) = 0b10;
-    MDRAR_EL1 = SetSlice(2, MDRAR_EL1, 0, 0b11);
-    MDRAR_EL1 = SetSlice(40, MDRAR_EL1, 12, ZeroExtend(0x22000, 40));
-    EDDFR = SetSlice(4, EDDFR, 8, Slice(ID_AA64DFR0_EL1, 8, 4));
+    ICH_VMCR_EL2[VBPR0] = 0b010;
+    ICH_VMCR_EL2[VBPR1] = 0b011;
+    ICC_CTLR_EL1_write() = [ICC_CTLR_EL1_read() with ExtRange = 0b1];
+    ICC_CTLR_EL1_write() = [ICC_CTLR_EL1_read() with PRIbits = 0b100];
+    ICC_CTLR_EL1_write() = [ICC_CTLR_EL1_read() with A3V = 0b1];
+    ICC_CTLR_EL1_write() = [ICC_CTLR_EL1_read() with IDbits = 0b001];
+    ICV_CTLR_EL1[ExtRange] = 0b1;
+    ICV_CTLR_EL1[PRIbits] = 0b100;
+    ICV_CTLR_EL1[IDbits] = 0b001;
+    ICV_CTLR_EL1[A3V] = 0b1;
+    ICH_VTR_EL2[PRIbits] = 0b100;
+    ICH_VTR_EL2[PREbits] = 0b100;
+    ICH_VTR_EL2[IDbits] = 0b001;
+    ICH_VTR_EL2[A3V] = 0b1;
+    CCSIDR_EL1 = Mk_CCSIDR_EL1_Type(SetSlice(24, CCSIDR_EL1.bits, if HaveExtendedCacheSets() then
+      32
+    else
+      13, ZeroExtend(0xFF, 24)));
+    CCSIDR_EL1[Associativity] = ZeroExtend(0x1, 21);
+    CCSIDR_EL1[LineSize] = 0b010;
+    CCSIDR2_EL1[NumSets] = ZeroExtend(0xFF, 24);
+    ID_PFR1_EL1[ProgMod] = 0b0000;
+    ID_PFR1_EL1[Security] = 0b0000;
+    ID_PFR1_EL1[Virtualization] = 0b0000;
+    OSLSR_EL1[OSLM] = 0b10;
+    MDRAR_EL1[Valid] = 0b11;
+    MDRAR_EL1[ROMADDR] = ZeroExtend(0x22000, 40);
+    EDDFR[PMUVer] = ID_AA64DFR0_EL1[PMUVer];
     return()
 }
+
 
 function ResetControlRegisters cold = {
     if HaveAArch64() then {
@@ -1064,44 +1062,44 @@ function AArch64_ResetControlRegisters cold_reset = {
 function SetResetVector value_name = {
     if not_bool(HaveAArch64()) then {
         if HaveEL(EL3) then {
-            MVBAR = value_name[31 .. 1] @ 0b1
+            MVBAR.bits = value_name[31 .. 1] @ 0b1
         } else {
             RVBAR = value_name[31 .. 1] @ 0b1
         }
     } else if HighestEL() == EL3 then {
-        RVBAR_EL3 = value_name
+        RVBAR_EL3.bits = value_name
     } else if HighestEL() == EL2 then {
-        RVBAR_EL2 = value_name
+        RVBAR_EL2.bits = value_name
     } else {
-        RVBAR_EL1 = value_name
+        RVBAR_EL1.bits = value_name
     };
     return()
 }
 
-function TakeReset(cold) = {
+function TakeReset cold = {
     assert(HighestEL() == EL1 | HighestEL() == EL2 | HighestEL() == EL3);
-    EDSCR_write() = SetSlice(6, EDSCR_read(), 0, 0b000010); // Non-debug state
+    EDSCR_write() = [EDSCR_read() with STATUS = 0b000010];
     if cold then {
-        ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 12, CFG_ID_AA64PFR0_EL1_EL3);
-        ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 8, CFG_ID_AA64PFR0_EL1_EL2);
-        ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 4, CFG_ID_AA64PFR0_EL1_EL1);
-        ID_AA64PFR0_EL1 = SetSlice(4, ID_AA64PFR0_EL1, 0, CFG_ID_AA64PFR0_EL1_EL0);
-        RMR_EL3 = SetSlice(1, RMR_EL3, 0, CFG_RMR_AA64)
+        ID_AA64PFR0_EL1[EL3] = CFG_ID_AA64PFR0_EL1_EL3;
+        ID_AA64PFR0_EL1[EL2] = CFG_ID_AA64PFR0_EL1_EL2;
+        ID_AA64PFR0_EL1[EL1] = CFG_ID_AA64PFR0_EL1_EL1;
+        ID_AA64PFR0_EL1[EL0] = CFG_ID_AA64PFR0_EL1_EL0;
+        RMR_EL3[AA64] = CFG_RMR_AA64
     };
-    if Slice(RMR_EL3, 0, 1) == 0b1 then {
+    if RMR_EL3[AA64] == 0b1 then {
         __highest_el_aarch32 = false;
         SetResetVector(CFG_RVBAR);
         AArch64_TakeReset(cold)
     } else {
         match HighestEL() {
           ? if ? == EL3 => {
-              assert(Slice(ID_AA64PFR0_EL1, 12, 4) == 0b0010)
+              assert(ID_AA64PFR0_EL1[EL3] == 0b0010)
           },
           ? if ? == EL2 => {
-              assert(Slice(ID_AA64PFR0_EL1, 8, 4) == 0b0010)
+              assert(ID_AA64PFR0_EL1[EL2] == 0b0010)
           },
           ? if ? == EL1 => {
-              assert(Slice(ID_AA64PFR0_EL1, 4, 4) == 0b0010)
+              assert(ID_AA64PFR0_EL1[EL1] == 0b0010)
           },
           _ => ()
         };
@@ -1112,7 +1110,7 @@ function TakeReset(cold) = {
             SetResetVector(CFG_RVBAR)
         };
         if HaveEL(EL3) then {
-            SCR = SetSlice(1, SCR, 0, 0b0)
+            SCR[NS] = 0b0
         };
         AArch32_TakeReset(cold)
     }

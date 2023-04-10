@@ -39,13 +39,11 @@
 /******************************************************************************/
 
 function __EndCycle () = {
-    __cycle_count = __cycle_count + 1
+    {
+        __cycle_count = __cycle_count + 1
+    }
 }
 
-function __ListConfig () = {
-    ()
-}
+function __ListConfig () = ()
 
-function __WakeupRequest () = {
-    ()
-}
+function __WakeupRequest () = ()

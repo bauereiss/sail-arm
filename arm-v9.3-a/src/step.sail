@@ -71,7 +71,7 @@ function Step_CPU() = {
     };
   } catch {
     Error_ExceptionTaken() => {
-      print("Exception taken during IFetch from PC=" ++ bits_str(oldPC) ++ " ESR=" ++ bits_str(ESR_read__1()) ++ " FAR=" ++ bits_str(FAR_read__1()) ++ " cycle=" ++ DecStr(get_cycle_count()) ++ "\n");
+      print("Exception taken during IFetch from PC=" ++ bits_str(oldPC) ++ " ESR=" ++ bits_str(ESR_read__1().bits) ++ " FAR=" ++ bits_str(FAR_read__1()) ++ " cycle=" ++ DecStr(get_cycle_count()) ++ "\n");
     },
     _ => {
       print("Exiting due to unhandled exception in IFetch\n");
@@ -87,7 +87,7 @@ function Step_CPU() = {
 
   if fetch_ok then {
     // test for ERET instruction from EL3_Secure - only supported in v8.4
-    if (opcode == 0xd69f_03e0) & (PSTATE.EL == EL3) & (SCR_EL3[0] == bitzero) then {
+    if (opcode == 0xd69f_03e0) & (PSTATE.EL == EL3) & (SCR_EL3[NS] == 0b0) then {
       print(concat_str("UNIMPLEMENTED: EL2_Secure support (v8.4 feature) ",
             concat_str(HexStr(UInt(opcode)),
             "\n")));
@@ -113,7 +113,7 @@ function Step_CPU() = {
       },
       Error_ReservedEncoding(_) => try { UndefinedFault() } catch { _ => prerr_endline("Exception during ReservedEncoding recovery") },
       Error_ExceptionTaken() => {
-        prerr_endline("Exception taken during Decode/Execute from PC=" ++ bits_str(oldPC) ++ " ESR=" ++ bits_str(ESR_read__1()) ++ " FAR=" ++ bits_str(FAR_read__1()) ++ " cycle=" ++ DecStr(get_cycle_count()));
+        prerr_endline("Exception taken during Decode/Execute from PC=" ++ bits_str(oldPC) ++ " ESR=" ++ bits_str(ESR_read__1().bits) ++ " FAR=" ++ bits_str(FAR_read__1()) ++ " cycle=" ++ DecStr(get_cycle_count()));
         // print("  This might just be a HINT like 0xd50320df\n");
       },
       Error_ImplementationDefined(s) => {
@@ -131,7 +131,7 @@ val Init_Timers : unit -> unit effect {rreg, wreg}
 
 function Init_Timers() = {
   // Enable counters
-  CNTCR[0] = bitone
+  CNTCR[EN] = 0b1
 }
 
 // Advance Timers by one cycle
@@ -195,10 +195,10 @@ function Step_System() = {
                   "\n")))));
   };
   if prevCNTKCTL_EL1 != CNTKCTL_EL1 then {
-    prerr_bits("[Clock] CNTKCTL_EL1 changed to ", CNTKCTL_EL1);
+    prerr_bits("[Clock] CNTKCTL_EL1 changed to ", CNTKCTL_EL1.bits);
   };
   if prevCNTHCTL_EL2 != CNTHCTL_EL2 then {
-    prerr_bits("[Clock] CNTHCTL_EL2 changed to ", CNTHCTL_EL2);
+    prerr_bits("[Clock] CNTHCTL_EL2 changed to ", CNTHCTL_EL2.bits);
   }
 }
 

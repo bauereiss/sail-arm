@@ -44,7 +44,7 @@ val __IMPDEF_boolean_map : string -> bool
 
 val __IMPDEF_integer_map : string -> int
 
-val __IMPDEF_bits_map : forall 'N. (int('N), string) -> bits('N)
+val __IMPDEF_bits_map : forall 'N, 'N >= 0. (int('N), string) -> bits('N)
 
 val __EndCycle : unit -> unit
 
@@ -70,7 +70,7 @@ function __IMPDEF_integer x = {
     return(__IMPDEF_integer_map(x))
 }
 
-val __IMPDEF_bits : forall 'N. (int('N), string) -> bits('N)
+val __IMPDEF_bits : forall 'N, 'N >= 0. (int('N), string) -> bits('N)
 
 function __IMPDEF_bits (N, x) = {
     return(__IMPDEF_bits_map(N, x))

@@ -51,7 +51,6 @@ and __IMPDEF_bits_map ((N, x) if x == "Asynchronous Error") = {
     return(0b11[N - 1 .. 0])
 }
 and __IMPDEF_bits_map ((N, x) if x == "Virtual Asynchronous Abort ExT bit") = {
-    assert(constraint('N >= 0));
     return(Zeros())
 }
 and __IMPDEF_bits_map ((N, x) if x == "FPEXC.EN value when TGE==1 and RW==0") = {
@@ -79,7 +78,6 @@ and __IMPDEF_bits_map ((N, x) if x == "Non-Faulting PAR") = {
     return(0b0[N - 1 .. 0])
 }
 and __IMPDEF_bits_map ((N, x) if x == "Faulting PAR") = {
-    assert(constraint('N >= 0));
     return(Zeros(N))
 }
 and __IMPDEF_bits_map ((N, x) if x == "MPAM version") = {
@@ -103,15 +101,12 @@ and __IMPDEF_bits_map ((N, x) if x == "MPAM maximum VPMR") = {
     return(UInt(__mpam_vpmr_max)[N - 1 .. 0])
 }
 and __IMPDEF_bits_map ((N, x) if x == "SPE mask 63:48") = {
-    assert(constraint('N >= 0));
     return(Zeros())
 }
 and __IMPDEF_bits_map ((N, x) if x == "SPE mask 31:24") = {
-    assert(constraint('N >= 0));
     return(Zeros())
 }
 and __IMPDEF_bits_map ((N, x) if x == "SPE mask 15:12") = {
-    assert(constraint('N >= 0));
     return(Zeros())
 }
 and __IMPDEF_bits_map ((N, x) if x == "reset vector address") = {

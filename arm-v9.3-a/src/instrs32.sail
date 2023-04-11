@@ -28778,7 +28778,7 @@ function execute_aarch32_instrs_VMOVL_Op_A_txt (d__arg, elements, esize, m, is_u
     result : int = undefined;
     CheckAdvSIMDEnabled();
     foreach (e from 0 to (elements - 1) by 1 in inc) {
-        assert(constraint((0 <= 'loop_e * 'esize & 'loop_e * 'esize <= 'loop_e * 'esize + 'esize - 1 | not(('loop_e >= 0 & ('loop_e + 1) * 'esize <= 64)))));
+        assert(constraint(('loop_e * 'esize <= 'loop_e * 'esize + 'esize - 1 | not(('loop_e >= 0 & ('loop_e + 1) * 'esize <= 64)))));
         result = asl_Int(Elem_read(Din_read(m), e, esize), is_unsigned);
         Q_set((d >> 1)) = Elem_set(Q_read((d >> 1)), e, 2 * esize, result[2 * esize - 1 .. 0])
     }
